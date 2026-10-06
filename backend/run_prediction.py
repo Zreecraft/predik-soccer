@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import time
 from team_analytics import get_team_power_index, get_home_away_bias
+from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
 
 SUPPORTED_LEAGUES = {
     "1": ("English Premier League", "EPL"),
@@ -10,9 +11,10 @@ SUPPORTED_LEAGUES = {
     "4": ("Bundesliga (Jerman)", "Bundesliga")
 }
 
-def simulate_10k_matches_minute_by_minute(home_xg, away_xg, iterations=10000):
-    np.random.seed(42) 
-    print(f"\n🎮 Memulai Simulation Engine ({iterations:,} Uji Coba Pertandingan Menit 1-90)...")
+def simulate_10k_matches_minute_by_minute(home_xg, away_xg, iterations=10000, verbose=True):
+    np.random.seed(42)
+    if verbose:
+        print(f"\n🎮 Memulai Simulation Engine ({iterations:,} Uji Coba Pertandingan Menit 1-90)...")
     start_time = time.time()
 
     home_prob_per_min = home_xg / 90.0
@@ -29,12 +31,13 @@ def simulate_10k_matches_minute_by_minute(home_xg, away_xg, iterations=10000):
 
     home_ht_goals = np.sum(home_goals_per_min[:, :45], axis=1)
     away_ht_goals = np.sum(away_goals_per_min[:, :45], axis=1)
-    
+
     ht_over_0_5 = np.sum((home_ht_goals + away_ht_goals) > 0)
     prob_ht_goal = round((ht_over_0_5 / iterations) * 100, 1)
 
-    exec_time = round(time.time() - start_time, 2)
-    print(f"⚡ Selesai! {iterations:,} Pertandingan disimulasikan dalam {exec_time} detik.")
+    if verbose:
+        exec_time = round(time.time() - start_time, 2)
+        print(f"⚡ Selesai! {iterations:,} Pertandingan disimulasikan dalam {exec_time} detik.")
 
     return home_sim_goals, away_sim_goals, prob_ht_goal
 
@@ -74,8 +77,8 @@ def calculate_smart_projected_score(home_sim_goals, away_sim_goals, prob_home, p
 
 def execute_prediction():
     try:
-        fixtures_df = pd.read_csv("upcoming_fixtures.csv")
-        matches_df = pd.read_csv("historical_matches.csv")
+        fixtures_df = pd.read_csv(UPCOMING_FIXTURES)
+        matches_df = pd.read_csv(HISTORICAL_MATCHES)
     except FileNotFoundError:
         print("❌ Error: File 'upcoming_fixtures.csv' / 'historical_matches.csv' belum ada!")
         return False

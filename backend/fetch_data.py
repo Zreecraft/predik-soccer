@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 import pandas as pd
 from understat import Understat
+from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA
 
 # List Liga yang didukung oleh Understat
 LEAGUES = ["EPL", "La_liga", "Serie_A", "Bundesliga"]
@@ -56,13 +57,13 @@ async def fetch_all_leagues_data(seasons=[2026]):
 
         # Simpan ke CSV
         df_matches = pd.DataFrame(all_matches)
-        df_matches.to_csv("historical_matches.csv", index=False)
-        
+        df_matches.to_csv(HISTORICAL_MATCHES, index=False)
+
         df_shots = pd.DataFrame(all_shots)
         if not df_shots.empty:
             cols = ['id', 'league', 'team_name', 'opponent', 'is_home', 'minute', 'player', 'X', 'Y', 'xG', 'shotType', 'situation', 'result']
             df_shots = df_shots[[c for c in cols if c in df_shots.columns]]
-            df_shots.to_csv("real_shots_data.csv", index=False)
+            df_shots.to_csv(REAL_SHOTS_DATA, index=False)
         
         print(f"\n✅ BERHASIL! Total {len(df_matches)} Matches & {len(df_shots)} Shots tersimpan.")
 

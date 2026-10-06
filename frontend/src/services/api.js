@@ -1,0 +1,29 @@
+import axios from 'axios'
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE || '/api',
+  timeout: 120000,
+  headers: {
+    Accept: 'application/json',
+  },
+})
+
+export function extractError(err) {
+  const msg = err?.response?.data?.detail || err?.message || 'Terjadi kesalahan'
+  return String(msg)
+}
+
+export const fetchLeagues = () => api.get('/leagues').then((r) => r.data)
+export const fetchFixtures = (league, limit = 40) =>
+  api.get(`/fixtures/${league}`, { params: { limit } }).then((r) => r.data)
+export const fetchTicker = (limit = 16) =>
+  api.get('/ticker', { params: { limit } }).then((r) => r.data)
+export const fetchTeams = (league) => api.get('/teams', { params: { league } }).then((r) => r.data)
+export const fetchPredict = (home, away) =>
+  api.get('/predict', { params: { home_team: home, away_team: away } }).then((r) => r.data)
+export const fetchShots = (home, away) =>
+  api.get('/shots', { params: { home_team: home, away_team: away } }).then((r) => r.data)
+export const fetchStandings = (league, nSeasons = 350) =>
+  api.get(`/standings/${league}`, { params: { n_seasons: nSeasons } }).then((r) => r.data)
+export const fetchUcl = () => api.get('/ucl/simulate').then((r) => r.data)
+export const fetchAnalytics = (team) => api.get(`/analytics/${encodeURIComponent(team)}`).then((r) => r.data)

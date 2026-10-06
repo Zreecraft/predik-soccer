@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from team_analytics import get_team_power_index, get_home_away_bias
+from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
 
 SUPPORTED_LEAGUES = {
     "1": ("English Premier League", "EPL"),
@@ -38,8 +39,8 @@ def calculate_score(h_sim, a_sim, h_xg, a_xg):
 
 def run_standings_simulation():
     try:
-        fixtures_df = pd.read_csv("upcoming_fixtures.csv")
-        historical_df = pd.read_csv("historical_matches.csv")
+        fixtures_df = pd.read_csv(UPCOMING_FIXTURES)
+        historical_df = pd.read_csv(HISTORICAL_MATCHES)
     except FileNotFoundError:
         print("❌ Error: File 'upcoming_fixtures.csv' / 'historical_matches.csv' belum ada!")
         return False

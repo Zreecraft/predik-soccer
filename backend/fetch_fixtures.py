@@ -2,6 +2,7 @@ import asyncio
 import aiohttp
 import pandas as pd
 from understat import Understat
+from data_paths import UPCOMING_FIXTURES
 
 LEAGUES = ["EPL", "La_liga", "Serie_A", "Bundesliga"]
 
@@ -27,7 +28,7 @@ async def fetch_all_upcoming_fixtures(season=2026):
                 print(f"❌ Error jadwal {league}: {e}")
         
         df = pd.DataFrame(all_upcoming)
-        df.to_csv("upcoming_fixtures.csv", index=False)
+        df.to_csv(UPCOMING_FIXTURES, index=False)
         print(f"✅ Total {len(df)} jadwal mendatang dari 4 liga disimpan ke 'upcoming_fixtures.csv'")
 
 if __name__ == "__main__":

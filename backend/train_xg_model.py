@@ -3,11 +3,12 @@ import numpy as np
 import joblib
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
+from data_paths import REAL_SHOTS_DATA, XG_MODEL
 
 def train_xgboost_model():
     print("🔄 Memuat data tembakan untuk pelatihan Machine Learning...")
     try:
-        df = pd.read_csv("real_shots_data.csv")
+        df = pd.read_csv(REAL_SHOTS_DATA)
     except FileNotFoundError:
         print("❌ Error: File 'real_shots_data.csv' belum ada. Jalankan 'python fetch_data.py' dulu!")
         return
@@ -33,7 +34,7 @@ def train_xgboost_model():
     model.fit(X_train, y_train)
 
     # Simpan Model Latihan
-    joblib.dump(model, "xg_model.pkl")
+    joblib.dump(model, XG_MODEL)
     print("✅ Model ML berhasil dilatih & disimpan sebagai 'xg_model.pkl'!")
 
 if __name__ == "__main__":

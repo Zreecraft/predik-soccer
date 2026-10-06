@@ -1,6 +1,7 @@
 import requests
 import json
 import time
+from data_paths import TEAM_LOGOS
 
 ALL_LEAGUE_CLUBS = {
     "EPL": [
@@ -93,7 +94,7 @@ def fetch_single_logo(team_name):
     return None
 
 def fetch_and_save_all_logos():
-    output_filename = "team_logos.json"
+    output_filename = str(TEAM_LOGOS)
     
     # Muat data lama jika sudah ada agar tidak perlu download ulang yang sudah OK
     logos_database = {}
