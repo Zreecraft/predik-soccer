@@ -1,0 +1,314 @@
+{
+    "Arsenal": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/uyhbfe1612467038.png"
+    },
+    "Aston Villa": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/uwzw561787679026.png"
+    },
+    "Bournemouth": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/y08nak1534071116.png"
+    },
+    "Brentford": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/grv1aw1546453779.png"
+    },
+    "Brighton": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/zn0x7h1605371909.png"
+    },
+    "Chelsea": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/pbf4ul1782638263.png"
+    },
+    "Coventry": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/uxyqys1424033798.png"
+    },
+    "Crystal Palace": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ia6i3m1656014992.png"
+    },
+    "Everton": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/eqayrf1523184794.png"
+    },
+    "Fulham": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xwwvyt1448811086.png"
+    },
+    "Hull": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/fbqqda1601726113.png"
+    },
+    "Ipswich": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/8wvpj61701761979.png"
+    },
+    "Leeds": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/wwypqp1425326584.png"
+    },
+    "Liverpool": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/kfaher1737969724.png"
+    },
+    "Manchester City": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/vwpvry1467462651.png"
+    },
+    "Manchester United": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xzqdr11517660252.png"
+    },
+    "Newcastle United": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/5jevk91653487832.png"
+    },
+    "Nottingham Forest": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/1i2kvh1719918076.png"
+    },
+    "Sunderland": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"
+    },
+    "Tottenham": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/3dhd0j1605371995.png"
+    },
+    "Athletic Club": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/myl7c31677056352.png"
+    },
+    "Atletico Madrid": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/0ulh3q1719984315.png"
+    },
+    "Osasuna": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/rvspvt1473502960.png"
+    },
+    "Celta Vigo": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xfjtku1690436219.png"
+    },
+    "Alaves": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/0aaifo1734673843.png"
+    },
+    "Deportivo La Coruna": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/js3j841783013173.png"
+    },
+    "Elche": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/e4vaw51655594332.png"
+    },
+    "Barcelona": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/wq9sir1639406443.png"
+    },
+    "Getafe": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/eyh2891655594452.png"
+    },
+    "Levante": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xwtxsx1473503739.png"
+    },
+    "Malaga": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/upqyvr1473502952.png"
+    },
+    "Racing Santander": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/97kkiq1536575158.png"
+    },
+    "Rayo Vallecano": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/nzhu941655595465.png"
+    },
+    "Real Betis": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/2oqulv1663245386.png"
+    },
+    "Real Madrid": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/vwvwrw1473502969.png"
+    },
+    "Real Sociedad": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/vptvpr1473502986.png"
+    },
+    "Espanyol": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/867nzz1681703222.png"
+    },
+    "Sevilla": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/vpsqqx1473502977.png"
+    },
+    "Valencia": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/dm8l6o1655594864.png"
+    },
+    "Villarreal": {
+        "league": "La_liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/vrypqy1473503073.png"
+    },
+    "AC Milan": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/wvspur1448806617.png"
+    },
+    "Fiorentina": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/hc8nhu1656098030.png"
+    },
+    "Roma": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/jwro2s1760820674.png"
+    },
+    "Atalanta": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/qix5ku1780561327.png"
+    },
+    "Bologna": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/2qi1u31655592366.png"
+    },
+    "Cagliari": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/wvsvxt1447534471.png"
+    },
+    "Como": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/02x81t1627405841.png"
+    },
+    "Frosinone": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/a7xa151603170120.png"
+    },
+    "Genoa": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/52s8dn1655553600.png"
+    },
+    "Inter": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ryhu6d1617113103.png"
+    },
+    "Juventus": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/uxf0gr1742983727.png"
+    },
+    "Parma": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/6yiaxs1627406063.png"
+    },
+    "Pisa": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/2eso9w1579708309.png"
+    },
+    "Lazio": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/rwqyvs1448806608.png"
+    },
+    "Napoli": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/l8qyxv1742982541.png"
+    },
+    "Torino": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xxprty1448806802.png"
+    },
+    "Udinese": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/vwvstr1448806811.png"
+    },
+    "Cremonese": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/6ng2vy1579708291.png"
+    },
+    "Lecce": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/j4vznr1567365249.png"
+    },
+    "Sassuolo": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xystvp1448806138.png"
+    },
+    "FC Koln": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/2j1sc91566049407.png"
+    },
+    "Mainz 05": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/fhm9v51552134916.png"
+    },
+    "Bayer Leverkusen": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/3x9k851726760113.png"
+    },
+    "Borussia Dortmund": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/tqo8ge1716960353.png"
+    },
+    "Borussia M'gladbach": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/rn6vsx1580141896.png"
+    },
+    "Eintracht Frankfurt": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/rurwpy1473453269.png"
+    },
+    "Augsburg": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xqyyvq1473453233.png"
+    },
+    "Bayern Munich": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/01ogkh1716960412.png"
+    },
+    "Schalke 04": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/hnci291621593978.png"
+    },
+    "Hamburger SV": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ctbdo11778868225.png"
+    },
+    "RB Leipzig": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/zjgapo1594244951.png"
+    },
+    "Freiburg": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/urwtup1473453288.png"
+    },
+    "Paderborn": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/kddvva1566048058.png"
+    },
+    "Elversberg": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/z079go1677573926.png"
+    },
+    "Hoffenheim": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/9hwvb21621593919.png"
+    },
+    "Union Berlin": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/q0o5001599679795.png"
+    },
+    "Stuttgart": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/yppyux1473454085.png"
+    },
+    "Werder Bremen": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/tkvqan1716960454.png"
+    }
+}

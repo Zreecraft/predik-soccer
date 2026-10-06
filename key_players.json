@@ -1,0 +1,112 @@
+{
+    "Manchester City": {
+        "player_name": "Erling Haaland",
+        "position": "ST",
+        "image": "/assets/players/haaland.png"
+    },
+    "Liverpool": {
+        "player_name": "Mohamed Salah",
+        "position": "RW",
+        "image": "/assets/players/salah.png"
+    },
+    "Arsenal": {
+        "player_name": "Bukayo Saka",
+        "position": "RW",
+        "image": "/assets/players/saka.png"
+    },
+    "Chelsea": {
+        "player_name": "Cole Palmer",
+        "position": "CAM",
+        "image": "/assets/players/palmer.png"
+    },
+    "Tottenham": {
+        "player_name": "Son Heung-min",
+        "position": "LW",
+        "image": "/assets/players/son.png"
+    },
+    "Manchester United": {
+        "player_name": "Bruno Fernandes",
+        "position": "CAM",
+        "image": "/assets/players/fernandes.png"
+    },
+    "Real Madrid": {
+        "player_name": "Kylian Mbappé",
+        "position": "ST",
+        "image": "/assets/players/mbappe.png"
+    },
+    "Barcelona": {
+        "player_name": "Lamine Yamal",
+        "position": "RW",
+        "image": "/assets/players/yamal.png"
+    },
+    "Atletico Madrid": {
+        "player_name": "Antoine Griezmann",
+        "position": "CF",
+        "image": "/assets/players/griezmann.png"
+    },
+    "Athletic Club": {
+        "player_name": "Nico Williams",
+        "position": "LW",
+        "image": "/assets/players/nico_williams.png"
+    },
+    "Real Betis": {
+        "player_name": "Isco",
+        "position": "CAM",
+        "image": "/assets/players/isco.png"
+    },
+    "Inter": {
+        "player_name": "Lautaro Martínez",
+        "position": "ST",
+        "image": "/assets/players/lautaro.png"
+    },
+    "AC Milan": {
+        "player_name": "Rafael Leão",
+        "position": "LW",
+        "image": "/assets/players/leao.png"
+    },
+    "Juventus": {
+        "player_name": "Dušan Vlahović",
+        "position": "ST",
+        "image": "/assets/players/vlahovic.png"
+    },
+    "Atalanta": {
+        "player_name": "Ademola Lookman",
+        "position": "LW",
+        "image": "/assets/players/lookman.png"
+    },
+    "Roma": {
+        "player_name": "Paulo Dybala",
+        "position": "CAM",
+        "image": "/assets/players/dybala.png"
+    },
+    "Napoli": {
+        "player_name": "Khvicha Kvaratskhelia",
+        "position": "LW",
+        "image": "/assets/players/kvaratskhelia.png"
+    },
+    "Bayern Munich": {
+        "player_name": "Harry Kane",
+        "position": "ST",
+        "image": "/assets/players/kane.png"
+    },
+    "Bayer Leverkusen": {
+        "player_name": "Florian Wirtz",
+        "position": "CAM",
+        "image": "/assets/players/wirtz.png"
+    },
+    "Borussia Dortmund": {
+        "player_name": "Julian Brandt",
+        "position": "CAM",
+        "image": "/assets/players/brandt.png"
+    },
+    "RB Leipzig": {
+        "player_name": "Xavi Simons",
+        "position": "CAM",
+        "image": "/assets/players/xavi_simons.png"
+    },
+    "PSG": {
+        "player_name": "Ousmane Dembélé",
+        "position": "RW",
+        "image": "/assets/players/dembele.png"
+    }
+}

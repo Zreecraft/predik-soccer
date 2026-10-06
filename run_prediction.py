@@ -1,95 +1,213 @@
 import pandas as pd
 import numpy as np
+import time
+from team_analytics import get_team_power_index, get_home_away_bias
 
-def predict_from_fixtures():
-    # 1. Load data jadwal mendatang
+SUPPORTED_LEAGUES = {
+    "1": ("English Premier League", "EPL"),
+    "2": ("La Liga (Spanyol)", "La_liga"),
+    "3": ("Serie A (Italia)", "Serie_A"),
+    "4": ("Bundesliga (Jerman)", "Bundesliga")
+}
+
+def simulate_10k_matches_minute_by_minute(home_xg, away_xg, iterations=10000):
+    np.random.seed(42) 
+    print(f"\n🎮 Memulai Simulation Engine ({iterations:,} Uji Coba Pertandingan Menit 1-90)...")
+    start_time = time.time()
+
+    home_prob_per_min = home_xg / 90.0
+    away_prob_per_min = away_xg / 90.0
+
+    home_randoms = np.random.rand(iterations, 90)
+    away_randoms = np.random.rand(iterations, 90)
+
+    home_goals_per_min = (home_randoms < home_prob_per_min).astype(int)
+    away_goals_per_min = (away_randoms < away_prob_per_min).astype(int)
+
+    home_sim_goals = np.sum(home_goals_per_min, axis=1)
+    away_sim_goals = np.sum(away_goals_per_min, axis=1)
+
+    home_ht_goals = np.sum(home_goals_per_min[:, :45], axis=1)
+    away_ht_goals = np.sum(away_goals_per_min[:, :45], axis=1)
+    
+    ht_over_0_5 = np.sum((home_ht_goals + away_ht_goals) > 0)
+    prob_ht_goal = round((ht_over_0_5 / iterations) * 100, 1)
+
+    exec_time = round(time.time() - start_time, 2)
+    print(f"⚡ Selesai! {iterations:,} Pertandingan disimulasikan dalam {exec_time} detik.")
+
+    return home_sim_goals, away_sim_goals, prob_ht_goal
+
+def calculate_smart_projected_score(home_sim_goals, away_sim_goals, prob_home, prob_away, home_xg, away_xg):
+    base_home = int(np.round(np.mean(home_sim_goals)))
+    base_away = int(np.round(np.mean(away_sim_goals)))
+    
+    margin_prob = abs(prob_home - prob_away)
+    xg_diff = abs(home_xg - away_xg)
+
+    if margin_prob >= 35.0 or xg_diff >= 1.0:
+        if prob_home > prob_away:
+            base_home = max(int(np.ceil(home_xg)), base_away + 2)
+            if away_xg < 1.0:
+                base_away = 0
+        else:
+            base_away = max(int(np.ceil(away_xg)), base_home + 2)
+            if home_xg < 1.0:
+                base_home = 0
+                
+    elif margin_prob >= 10.0:
+        if prob_home > prob_away and base_home <= base_away:
+            base_home = base_away + 1
+        elif prob_away > prob_home and base_away <= base_home:
+            base_away = base_home + 1
+            
+    else:
+        if abs(base_home - base_away) > 1:
+            avg_g = int(np.round((base_home + base_away) / 2))
+            base_home, base_away = avg_g, avg_g
+
+    scores = list(zip(home_sim_goals, away_sim_goals))
+    target_count = scores.count((base_home, base_away))
+    confidence_pct = round((target_count / len(home_sim_goals)) * 100, 1)
+
+    return base_home, base_away, confidence_pct
+
+def execute_prediction():
     try:
         fixtures_df = pd.read_csv("upcoming_fixtures.csv")
+        matches_df = pd.read_csv("historical_matches.csv")
     except FileNotFoundError:
-        print("❌ Error: File 'upcoming_fixtures.csv' belum ada. Jalankan 'python fetch_fixtures.py' dulu!")
-        return
+        print("❌ Error: File 'upcoming_fixtures.csv' / 'historical_matches.csv' belum ada!")
+        return False
 
-    # 2. Load data tembakan historis
-    try:
-        shots_df = pd.read_csv("real_shots_data.csv")
-        shots_df['xG'] = shots_df['xG'].astype(float)
-    except FileNotFoundError:
-        print("❌ Error: File 'real_shots_data.csv' belum ada. Jalankan 'python fetch_data.py' dulu!")
-        return
+    # LANGKAH 1: PILIH LIGA
+    print("\n" + "="*65)
+    print("                 🌍 PILIH LIGA SEPAK BOLA                 ")
+    print("="*65)
+    for key, (name, _) in SUPPORTED_LEAGUES.items():
+        print(f" [{key}] {name}")
+    print("="*65)
 
-    print("\n🔍 CARI JADWAL PERTANDINGAN MENDATANG")
-    search_input = input("Masukkan nama klub (contoh: Arsenal / Chelsea / Liverpool): ").strip()
+    league_choice = input("Pilih nomor liga (1-4) atau 'q' untuk keluar: ").strip()
+    if league_choice.lower() == 'q':
+        return False
 
-    # Filter jadwal berdasarkan input user
-    matched_fixtures = fixtures_df[
-        fixtures_df['home_team'].str.contains(search_input, case=False, na=False) |
-        fixtures_df['away_team'].str.contains(search_input, case=False, na=False)
-    ]
+    if league_choice not in SUPPORTED_LEAGUES:
+        print("⚠️ Pilihan liga tidak valid!")
+        return True
 
-    # VALIDASI: Jika pertandingan tidak ditemukan di jadwal mendatang
-    if matched_fixtures.empty:
-        print(f"\n⚠️ Pertandingan untuk '{search_input}' TIDAK ADA / Tidak Ditemukan dalam jadwal mendatang!")
-        return
+    league_name, league_code = SUPPORTED_LEAGUES[league_choice]
 
-    # Ambil pertandingan pertama yang cocok dari hasil pencarian
-    selected_match = matched_fixtures.iloc[0]
+    # Filter Jadwal Berdasarkan Liga
+    league_fixtures = fixtures_df[fixtures_df['league'] == league_code].reset_index(drop=True)
+    if league_fixtures.empty:
+        print(f"⚠️ Tidak ada data jadwal untuk {league_name}.")
+        return True
+
+    # Ambil Daftar Klub Unik dari Liga Tersebut
+    teams = sorted(list(set(league_fixtures['home_team'].unique()).union(set(league_fixtures['away_team'].unique()))))
+
+    # LANGKAH 2: PILIH KLUB
+    print("\n" + "="*65)
+    print(f"            🏆 PILIH TIM ({league_name.upper()})            ")
+    print("="*65)
+    for i in range(0, len(teams), 2):
+        t1 = f"[{i+1}] {teams[i]}"
+        t2 = f"[{i+2}] {teams[i+1]}" if i+1 < len(teams) else ""
+        print(f" {t1:<30} {t2:<30}")
+    print("="*65)
+
+    team_choice = input(f"Pilih nomor tim (1-{len(teams)}): ").strip()
+    if not team_choice.isdigit() or not (1 <= int(team_choice) <= len(teams)):
+        print("⚠️ Pilihan tim tidak valid!")
+        return True
+
+    selected_team = teams[int(team_choice) - 1]
+
+    # LANGKAH 3: PILIH PERTANDINGAN
+    matched_fixtures = league_fixtures[
+        (league_fixtures['home_team'] == selected_team) |
+        (league_fixtures['away_team'] == selected_team)
+    ].reset_index(drop=True)
+
+    print(f"\n📋 Daftar Pertandingan Mendatang untuk '{selected_team.upper()}':")
+    print("-" * 65)
+    for idx, row in matched_fixtures.iterrows():
+        print(f" [{idx + 1}] {row['home_team']:<18} vs  {row['away_team']:<18} ({row['date']})")
+    print("-" * 65)
+
+    match_choice = input(f"\nPilih nomor pertandingan (1-{len(matched_fixtures)}): ").strip()
+    if not match_choice.isdigit() or not (1 <= int(match_choice) <= len(matched_fixtures)):
+        print("⚠️ Pilihan pertandingan tidak valid!")
+        return True
+
+    selected_match = matched_fixtures.iloc[int(match_choice) - 1]
+
     home_team = selected_match['home_team']
     away_team = selected_match['away_team']
     match_date = selected_match['date']
 
-    print(f"\n✅ Pertandingan Ditemukan: {home_team} vs {away_team} ({match_date})")
-    print("🔄 Menghitung proyeksi analitik...")
+    # Analisis Performa
+    home_stats = get_team_power_index(home_team, matches_df, last_n=20)
+    away_stats = get_team_power_index(away_team, matches_df, last_n=20)
 
-    # 3. Hitung statistik xG dari histori tembakan murni
-    home_shots = shots_df[shots_df['team_name'].str.contains(home_team, case=False, na=False)]
-    away_shots = shots_df[shots_df['team_name'].str.contains(away_team, case=False, na=False)]
+    home_bias = get_home_away_bias(home_team, is_home=True, matches_df=matches_df)
+    away_bias = get_home_away_bias(away_team, is_home=False, matches_df=matches_df)
 
-    if len(home_shots) > 0 and home_shots['id'].nunique() > 0:
-        home_base_xg = home_shots['xG'].sum() / home_shots['id'].nunique()
-    else:
-        home_base_xg = 1.85
+    home_xg = home_stats['avg_xg'] * home_bias
+    away_xg = away_stats['avg_xg'] * away_bias
 
-    if len(away_shots) > 0 and away_shots['id'].nunique() > 0:
-        away_base_xg = away_shots['xG'].sum() / away_shots['id'].nunique()
-    else:
-        away_base_xg = 1.15
+    if home_stats['avg_ga'] < 1.0: away_xg *= 0.80
+    if away_stats['avg_ga'] < 1.0: home_xg *= 0.80
 
-    # Home advantage multiplier
-    home_xg = round(home_base_xg * 1.12, 2)
-    away_xg = round(away_base_xg * 0.88, 2)
+    final_home_xg = round(max(0.3, home_xg), 2)
+    final_away_xg = round(max(0.3, away_xg), 2)
 
-    # 4. Simulasi Monte Carlo (10.000 Iterasi)
-    iterations = 10000
-    home_goals = np.random.poisson(home_xg, iterations)
-    away_goals = np.random.poisson(away_xg, iterations)
+    # Simulasi 10.000 Match
+    home_sim_goals, away_sim_goals, prob_ht_goal = simulate_10k_matches_minute_by_minute(
+        final_home_xg, final_away_xg, iterations=10000
+    )
 
-    home_wins = np.sum(home_goals > away_goals)
-    draws = np.sum(home_goals == away_goals)
-    away_wins = np.sum(home_goals < away_goals)
+    home_wins = np.sum(home_sim_goals > away_sim_goals)
+    draws = np.sum(home_sim_goals == away_sim_goals)
+    away_wins = np.sum(home_sim_goals < away_sim_goals)
 
-    prob_home = round((home_wins / iterations) * 100, 1)
-    prob_draw = round((draws / iterations) * 100, 1)
-    prob_away = round((away_wins / iterations) * 100, 1)
+    prob_home = round((home_wins / 10000) * 100, 1)
+    prob_draw = round((draws / 10000) * 100, 1)
+    prob_away = round((away_wins / 10000) * 100, 1)
 
-    projected_home_goals = int(np.round(home_xg))
-    projected_away_goals = int(np.round(away_xg))
+    smart_home_score, smart_away_score, confidence = calculate_smart_projected_score(
+        home_sim_goals, away_sim_goals, prob_home, prob_away, final_home_xg, final_away_xg
+    )
 
-    # 5. TAMPILKAN HASIL AKURAT
-    print("\n" + "="*55)
-    print("      📊 HASIL PREDIKSI ENGINE ANALYTICA (VERIFIED)      ")
-    print("="*55)
-    print(f"PERTANDINGAN      : {home_team.upper()} vs {away_team.upper()}")
-    print(f"TANGGAL & WAKTU   : {match_date}")
-    print(f"PROYEKSI SKOR     : {projected_home_goals} - {projected_away_goals}")
-    print("-" * 55)
-    print(f"PELUANG MENANG    : {home_team} ({prob_home}%)")
-    print(f"PELUANG SERI      : Seri ({prob_draw}%)")
-    print(f"PELUANG MENANG    : {away_team} ({prob_away}%)")
-    print("-" * 55)
-    print("PROYEKSI METRIK xG LAGA:")
-    print(f" - Expected Goals {home_team:<11} : {home_xg} Goals")
-    print(f" - Expected Goals {away_team:<11} : {away_xg} Goals")
-    print("="*55 + "\n")
+    print("\n" + "="*65)
+    print(f"   📊 HASIL ANALISIS ENGINE ANALYTICA [{league_name.upper()}]   ")
+    print("="*65)
+    print(f"PERTANDINGAN          : {home_team.upper()} vs {away_team.upper()}")
+    print(f"JADWAL LAGA           : {match_date}")
+    print(f"PROYEKSI SKOR UTAMA   : {smart_home_score} - {smart_away_score} (Kepercayaan: {confidence}%)")
+    print("-" * 65)
+    print(f"PROBABILITAS HASIL (10.000 UJI COBA MENIT 1-90):")
+    print(f" • {home_team:<18} : {prob_home}%")
+    print(f" • Seri                 : {prob_draw}%")
+    print(f" • {away_team:<18} : {prob_away}%")
+    print("-" * 65)
+    print(f"STATISTIK SIMULASI PERTANDINGAN:")
+    print(f" • Peluang Ada Gol di Babak Pertama : {prob_ht_goal}%")
+    print(f" • Proyeksi xG {home_team:<12}       : {final_home_xg} Goals")
+    print(f" • Proyeksi xG {away_team:<12}       : {final_away_xg} Goals")
+    print("="*65 + "\n")
+
+    return True
 
 if __name__ == "__main__":
-    predict_from_fixtures()
+    while True:
+        continue_running = execute_prediction()
+        if not continue_running:
+            print("\n👋 Terima kasih telah menggunakan Analytica Soccer Engine!")
+            break
+        
+        again = input("Cek prediksi pertandingan lain? (y/n): ").strip().lower()
+        if again != 'y':
+            print("\n👋 Terima kasih telah menggunakan Analytica Soccer Engine!")
+            break
