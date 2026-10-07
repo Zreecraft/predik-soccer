@@ -1,4 +1,4 @@
-"""Aset statis: logo tim & pemain kunci (di-cache satu kali)."""
+"""Aset statis: logo tim & pemain kunci (di-cache per mtime file)."""
 import json
 
 from data_paths import KEY_PLAYERS, TEAM_LOGOS
@@ -6,29 +6,41 @@ from team_aliases import canonical_team
 
 _LOGOS_CACHE = None
 _PLAYERS_CACHE = None
+_LOGOS_MTIME = None
+_PLAYERS_MTIME = None
 
 PLACEHOLDER_LOGO = "https://via.placeholder.com/150?text=No+Logo"
 
 
 def _load_logos() -> dict:
-    global _LOGOS_CACHE
-    if _LOGOS_CACHE is None:
+    global _LOGOS_CACHE, _LOGOS_MTIME
+    try:
+        mtime = TEAM_LOGOS.stat().st_mtime
+    except OSError:
+        mtime = None
+    if _LOGOS_CACHE is None or mtime != _LOGOS_MTIME:
         try:
             with open(TEAM_LOGOS, "r", encoding="utf-8") as f:
                 _LOGOS_CACHE = json.load(f)
         except Exception:
             _LOGOS_CACHE = {}
+        _LOGOS_MTIME = mtime
     return _LOGOS_CACHE
 
 
 def _load_players() -> dict:
-    global _PLAYERS_CACHE
-    if _PLAYERS_CACHE is None:
+    global _PLAYERS_CACHE, _PLAYERS_MTIME
+    try:
+        mtime = KEY_PLAYERS.stat().st_mtime
+    except OSError:
+        mtime = None
+    if _PLAYERS_CACHE is None or mtime != _PLAYERS_MTIME:
         try:
             with open(KEY_PLAYERS, "r", encoding="utf-8") as f:
                 _PLAYERS_CACHE = json.load(f)
         except Exception:
             _PLAYERS_CACHE = {}
+        _PLAYERS_MTIME = mtime
     return _PLAYERS_CACHE
 
 
