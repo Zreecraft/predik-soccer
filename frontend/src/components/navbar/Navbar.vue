@@ -104,19 +104,21 @@ onMounted(async () => {
     <!-- Fixture ticker -->
     <div class="border-t border-slate-800/80 bg-slate-950/60">
       <div class="relative mx-auto flex h-9 max-w-[1400px] items-center overflow-hidden px-4 sm:px-6">
-        <span class="label-caps mr-3 shrink-0 text-sky-400/90">Pekan</span>
+        <span class="label-caps relative z-10 mr-3 shrink-0 bg-slate-950/60 pr-1 text-sky-400/90">Pekan</span>
         <div v-if="tickerLoading" class="skeleton h-4 flex-1" />
-        <div v-else-if="tickerItems.length" class="ticker-track gap-6 pr-8">
-          <div
-            v-for="(item, i) in tickerItems"
-            :key="i"
-            class="flex shrink-0 items-center gap-2 whitespace-nowrap text-[11px]"
-          >
-            <span class="num font-semibold text-slate-200">{{ item.home_short || abbrTeam(item.home) }}</span>
-            <span class="text-slate-600">×</span>
-            <span class="num font-semibold text-slate-200">{{ item.away_short || abbrTeam(item.away) }}</span>
-            <span class="hidden sm:inline text-slate-600">|</span>
-            <span class="num text-slate-500">{{ formatDate(item.date) }}</span>
+        <div v-else-if="tickerItems.length" class="min-w-0 flex-1 overflow-hidden">
+          <div class="ticker-track gap-6 pr-8">
+            <div
+              v-for="(item, i) in tickerItems"
+              :key="i"
+              class="flex shrink-0 items-center gap-2 whitespace-nowrap text-[11px]"
+            >
+              <span class="num font-semibold text-slate-200">{{ item.home_short || abbrTeam(item.home) }}</span>
+              <span class="text-slate-600">×</span>
+              <span class="num font-semibold text-slate-200">{{ item.away_short || abbrTeam(item.away) }}</span>
+              <span class="hidden sm:inline text-slate-600">|</span>
+              <span class="num text-slate-500">{{ formatDate(item.date) }}</span>
+            </div>
           </div>
         </div>
         <div v-else class="text-xs text-slate-500">Jadwal pekan ini tidak tersedia</div>
