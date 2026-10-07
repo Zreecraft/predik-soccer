@@ -49,7 +49,7 @@
     },
     "Leeds": {
         "league": "EPL",
-        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/wwypqp1425326584.png"
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png"
     },
     "Liverpool": {
         "league": "EPL",
@@ -310,5 +310,121 @@
     "Werder Bremen": {
         "league": "Bundesliga",
         "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/tkvqan1716960454.png"
+    },
+    "Paris Saint-Germain": {
+        "league": "Ligue_1",
+        "logo_url": "https://media.api-sports.io/football/teams/85.png"
+    },
+    "RC Lens": {
+        "league": "Ligue_1",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/3pxoum1598797195.png"
+    },
+    "Lille": {
+        "league": "Ligue_1",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/txcsg21741597962.png"
+    },
+    "PSV Eindhoven": {
+        "league": "Eredivisie",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xfsz6i1721297428.png"
+    },
+    "Feyenoord": {
+        "league": "Eredivisie",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/uturtx1473534803.png"
+    },
+    "FC Porto": {
+        "league": "Primeira_Liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/kaz8tb1788328595.png"
+    },
+    "Sporting CP": {
+        "league": "Primeira_Liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/5hiuk71783137875.png"
+    },
+    "Galatasaray": {
+        "league": "Super_Lig",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/io7jk21767941298.png"
+    },
+    "Fenerbahce": {
+        "league": "Super_Lig",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/twxxvs1448199691.png"
+    },
+    "Shakhtar Donetsk": {
+        "league": "Ukrainian_Premier_League",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/sqrxsr1421791799.png"
+    },
+    "Slavia Prague": {
+        "league": "Czech_Top_Liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/l7kl4n1759252139.png"
+    },
+    "Club Brugge": {
+        "league": "Belgian_Pro_League",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/mz8y0q1771129880.png"
+    },
+    "AEK Athens": {
+        "league": "Super_League_Greece",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/4nogst1602773624.png"
+    },
+    "LASK": {
+        "league": "Austrian_Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/oox26l1683556395.png"
+    },
+    "Slovan Bratislava": {
+        "league": "Slovak_Fortuna_Liga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/uzkg701781199823.png"
+    },
+    "Sabah FK": {
+        "league": "Azerbaijan_Premier_Leagu",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/dug7wr1614888756.png"
+    },
+    "Southampton": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ggqtd01621593274.png"
+    },
+    "Burnley": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ql7nl31686893820.png"
+    },
+    "Sheffield United": {
+        "league": "EPL",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/w7f8pj1672950689.png"
+    },
+    "Como 1907": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/02x81t1627405841.png"
+    },
+    "VfB Stuttgart": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/yppyux1473454085.png"
+    },
+    "AS Roma": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/jwro2s1760820674.png"
+    },
+    "Inter Milan": {
+        "league": "Serie_A",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ryhu6d1617113103.png"
+    },
+    "Borussia M.Gladbach": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/sysurw1473453380.png"
+    },
+    "FC Cologne": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/2j1sc91566049407.png"
+    },
+    "Monza": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/bxearg1603170113.png"
+    },
+    "Parma Calcio 1913": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/6yiaxs1627406063.png"
+    },
+    "RasenBallsport Leipzig": {
+        "league": "Bundesliga",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/zjgapo1594244951.png"
+    },
+    "Venezia": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/vbiget1781026964.png"
     }
 }

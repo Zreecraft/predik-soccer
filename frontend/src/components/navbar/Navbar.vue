@@ -17,6 +17,24 @@ const links = [
   { to: '/analytics', label: 'Analitik Klub', icon: BarChart3 },
 ]
 
+// Parse tanggal ISO → DD MMM HH:mm (local time friendly)
+function formatDate(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return '?'
+  try {
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return '?'
+    const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+    const day = days[d.getDay()]
+    const date = String(d.getDate()).padStart(2, '0')
+    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][d.getMonth()]
+    const hours = String(d.getHours()).padStart(2, '0')
+    const mins = String(d.getMinutes()).padStart(2, '0')
+    return `${day} ${date} ${month} • ${hours}:${mins}`
+  } catch {
+    return '?'
+  }
+}
+
 onMounted(async () => {
   tickerLoading.value = true
   try {
@@ -88,13 +106,17 @@ onMounted(async () => {
       <div class="relative mx-auto flex h-9 max-w-[1400px] items-center overflow-hidden px-4 sm:px-6">
         <span class="label-caps mr-3 shrink-0 text-sky-400/90">Pekan</span>
         <div v-if="tickerLoading" class="skeleton h-4 flex-1" />
-        <div v-else-if="tickerItems.length" class="ticker-track gap-6">
-          <div v-for="(item, i) in [...tickerItems, ...tickerItems]" :key="i" class="flex shrink-0 items-center gap-2 text-[11px]">
+        <div v-else-if="tickerItems.length" class="ticker-track gap-6 pr-8">
+          <div
+            v-for="(item, i) in tickerItems"
+            :key="i"
+            class="flex shrink-0 items-center gap-2 whitespace-nowrap text-[11px]"
+          >
             <span class="num font-semibold text-slate-200">{{ item.home_short || abbrTeam(item.home) }}</span>
-            <span class="text-slate-600">vs</span>
+            <span class="text-slate-600">×</span>
             <span class="num font-semibold text-slate-200">{{ item.away_short || abbrTeam(item.away) }}</span>
-            <span class="text-slate-600">·</span>
-            <span class="num text-slate-500">{{ item.date?.slice(5, 16) || '' }}</span>
+            <span class="hidden sm:inline text-slate-600">|</span>
+            <span class="num text-slate-500">{{ formatDate(item.date) }}</span>
           </div>
         </div>
         <div v-else class="text-xs text-slate-500">Jadwal pekan ini tidak tersedia</div>

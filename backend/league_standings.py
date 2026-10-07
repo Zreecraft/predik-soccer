@@ -4,7 +4,8 @@ from team_analytics import get_team_power_index, get_home_away_bias
 from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
 
 SUPPORTED_LEAGUES = {
-    "1": ("English Premier League", "EPL"),
+    "1": ("English Premier League (inggris)"
+    , "EPL"),
     "2": ("La Liga (Spanyol)", "La_liga"),
     "3": ("Serie A (Italia)", "Serie_A"),
     "4": ("Bundesliga (Jerman)", "Bundesliga")

@@ -10,6 +10,7 @@ from club_analytics import get_club_analytics, LEAGUE_NAMES
 from data_paths import HISTORICAL_MATCHES, KEY_PLAYERS, REAL_SHOTS_DATA, TEAM_LOGOS, UPCOMING_FIXTURES
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
 from season_projection import project_league
+from team_aliases import canonical_team, team_abbr
 from team_analytics import get_home_away_bias, get_team_power_index
 from ucl_simulator import simulate_ucl_tournament
 
@@ -63,12 +64,24 @@ def _load_shots() -> pd.DataFrame | None:
 
 def get_team_logo(team_name: str) -> str:
     logos = _load_logos()
-    return logos.get(team_name, {}).get("logo_url", "https://via.placeholder.com/150?text=No+Logo")
+    # Coba langsung, lalu alias kanonik
+    entry = logos.get(team_name)
+    if not entry:
+        canonical = canonical_team(team_name)
+        entry = logos.get(canonical)
+    return (
+        (entry or {}).get("logo_url")
+        or "https://via.placeholder.com/150?text=No+Logo"
+    )
 
 
 def get_key_player(team_name: str) -> dict:
     players = _load_players()
-    return players.get(team_name, {"player_name": "Key Player", "position": "N/A", "image": None})
+    entry = players.get(team_name)
+    if not entry:
+        canonical = canonical_team(team_name)
+        entry = players.get(canonical)
+    return entry or {"player_name": "Key Player", "position": "N/A", "image": None}
 
 
 def _form_last_n(team: str, historical_df: pd.DataFrame, n: int = 5) -> list:
@@ -236,37 +249,12 @@ def get_ticker(limit: int = 16):
         items.append({
             "home": row["home_team"],
             "away": row["away_team"],
-            "home_short": _abbr(row["home_team"]),
-            "away_short": _abbr(row["away_team"]),
+            "home_short": team_abbr(row["home_team"]),
+            "away_short": team_abbr(row["away_team"]),
             "date": str(row["date"])[:16],
             "league": row["league"],
         })
     return {"items": items, "total": len(items)}
-
-
-def _abbr(team: str) -> str:
-    special = {
-        "Manchester City": "MCI", "Manchester United": "MUN", "Newcastle": "NEW",
-        "Aston Villa": "AVL", "West Ham": "WHU", "Brighton": "BHA",
-        "Wolverhampton": "WOL", "Nottingham Forest": "NFO", "Leicester": "LEI",
-        "Real Madrid": "RMA", "Atletico Madrid": "ATM", "Athletic Club": "ATH",
-        "Real Betis": "BET", "Villarreal": "VIL", "Real Sociedad": "RSO",
-        "Borussia Dortmund": "BVB", "RB Leipzig": "RBL", "Bayern Munich": "BAY",
-        "Bayer Leverkusen": "B04", "Stuttgart": "VFB",
-        "AC Milan": "MIL", "Inter": "INT", "Roma": "ROM", "Lazio": "LAZ",
-        "Atalanta": "ATA", "Fiorentina": "FIO", "Napoli": "NAP", "Juventus": "JUV",
-        "PSG": "PSG", "Marseille": "OM", "Monaco": "ASM", "Lyon": "OL", "Lille": "LIL",
-        "Sporting CP": "SCP", "Benfica": "BEN", "Porto": "POR", "PSV": "PSV",
-        "Feyenoord": "FEY", "Ajax": "AJA", "Celtic": "CEL", "Galatasaray": "GAL",
-        "Fenerbahce": "FEN", "Besiktas": "BES", "Shakhtar Donetsk": "SHK",
-        "Red Star Belgrade": "CZV", "Dinamo Zagreb": "DZG", "Sparta Prague": "SPA",
-        "Club Brugge": "CLU", "Brest": "BRE", "Bologna": "BOL", "Girona": "GIR",
-        "Sturm Graz": "STU", "RB Salzburg": "RBS", "Young Boys": "YB",
-        "Slovan Bratislava": "SLO", "Hull": "HUL", "Leeds": "LEE",
-        "Ipswich": "IPS", "Southampton": "SOU", "Coventry": "COV",
-        "Sunderland": "SUN", "Burnley": "BUR", "Sheffield United": "SHU",
-    }
-    return special.get(team, team[:3].upper())
 
 
 @app.get("/api/predict")
