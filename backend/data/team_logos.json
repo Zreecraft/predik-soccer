@@ -321,7 +321,7 @@
     },
     "Lille": {
         "league": "Ligue_1",
-        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/txcsg21741597962.png"
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/2giize1534005340.png"
     },
     "PSV Eindhoven": {
         "league": "Eredivisie",
@@ -333,7 +333,7 @@
     },
     "FC Porto": {
         "league": "Primeira_Liga",
-        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/kaz8tb1788328595.png"
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xu47rb1628855600.png"
     },
     "Sporting CP": {
         "league": "Primeira_Liga",
@@ -373,7 +373,7 @@
     },
     "Sabah FK": {
         "league": "Azerbaijan_Premier_Leagu",
-        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/dug7wr1614888756.png"
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/1/17/Sabah_FK_%28Azerbaijan%29_logo.svg/330px-Sabah_FK_%28Azerbaijan%29_logo.svg.png"
     },
     "Southampton": {
         "league": "EPL",
@@ -426,5 +426,57 @@
     "Venezia": {
         "league": "Unknown",
         "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/vbiget1781026964.png"
+    },
+    "Bodo Glimt": {
+        "league": "Norwegian_Eliteserien",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/uqpwwx1449165943.png"
+    },
+    "Viking": {
+        "league": "Norwegian_Eliteserien",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/9mzq961590148192.png"
+    },
+    "Celtic": {
+        "league": "Scottish_Premiership",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/7/71/Celtic_FC_crest.svg/330px-Celtic_FC_crest.svg.png"
+    },
+    "Sturm Graz": {
+        "league": "Austrian_Bundesliga",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/9/91/SK_Sturm_Graz_logo.svg/330px-SK_Sturm_Graz_logo.svg.png"
+    },
+    "Sparta Prague": {
+        "league": "Czech_First_League",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/AC-Sparta-LOGO2021.svg/250px-AC-Sparta-LOGO2021.svg.png"
+    },
+    "Young Boys": {
+        "league": "Swiss_Super_League",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c2/BSC_Young_Boys.svg/960px-BSC_Young_Boys.svg.png"
+    },
+    "RB Salzburg": {
+        "league": "Austrian_Bundesliga",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/7/77/FC_Red_Bull_Salzburg_logo.svg/330px-FC_Red_Bull_Salzburg_logo.svg.png"
+    },
+    "Dinamo Zagreb": {
+        "league": "Croatian_HNL",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Logo_GNK_Dinamo_Zagreb_%282019%29.svg/960px-Logo_GNK_Dinamo_Zagreb_%282019%29.svg.png"
+    },
+    "Benfica": {
+        "league": "Primeira_Liga",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/a/a2/SL_Benfica_logo.svg/330px-SL_Benfica_logo.svg.png"
+    },
+    "Monaco": {
+        "league": "Ligue_1",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/c/cf/LogoASMonacoFC2021.svg/250px-LogoASMonacoFC2021.svg.png"
+    },
+    "Brest": {
+        "league": "Ligue_1",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/0/05/Stade_Brestois_29_logo.svg/330px-Stade_Brestois_29_logo.svg.png"
+    },
+    "Girona": {
+        "league": "La_liga",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/f/f7/Girona_FC_Logo.svg/330px-Girona_FC_Logo.svg.png"
+    },
+    "Red Star Belgrade": {
+        "league": "Serbian_SuperLiga",
+        "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/c/c2/Red_Star_Belgrade_crest.svg/250px-Red_Star_Belgrade_crest.svg.png"
     }
 }

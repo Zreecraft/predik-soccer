@@ -6,6 +6,8 @@ from team_aliases import canonical_team
 
 _LOGOS_CACHE = None
 _PLAYERS_CACHE = None
+_LOGOS_BY_CANON = None
+_PLAYERS_BY_CANON = None
 _LOGOS_MTIME = None
 _PLAYERS_MTIME = None
 
@@ -13,7 +15,7 @@ PLACEHOLDER_LOGO = "https://via.placeholder.com/150?text=No+Logo"
 
 
 def _load_logos() -> dict:
-    global _LOGOS_CACHE, _LOGOS_MTIME
+    global _LOGOS_CACHE, _LOGOS_BY_CANON, _LOGOS_MTIME
     try:
         mtime = TEAM_LOGOS.stat().st_mtime
     except OSError:
@@ -24,12 +26,13 @@ def _load_logos() -> dict:
                 _LOGOS_CACHE = json.load(f)
         except Exception:
             _LOGOS_CACHE = {}
+        _LOGOS_BY_CANON = {canonical_team(k): v for k, v in _LOGOS_CACHE.items()}
         _LOGOS_MTIME = mtime
     return _LOGOS_CACHE
 
 
 def _load_players() -> dict:
-    global _PLAYERS_CACHE, _PLAYERS_MTIME
+    global _PLAYERS_CACHE, _PLAYERS_BY_CANON, _PLAYERS_MTIME
     try:
         mtime = KEY_PLAYERS.stat().st_mtime
     except OSError:
@@ -40,17 +43,26 @@ def _load_players() -> dict:
                 _PLAYERS_CACHE = json.load(f)
         except Exception:
             _PLAYERS_CACHE = {}
+        _PLAYERS_BY_CANON = {canonical_team(k): v for k, v in _PLAYERS_CACHE.items()}
         _PLAYERS_MTIME = mtime
     return _PLAYERS_CACHE
 
 
+def _find(mapping: dict, by_canon: dict, team_name: str):
+    """Cocokkan nama apa pun: persis -> kanonik -> lewat kanonik tiap key."""
+    if not team_name:
+        return None
+    entry = mapping.get(team_name) or mapping.get(canonical_team(team_name))
+    if entry is None and by_canon:
+        entry = by_canon.get(canonical_team(team_name))
+    return entry
+
+
 def get_team_logo(team_name: str) -> str:
-    logos = _load_logos()
-    entry = logos.get(team_name) or logos.get(canonical_team(team_name))
+    entry = _find(_load_logos(), _LOGOS_BY_CANON, team_name)
     return (entry or {}).get("logo_url") or PLACEHOLDER_LOGO
 
 
 def get_key_player(team_name: str) -> dict:
-    players = _load_players()
-    entry = players.get(team_name) or players.get(canonical_team(team_name))
+    entry = _find(_load_players(), _PLAYERS_BY_CANON, team_name)
     return entry or {"player_name": "Key Player", "position": "N/A", "image": None}
