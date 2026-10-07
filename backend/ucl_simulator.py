@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import random
-from team_analytics import get_team_power_index, get_home_away_bias
+from team_analytics import clamp_match_xg, get_team_power_index, get_home_away_bias
 from data_paths import HISTORICAL_MATCHES
 
 # 36 Tim Peserta UCL
@@ -41,10 +41,10 @@ def calculate_weighted_ucl_xg(team_name, is_home, matches_df):
     # 2. Ambil Multiplier DNA UCL (Default 1.0 jika tidak terdaftar)
     dna_multiplier = UCL_DNA_TIERS.get(team_name, 1.0)
 
-    # 3. Formulasi xG Akhir Berbobot
+    # 3. Formulasi xG Akhir Berbobot (dibatasi wajar agar skor agregat tidak meledak)
     final_xg = (base_xg * 0.60) + (base_xg * dna_multiplier * 0.40)
     
-    return round(max(0.4, final_xg), 2)
+    return clamp_match_xg(final_xg, low=0.4, high=3.0)
 
 def simulate_match_xg(home_team, away_team, matches_df):
     """Simulasi 1 Pertandingan dengan xG Berbobot"""
@@ -53,8 +53,8 @@ def simulate_match_xg(home_team, away_team, matches_df):
 
     # Poisson Distribution berdasarkan Weighted xG
     np.random.seed(42 + random.randint(1, 1000))
-    h_goals = np.random.poisson(h_xg)
-    a_goals = np.random.poisson(a_xg)
+    h_goals = np.random.poisson(float(np.clip(h_xg, 0.1, 4.0)))
+    a_goals = np.random.poisson(float(np.clip(a_xg, 0.1, 4.0)))
 
     return h_goals, a_goals
 
@@ -397,6 +397,11 @@ def run_ucl_simulation():
     return True
 
 if __name__ == "__main__":
+    import sys
+
+    # Konsol Windows (cp1252) tidak bisa encode emoji → paksa UTF-8
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     while True:
         if not run_ucl_simulation(): break
         if input("Jalankan ulang simulasi UCL? (y/n): ").strip().lower() != 'y': break

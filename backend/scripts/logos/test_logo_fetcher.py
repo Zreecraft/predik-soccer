@@ -1,6 +1,11 @@
 import requests
 import json
 import time
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # backend/
+
 from data_paths import TEAM_LOGOS
 
 ALL_LEAGUE_CLUBS = {

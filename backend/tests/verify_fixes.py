@@ -1,5 +1,14 @@
 """Verifikasi khusus: abbr, alias, logo coverage, dan ticker format."""
-from team_aliases import team_abbr, canonical_team, TEAM_ABBR, TEAM_ALIASES
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # backend/
+
+import pandas as pd
+
+from data_paths import TEAM_LOGOS, UPCOMING_FIXTURES
+from team_aliases import TEAM_ALIASES, TEAM_ABBR, canonical_team, team_abbr
 
 # 1. Test abbr untuk tim yang dikeluhkan user
 test_cases = [
@@ -74,9 +83,6 @@ print(f"{len(alias_cases) - alias_fails}/{len(alias_cases)} alias passed")
 
 # 3. Logo coverage untuk semua tim di fixtures
 print("\n=== LOGO COVERAGE ===")
-import pandas as pd
-import json
-from data_paths import UPCOMING_FIXTURES, TEAM_LOGOS
 
 fixtures = pd.read_csv(UPCOMING_FIXTURES)
 teams_in_fixtures = sorted(

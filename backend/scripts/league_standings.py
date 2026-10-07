@@ -1,7 +1,22 @@
+"""CLI klasemen akhir liga (interaktif): hasil asli + proyeksi sisa laga.
+
+Jalankan dari folder backend/:  python scripts/league_standings.py
+"""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # backend/
+
+# Konsol Windows (cp1252) tidak bisa encode emoji → paksa UTF-8
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 import pandas as pd
 import numpy as np
-from team_analytics import get_team_power_index, get_home_away_bias
+
 from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
+from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
+from team_analytics import clamp_match_xg, get_home_away_bias, get_team_power_index
 
 SUPPORTED_LEAGUES = {
     "1": ("English Premier League (inggris)"
@@ -10,33 +25,6 @@ SUPPORTED_LEAGUES = {
     "3": ("Serie A (Italia)", "Serie_A"),
     "4": ("Bundesliga (Jerman)", "Bundesliga")
 }
-
-def simulate_match(home_xg, away_xg):
-    np.random.seed(42)
-    h_sim = np.random.poisson(home_xg, 1000)
-    a_sim = np.random.poisson(away_xg, 1000)
-    return h_sim, a_sim
-
-def calculate_score(h_sim, a_sim, h_xg, a_xg):
-    prob_h = (np.sum(h_sim > a_sim) / 1000) * 100
-    prob_a = (np.sum(a_sim > h_sim) / 1000) * 100
-    
-    base_h = int(np.round(np.mean(h_sim)))
-    base_a = int(np.round(np.mean(a_sim)))
-    
-    margin = abs(prob_h - prob_a)
-    if margin >= 35.0 or abs(h_xg - a_xg) >= 1.0:
-        if prob_h > prob_a:
-            base_h = max(int(np.ceil(h_xg)), base_a + 2)
-            if a_xg < 1.0: base_a = 0
-        else:
-            base_a = max(int(np.ceil(a_xg)), base_h + 2)
-            if h_xg < 1.0: base_h = 0
-    elif margin >= 10.0:
-        if prob_h > prob_a and base_h <= base_a: base_h = base_a + 1
-        elif prob_a > prob_h and base_a <= base_h: base_a = base_h + 1
-        
-    return base_h, base_a
 
 def run_standings_simulation():
     try:
@@ -121,11 +109,15 @@ def run_standings_simulation():
         h_bias = get_home_away_bias(h_team, is_home=True, matches_df=historical_df)
         a_bias = get_home_away_bias(a_team, is_home=False, matches_df=historical_df)
 
-        h_xg = round(max(0.3, h_stats['avg_xg'] * h_bias), 2)
-        a_xg = round(max(0.3, a_stats['avg_xg'] * a_bias), 2)
+        h_xg = clamp_match_xg(h_stats['avg_xg'] * h_bias)
+        a_xg = clamp_match_xg(a_stats['avg_xg'] * a_bias)
 
-        h_sim, a_sim = simulate_match(h_xg, a_xg)
-        p_h_goals, p_a_goals = calculate_score(h_sim, a_sim, h_xg, a_xg)
+        h_sim, a_sim, _ = simulate_10k_matches_minute_by_minute(h_xg, a_xg, iterations=4000, verbose=False)
+        prob_h = (np.sum(h_sim > a_sim) / len(h_sim)) * 100
+        prob_a = (np.sum(a_sim > h_sim) / len(a_sim)) * 100
+        p_h_goals, p_a_goals, _ = calculate_smart_projected_score(
+            h_sim, a_sim, prob_h, prob_a, h_xg, a_xg
+        )
 
         standings[h_team]['P'] += 1
         standings[a_team]['P'] += 1

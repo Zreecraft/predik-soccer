@@ -1,17 +1,17 @@
 import json
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from assets import get_key_player, get_team_logo
 from club_analytics import get_club_analytics, LEAGUE_NAMES
-from data_paths import HISTORICAL_MATCHES, KEY_PLAYERS, REAL_SHOTS_DATA, TEAM_LOGOS, UPCOMING_FIXTURES
+from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
 from season_projection import project_league
-from team_aliases import canonical_team, team_abbr
-from team_analytics import get_home_away_bias, get_team_power_index
+from team_aliases import team_abbr
+from team_analytics import clamp_match_xg, get_home_away_bias, get_team_form, get_team_power_index
 from ucl_simulator import simulate_ucl_tournament
 
 app = FastAPI(title="Analytica FC API", version="2.0.0")
@@ -24,32 +24,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-_LOGOS_CACHE = None
-_PLAYERS_CACHE = None
 _SHOTS_CACHE = None
 _UCL_CACHE = None
-
-
-def _load_logos() -> dict:
-    global _LOGOS_CACHE
-    if _LOGOS_CACHE is None:
-        try:
-            with open(TEAM_LOGOS, "r", encoding="utf-8") as f:
-                _LOGOS_CACHE = json.load(f)
-        except Exception:
-            _LOGOS_CACHE = {}
-    return _LOGOS_CACHE
-
-
-def _load_players() -> dict:
-    global _PLAYERS_CACHE
-    if _PLAYERS_CACHE is None:
-        try:
-            with open(KEY_PLAYERS, "r", encoding="utf-8") as f:
-                _PLAYERS_CACHE = json.load(f)
-        except Exception:
-            _PLAYERS_CACHE = {}
-    return _PLAYERS_CACHE
 
 
 def _load_shots() -> pd.DataFrame | None:
@@ -60,47 +36,6 @@ def _load_shots() -> pd.DataFrame | None:
         except FileNotFoundError:
             _SHOTS_CACHE = pd.DataFrame()
     return _SHOTS_CACHE
-
-
-def get_team_logo(team_name: str) -> str:
-    logos = _load_logos()
-    # Coba langsung, lalu alias kanonik
-    entry = logos.get(team_name)
-    if not entry:
-        canonical = canonical_team(team_name)
-        entry = logos.get(canonical)
-    return (
-        (entry or {}).get("logo_url")
-        or "https://via.placeholder.com/150?text=No+Logo"
-    )
-
-
-def get_key_player(team_name: str) -> dict:
-    players = _load_players()
-    entry = players.get(team_name)
-    if not entry:
-        canonical = canonical_team(team_name)
-        entry = players.get(canonical)
-    return entry or {"player_name": "Key Player", "position": "N/A", "image": None}
-
-
-def _form_last_n(team: str, historical_df: pd.DataFrame, n: int = 5) -> list:
-    mask = (historical_df["home_team"].str.contains(team, case=False, na=False)) | (
-        historical_df["away_team"].str.contains(team, case=False, na=False)
-    )
-    team_matches = historical_df[mask].sort_values(by="datetime", ascending=False).head(n)
-    form = []
-    for _, row in team_matches.iterrows():
-        is_home = team.lower() in str(row["home_team"]).lower()
-        gf = int(row["home_goals"]) if is_home else int(row["away_goals"])
-        ga = int(row["away_goals"]) if is_home else int(row["home_goals"])
-        result = "W" if gf > ga else ("D" if gf == ga else "L")
-        form.append({
-            "result": result,
-            "score": f"{gf}-{ga}",
-            "opponent": row["away_team"] if is_home else row["home_team"],
-        })
-    return form
 
 
 def _team_shot_summary(team: str, shots_df: pd.DataFrame) -> dict:
@@ -272,8 +207,8 @@ def predict_match(home_team: str, away_team: str):
     home_bias = get_home_away_bias(home_team, is_home=True, matches_df=matches_df)
     away_bias = get_home_away_bias(away_team, is_home=False, matches_df=matches_df)
 
-    final_home_xg = round(max(0.3, home_stats["avg_xg"] * home_bias), 2)
-    final_away_xg = round(max(0.3, away_stats["avg_xg"] * away_bias), 2)
+    final_home_xg = clamp_match_xg(home_stats["avg_xg"] * home_bias)
+    final_away_xg = clamp_match_xg(away_stats["avg_xg"] * away_bias)
 
     home_sim, away_sim, prob_ht = simulate_10k_matches_minute_by_minute(
         final_home_xg, final_away_xg, iterations=10000, verbose=False
@@ -287,8 +222,8 @@ def predict_match(home_team: str, away_team: str):
         home_sim, away_sim, prob_home, prob_away, final_home_xg, final_away_xg
     )
 
-    home_form = _form_last_n(home_team, matches_df, 5)
-    away_form = _form_last_n(away_team, matches_df, 5)
+    home_form = get_team_form(home_team, matches_df, 5)
+    away_form = get_team_form(away_team, matches_df, 5)
 
     home_shots = _team_shot_summary(home_team, shots_df)
     away_shots = _team_shot_summary(away_team, shots_df)

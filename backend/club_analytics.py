@@ -3,8 +3,9 @@ import hashlib
 import numpy as np
 import pandas as pd
 
-from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES, REAL_SHOTS_DATA
-from team_analytics import get_team_power_index, get_home_away_bias
+from assets import get_team_logo
+from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES
+from team_analytics import clamp_match_xg, get_home_away_bias, get_team_form, get_team_power_index
 
 DEFAULT_PROFILE = {
     "coach": "Staff Analitik",
@@ -108,32 +109,6 @@ def _build_territorial_grid(team: str, profile: dict, shots_df: pd.DataFrame | N
             grid[r * cols + 1] = min(95, grid[r * cols + 1] + 4)
 
     return [{"row": i // cols, "col": i % cols, "value": int(v)} for i, v in enumerate(grid)]
-
-
-def _form_last_n(team: str, historical_df: pd.DataFrame, n: int = 5) -> list:
-    mask = (historical_df["home_team"].str.contains(team, case=False, na=False)) | (
-        historical_df["away_team"].str.contains(team, case=False, na=False)
-    )
-    team_matches = historical_df[mask].sort_values(by="datetime", ascending=False).head(n)
-    form = []
-    for _, row in team_matches.iterrows():
-        is_home = team.lower() in str(row["home_team"]).lower()
-        gf = int(row["home_goals"]) if is_home else int(row["away_goals"])
-        ga = int(row["away_goals"]) if is_home else int(row["home_goals"])
-        if gf > ga:
-            result = "W"
-        elif gf == ga:
-            result = "D"
-        else:
-            result = "L"
-        form.append({
-            "result": result,
-            "score": f"{gf}-{ga}",
-            "opponent": row["away_team"] if is_home else row["home_team"],
-            "is_home": is_home,
-            "date": str(row["datetime"]),
-        })
-    return form
 
 
 def _shot_metrics(team: str, shots_df: pd.DataFrame | None) -> dict:
@@ -258,7 +233,7 @@ def get_club_analytics(team: str) -> dict:
 
     shot_metrics = _shot_metrics(team, shots_df)
     ppda = _ppda_estimate(team, shots_df, profile)
-    form = _form_last_n(team, historical_df, n=5)
+    form = get_team_form(team, historical_df, n=5)
     xg_trend = _xg_trend(team, historical_df, n=10)
     territorial = _build_territorial_grid(team, profile, shots_df)
 
@@ -277,8 +252,8 @@ def get_club_analytics(team: str) -> dict:
         a_stats = get_team_power_index(a, historical_df, last_n=20)
         h_bias = get_home_away_bias(h, is_home=True, matches_df=historical_df)
         a_bias = get_home_away_bias(a, is_home=False, matches_df=historical_df)
-        h_xg = max(0.3, h_stats["avg_xg"] * h_bias)
-        a_xg = max(0.3, a_stats["avg_xg"] * a_bias)
+        h_xg = clamp_match_xg(h_stats["avg_xg"] * h_bias)
+        a_xg = clamp_match_xg(a_stats["avg_xg"] * a_bias)
 
         rng = np.random.default_rng(abs(_team_hash(str(row.get("match_id", opponent)))) % (2**32))
         sims = 400
@@ -315,7 +290,7 @@ def get_club_analytics(team: str) -> dict:
         "league": league_code,
         "league_name": league_name,
         "league_position": league_position,
-        "logo": _load_logo(team),
+        "logo": get_team_logo(team),
         "profile": {
             "coach": profile["coach"],
             "formation": profile["formation"],
@@ -362,14 +337,3 @@ LEAGUE_NAMES = {
     "Serie_A": "Serie A",
     "Bundesliga": "Bundesliga",
 }
-
-
-def _load_logo(team: str) -> str:
-    import json
-    from data_paths import TEAM_LOGOS
-    try:
-        with open(TEAM_LOGOS, "r", encoding="utf-8") as f:
-            logos = json.load(f)
-        return logos.get(team, {}).get("logo_url", "https://via.placeholder.com/150?text=No+Logo")
-    except Exception:
-        return "https://via.placeholder.com/150?text=No+Logo"

@@ -1,7 +1,13 @@
 # Update: Add ~100+ new teams from expanded European leagues to team_logos.json
-# Run: python update_league_logos.py
+# Run (dari folder backend/): python scripts/logos/update_league_logos.py
 
 import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # backend/
+
+from data_paths import TEAM_LOGOS
 
 # New teams from user's requested leagues
 NEW_TEAMS = {
@@ -51,7 +57,7 @@ NEW_TEAMS = {
 }
 
 def main():
-    with open('backend/team_logos.json', 'r', encoding='utf-8') as f:
+    with open(TEAM_LOGOS, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     initial_count = len(data)
@@ -67,7 +73,7 @@ def main():
     
     final_count = len(data)
     
-    with open('backend/team_logos.json', 'w', encoding='utf-8') as f:
+    with open(TEAM_LOGOS, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
     
     print(f"\nUpdated team_logos.json:")

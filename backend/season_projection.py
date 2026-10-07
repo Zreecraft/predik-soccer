@@ -4,7 +4,7 @@ import pandas as pd
 from functools import lru_cache
 
 from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
-from team_analytics import get_team_power_index, get_home_away_bias
+from team_analytics import clamp_match_xg, get_team_power_index, get_home_away_bias
 
 LEAGUE_META = {
     "EPL": {"name": "English Premier League", "country": "England", "teams_per_league": 20},
@@ -53,8 +53,8 @@ def _simulate_remaining_fixtures(league_fixtures: pd.DataFrame, historical_df: p
         a_stats = get_team_power_index(a_team, historical_df, last_n=20)
         h_bias = get_home_away_bias(h_team, is_home=True, matches_df=historical_df)
         a_bias = get_home_away_bias(a_team, is_home=False, matches_df=historical_df)
-        h_xg = max(0.3, h_stats["avg_xg"] * h_bias)
-        a_xg = max(0.3, a_stats["avg_xg"] * a_bias)
+        h_xg = clamp_match_xg(h_stats["avg_xg"] * h_bias)
+        a_xg = clamp_match_xg(a_stats["avg_xg"] * a_bias)
         hg = int(rng.poisson(h_xg))
         ag = int(rng.poisson(a_xg))
         results.append((h_team, a_team, hg, ag, h_xg, a_xg))
@@ -87,8 +87,8 @@ def project_league(league_code: str, n_seasons: int = 350) -> dict:
         h_bias = get_home_away_bias(t, is_home=True, matches_df=historical_df)
         a_bias = get_home_away_bias(t, is_home=False, matches_df=historical_df)
         power_cache[t] = {
-            "h_xg": max(0.3, stats["avg_xg"] * h_bias),
-            "a_xg": max(0.3, stats["avg_xg"] * a_bias),
+            "h_xg": clamp_match_xg(stats["avg_xg"] * h_bias),
+            "a_xg": clamp_match_xg(stats["avg_xg"] * a_bias),
         }
 
     remaining = []

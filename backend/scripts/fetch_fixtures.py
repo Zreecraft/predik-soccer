@@ -2,6 +2,11 @@ import asyncio
 import aiohttp
 import pandas as pd
 from understat import Understat
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # backend/
+
 from data_paths import UPCOMING_FIXTURES
 
 LEAGUES = ["EPL", "La_liga", "Serie_A", "Bundesliga"]

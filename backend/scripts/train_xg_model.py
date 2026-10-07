@@ -3,6 +3,11 @@ import numpy as np
 import joblib
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # backend/
+
 from data_paths import REAL_SHOTS_DATA, XG_MODEL
 
 def train_xgboost_model():
@@ -10,7 +15,7 @@ def train_xgboost_model():
     try:
         df = pd.read_csv(REAL_SHOTS_DATA)
     except FileNotFoundError:
-        print("❌ Error: File 'real_shots_data.csv' belum ada. Jalankan 'python fetch_data.py' dulu!")
+        print("❌ Error: File 'data/real_shots_data.csv' belum ada. Jalankan 'python scripts/fetch_data.py' dulu!")
         return
 
     if df.empty:
