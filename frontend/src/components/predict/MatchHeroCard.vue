@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import PlayerCutout from '@/components/shared/PlayerCutout.vue'
 import WinProbabilityBar from '@/components/shared/WinProbabilityBar.vue'
 import FormBadges from '@/components/shared/FormBadges.vue'
-import { Shield, MapPin, UserRound } from 'lucide-vue-next'
+import { Shield, MapPin, UserRound, Swords } from 'lucide-vue-next'
 
 const props = defineProps({
   data: { type: Object, required: true },
@@ -16,6 +16,22 @@ const probs = computed(() => props.data.probabilities || {})
 const analytics = computed(() => props.data.analytics || {})
 const meta = computed(() => props.data.meta || {})
 const tactical = computed(() => props.data.tactical || {})
+const gap = computed(() => props.data.strength_gap || {})
+
+const fmtStr = (v) => (v != null ? Number(v).toFixed(1) : '—')
+const gapTone = computed(() => {
+  const g = gap.value.value ?? 0
+  if (g >= 15) return 'border-rose-500/40 bg-rose-500/10 text-rose-300'
+  if (g >= 8) return 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+  return 'border-slate-600/60 bg-slate-800/60 text-slate-300'
+})
+const gapLabel = computed(() => {
+  const g = gap.value.value ?? 0
+  if (g >= 15) return 'Jarak jauh'
+  if (g >= 8) return 'Unggul'
+  if (g >= 3) return 'Sedikit unggul'
+  return 'Seimbang'
+})
 </script>
 
 <template>
@@ -62,10 +78,24 @@ const tactical = computed(() => props.data.tactical || {})
           <div class="min-w-0">
             <div class="label-caps">Home</div>
             <div class="truncate text-xl font-bold text-slate-50">{{ home.name }}</div>
-            <div class="mt-2 text-xs text-slate-400">
-              {{ home.star_player?.player_name }}
-              <span class="text-slate-600">·</span>
-              {{ home.star_player?.position }}
+            <div class="mt-1 text-xs text-slate-400">
+              <span class="text-slate-500">Pelatih</span> {{ home.coach || '—' }}
+              <span class="mx-1 text-slate-600">·</span>
+              <span class="num text-slate-300">{{ home.formation || '—' }}</span>
+            </div>
+            <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+              <span
+                class="num inline-flex items-center gap-1 rounded-md border border-sky-500/30 bg-sky-500/10 px-1.5 py-0.5 font-bold text-sky-300"
+                title="Rating kekuatan klub"
+              >
+                <Swords :size="11" />
+                {{ fmtStr(home.strength?.overall) }}
+              </span>
+              <span>
+                {{ home.star_player?.player_name }}
+                <span class="text-slate-600">·</span>
+                {{ home.star_player?.position }}
+              </span>
             </div>
             <div class="mt-3">
               <FormBadges :form="home.form || []" label="Form" />
@@ -95,6 +125,16 @@ const tactical = computed(() => props.data.tactical || {})
           Peluang gol babak I:
           <span class="num text-slate-300">{{ analytics.first_half_goal_probability }}%</span>
         </div>
+        <div
+          v-if="gap.value != null"
+          class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px]"
+          :class="gapTone"
+          title="Selisih rating kekuatan klub — membatasi margin skor proyeksi"
+        >
+          <Swords :size="12" />
+          <span class="num font-bold">{{ fmtStr(gap.home) }} - {{ fmtStr(gap.away) }}</span>
+          <span class="text-[10px] opacity-80">{{ gapLabel }}</span>
+        </div>
       </div>
 
       <!-- Away -->
@@ -117,10 +157,24 @@ const tactical = computed(() => props.data.tactical || {})
           <div class="min-w-0">
             <div class="label-caps">Away</div>
             <div class="truncate text-xl font-bold text-slate-50">{{ away.name }}</div>
-            <div class="mt-2 text-xs text-slate-400">
-              {{ away.star_player?.player_name }}
-              <span class="text-slate-600">·</span>
-              {{ away.star_player?.position }}
+            <div class="mt-1 text-xs text-slate-400">
+              <span class="num text-slate-300">{{ away.formation || '—' }}</span>
+              <span class="mx-1 text-slate-600">·</span>
+              <span class="text-slate-500">Pelatih</span> {{ away.coach || '—' }}
+            </div>
+            <div class="mt-1 flex flex-wrap items-center justify-end gap-2 text-xs text-slate-400">
+              <span>
+                {{ away.star_player?.player_name }}
+                <span class="text-slate-600">·</span>
+                {{ away.star_player?.position }}
+              </span>
+              <span
+                class="num inline-flex items-center gap-1 rounded-md border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 font-bold text-rose-300"
+                title="Rating kekuatan klub"
+              >
+                <Swords :size="11" />
+                {{ fmtStr(away.strength?.overall) }}
+              </span>
             </div>
             <div class="mt-3 flex justify-end">
               <FormBadges :form="away.form || []" label="Form" />

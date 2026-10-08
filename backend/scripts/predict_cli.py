@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 
 from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
+from club_data import ga_prior_from_rating, get_club_strength, xg_prior_from_rating
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
 from team_analytics import clamp_match_xg, get_home_away_bias, get_team_power_index
 
@@ -102,14 +103,28 @@ def execute_prediction():
     match_date = selected_match['date']
 
     # Analisis Performa
-    home_stats = get_team_power_index(home_team, matches_df, last_n=20)
-    away_stats = get_team_power_index(away_team, matches_df, last_n=20)
+    home_str = get_club_strength(home_team)
+    away_str = get_club_strength(away_team)
+    strength_gap = round(home_str["overall"] - away_str["overall"], 1)
+
+    home_stats = get_team_power_index(
+        home_team, matches_df, last_n=20,
+        prior_xg=xg_prior_from_rating(home_str["overall"]),
+        prior_ga=ga_prior_from_rating(home_str["overall"]),
+    )
+    away_stats = get_team_power_index(
+        away_team, matches_df, last_n=20,
+        prior_xg=xg_prior_from_rating(away_str["overall"]),
+        prior_ga=ga_prior_from_rating(away_str["overall"]),
+    )
 
     home_bias = get_home_away_bias(home_team, is_home=True, matches_df=matches_df)
     away_bias = get_home_away_bias(away_team, is_home=False, matches_df=matches_df)
 
-    home_xg = home_stats['avg_xg'] * home_bias
-    away_xg = away_stats['avg_xg'] * away_bias
+    gap_mult_h = 1.0 + (home_str["overall"] - away_str["overall"]) * 0.004
+    gap_mult_a = 1.0 + (away_str["overall"] - home_str["overall"]) * 0.004
+    home_xg = home_stats['avg_xg'] * home_bias * gap_mult_h
+    away_xg = away_stats['avg_xg'] * away_bias * gap_mult_a
 
     if home_stats['avg_ga'] < 1.0: away_xg *= 0.80
     if away_stats['avg_ga'] < 1.0: home_xg *= 0.80
@@ -131,7 +146,8 @@ def execute_prediction():
     prob_away = round((away_wins / 10000) * 100, 1)
 
     smart_home_score, smart_away_score, confidence = calculate_smart_projected_score(
-        home_sim_goals, away_sim_goals, prob_home, prob_away, final_home_xg, final_away_xg
+        home_sim_goals, away_sim_goals, prob_home, prob_away, final_home_xg, final_away_xg,
+        strength_gap=strength_gap,
     )
 
     print("\n" + "="*65)

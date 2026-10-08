@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from functools import lru_cache
 
+from club_data import ga_prior_from_rating, get_club_strength, xg_prior_from_rating
 from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
 from team_analytics import clamp_match_xg, get_team_power_index, get_home_away_bias
 
@@ -49,12 +50,24 @@ def _simulate_remaining_fixtures(league_fixtures: pd.DataFrame, historical_df: p
     results = []
     for _, row in league_fixtures.iterrows():
         h_team, a_team = row["home_team"], row["away_team"]
-        h_stats = get_team_power_index(h_team, historical_df, last_n=20)
-        a_stats = get_team_power_index(a_team, historical_df, last_n=20)
+        h_str = get_club_strength(h_team)
+        a_str = get_club_strength(a_team)
+        h_stats = get_team_power_index(
+            h_team, historical_df, last_n=20,
+            prior_xg=xg_prior_from_rating(h_str["overall"]),
+            prior_ga=ga_prior_from_rating(h_str["overall"]),
+        )
+        a_stats = get_team_power_index(
+            a_team, historical_df, last_n=20,
+            prior_xg=xg_prior_from_rating(a_str["overall"]),
+            prior_ga=ga_prior_from_rating(a_str["overall"]),
+        )
         h_bias = get_home_away_bias(h_team, is_home=True, matches_df=historical_df)
         a_bias = get_home_away_bias(a_team, is_home=False, matches_df=historical_df)
-        h_xg = clamp_match_xg(h_stats["avg_xg"] * h_bias)
-        a_xg = clamp_match_xg(a_stats["avg_xg"] * a_bias)
+        gap_mult_h = 1.0 + (h_str["overall"] - a_str["overall"]) * 0.004
+        gap_mult_a = 1.0 + (a_str["overall"] - h_str["overall"]) * 0.004
+        h_xg = clamp_match_xg(h_stats["avg_xg"] * h_bias * gap_mult_h)
+        a_xg = clamp_match_xg(a_stats["avg_xg"] * a_bias * gap_mult_a)
         hg = int(rng.poisson(h_xg))
         ag = int(rng.poisson(a_xg))
         results.append((h_team, a_team, hg, ag, h_xg, a_xg))
@@ -83,7 +96,12 @@ def project_league(league_code: str, n_seasons: int = 350) -> dict:
     # Cache xG power per tim (dihitung sekali, bukan per iterasi)
     power_cache = {}
     for t in teams:
-        stats = get_team_power_index(t, historical_df, last_n=20)
+        t_str = get_club_strength(t)
+        stats = get_team_power_index(
+            t, historical_df, last_n=20,
+            prior_xg=xg_prior_from_rating(t_str["overall"]),
+            prior_ga=ga_prior_from_rating(t_str["overall"]),
+        )
         h_bias = get_home_away_bias(t, is_home=True, matches_df=historical_df)
         a_bias = get_home_away_bias(t, is_home=False, matches_df=historical_df)
         power_cache[t] = {

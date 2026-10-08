@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 
 from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
+from club_data import ga_prior_from_rating, get_club_strength, xg_prior_from_rating
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
 from team_analytics import clamp_match_xg, get_home_away_bias, get_team_power_index
 
@@ -103,20 +104,34 @@ def run_standings_simulation():
     for _, row in league_fixtures.iterrows():
         h_team, a_team, m_date = row['home_team'], row['away_team'], row['date']
 
-        h_stats = get_team_power_index(h_team, historical_df, last_n=20)
-        a_stats = get_team_power_index(a_team, historical_df, last_n=20)
+        h_str = get_club_strength(h_team)
+        a_str = get_club_strength(a_team)
+        strength_gap = round(h_str["overall"] - a_str["overall"], 1)
+
+        h_stats = get_team_power_index(
+            h_team, historical_df, last_n=20,
+            prior_xg=xg_prior_from_rating(h_str["overall"]),
+            prior_ga=ga_prior_from_rating(h_str["overall"]),
+        )
+        a_stats = get_team_power_index(
+            a_team, historical_df, last_n=20,
+            prior_xg=xg_prior_from_rating(a_str["overall"]),
+            prior_ga=ga_prior_from_rating(a_str["overall"]),
+        )
 
         h_bias = get_home_away_bias(h_team, is_home=True, matches_df=historical_df)
         a_bias = get_home_away_bias(a_team, is_home=False, matches_df=historical_df)
 
-        h_xg = clamp_match_xg(h_stats['avg_xg'] * h_bias)
-        a_xg = clamp_match_xg(a_stats['avg_xg'] * a_bias)
+        gap_mult_h = 1.0 + (h_str["overall"] - a_str["overall"]) * 0.004
+        gap_mult_a = 1.0 + (a_str["overall"] - h_str["overall"]) * 0.004
+        h_xg = clamp_match_xg(h_stats['avg_xg'] * h_bias * gap_mult_h)
+        a_xg = clamp_match_xg(a_stats['avg_xg'] * a_bias * gap_mult_a)
 
         h_sim, a_sim, _ = simulate_10k_matches_minute_by_minute(h_xg, a_xg, iterations=4000, verbose=False)
         prob_h = (np.sum(h_sim > a_sim) / len(h_sim)) * 100
         prob_a = (np.sum(a_sim > h_sim) / len(a_sim)) * 100
         p_h_goals, p_a_goals, _ = calculate_smart_projected_score(
-            h_sim, a_sim, prob_h, prob_a, h_xg, a_xg
+            h_sim, a_sim, prob_h, prob_a, h_xg, a_xg, strength_gap=strength_gap
         )
 
         standings[h_team]['P'] += 1

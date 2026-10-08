@@ -9,6 +9,23 @@ MAX_PROJECTED_GOALS = 5
 MAX_PROJECTED_MARGIN = 4
 
 
+def allowed_margin(strength_gap: float | None) -> int:
+    """Margin maksimum skor proyeksi disesuaikan jarak kekuatan (0-100).
+
+    None = tanpa info gap (pemanggil lama) -> pakai batas penuh.
+    """
+    if strength_gap is None:
+        return MAX_PROJECTED_MARGIN
+    gap = abs(float(strength_gap))
+    if gap >= 25:
+        return MAX_PROJECTED_MARGIN
+    if gap >= 15:
+        return 3
+    if gap >= 8:
+        return 2
+    return 1
+
+
 def simulate_10k_matches_minute_by_minute(home_xg, away_xg, iterations=10000, verbose=True):
     np.random.seed(42)
     # Clamp xG per laga ke rentang wajar agar probabilitas menit tetap valid
@@ -43,9 +60,18 @@ def simulate_10k_matches_minute_by_minute(home_xg, away_xg, iterations=10000, ve
     return home_sim_goals, away_sim_goals, prob_ht_goal
 
 
-def calculate_smart_projected_score(home_sim_goals, away_sim_goals, prob_home, prob_away, home_xg, away_xg):
+def calculate_smart_projected_score(
+    home_sim_goals,
+    away_sim_goals,
+    prob_home,
+    prob_away,
+    home_xg,
+    away_xg,
+    strength_gap: float | None = None,
+):
     """Skor proyeksi = skor paling sering muncul dari simulasi (modus),
-    dibatasi wajar (maks 5 gol/tim, selisih maks 4) dan disesuaikan hasil favorit model."""
+    dibatasi wajar (maks 5 gol/tim, selisih mengikuti jarak kekuatan klub)
+    dan disesuaikan hasil favorit model + gap kekuatan."""
     home_sim_goals = np.asarray(home_sim_goals)
     away_sim_goals = np.asarray(away_sim_goals)
     counts = Counter(zip(home_sim_goals.tolist(), away_sim_goals.tolist()))
@@ -53,10 +79,11 @@ def calculate_smart_projected_score(home_sim_goals, away_sim_goals, prob_home, p
 
     margin = prob_home - prob_away
     xg_diff = home_xg - away_xg
+    max_margin = allowed_margin(strength_gap)
 
-    if margin >= 20.0 or xg_diff >= 0.8:
+    if margin >= 20.0 or xg_diff >= 0.8 or (strength_gap is not None and strength_gap >= 15.0):
         outcome = "home"
-    elif margin <= -20.0 or xg_diff <= -0.8:
+    elif margin <= -20.0 or xg_diff <= -0.8 or (strength_gap is not None and strength_gap <= -15.0):
         outcome = "away"
     else:
         outcome = "close"
@@ -65,13 +92,13 @@ def calculate_smart_projected_score(home_sim_goals, away_sim_goals, prob_home, p
         h, a = score
         if h > MAX_PROJECTED_GOALS or a > MAX_PROJECTED_GOALS:
             return False
-        if abs(h - a) > MAX_PROJECTED_MARGIN:
+        if abs(h - a) > max_margin:
             return False
         if outcome == "home":
             return h > a
         if outcome == "away":
             return a > h
-        return abs(h - a) <= 1
+        return abs(h - a) <= min(1, max_margin)
 
     candidates = [s for s in counts if acceptable(s)]
     if not candidates:

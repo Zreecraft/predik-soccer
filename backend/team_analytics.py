@@ -27,12 +27,18 @@ def _is_home(team_name: str, row) -> bool:
     return team_name.lower() in str(row["home_team"]).lower()
 
 
-def get_team_power_index(team_name, matches_df, last_n=20):
-    """Menghitung Rating Kekuatan Tim berdasarkan N Pertandingan Terakhir."""
+def get_team_power_index(team_name, matches_df, last_n=20, prior_xg=None, prior_ga=None):
+    """Menghitung Rating Kekuatan Tim berdasarkan N Pertandingan Terakhir.
+
+    prior_xg/prior_ga: baseline ekspektasi dari rating kekuatan klub (club_data).
+    Dipakai sebagai titik regresi, terutama untuk klub tanpa riwayat data.
+    """
     team_matches = _team_matches(team_name, matches_df)
 
     if team_matches.empty:
-        return {"avg_xg": 1.45, "avg_ga": 1.20, "win_rate": 45.0, "power_score": 50.0}
+        base_xg = float(prior_xg) if prior_xg else 1.45
+        base_ga = float(prior_ga) if prior_ga else 1.20
+        return {"avg_xg": round(base_xg, 2), "avg_ga": round(base_ga, 2), "win_rate": 45.0, "power_score": 50.0}
 
     recent_matches = team_matches.head(last_n)
     total_games = len(recent_matches)
@@ -63,11 +69,15 @@ def get_team_power_index(team_name, matches_df, last_n=20):
     raw_avg_xg = total_xg / total_games
     avg_ga = goals_conceded / total_games
 
-    # Regresi ke rata-rata liga: sampel kecil (4-7 laga) tidak boleh meledak
-    # jadi xG ekstrem (mis. 5+). Makin sedikit laga, makin dekat ke baseline.
+    # Regresi ke baseline (prior rating klub bila ada, else rata-rata liga):
+    # sampel kecil (4-7 laga) tidak boleh meledak jadi xG ekstrem (mis. 5+).
+    # Makin sedikit laga, makin dekat ke baseline.
+    baseline = float(prior_xg) if prior_xg else LEAGUE_AVG_XG
     reliability = total_games / (total_games + 8.0)
-    avg_xg = LEAGUE_AVG_XG * (1 - reliability) + raw_avg_xg * reliability
+    avg_xg = baseline * (1 - reliability) + raw_avg_xg * reliability
     avg_xg = float(np.clip(avg_xg, MIN_TEAM_XG, MAX_TEAM_XG))
+    if prior_ga:
+        avg_ga = float(prior_ga) * (1 - reliability) + avg_ga * reliability
     avg_ga = float(np.clip(avg_ga, MIN_TEAM_GA, MAX_TEAM_GA))
 
     # Formula Power Rating (Bobot: Win Rate 40%, Offense 35%, Defense 25%)

@@ -32,8 +32,14 @@ def calculate_weighted_ucl_xg(team_name, is_home, matches_df):
     """
     Menghitung xG Gabungan: Performa Domestik (60%) + UCL DNA/Prestige Multiplier (40%)
     """
-    # 1. Performa Liga Domestik 20 Match Terakhir
-    stats = get_team_power_index(team_name, matches_df, last_n=20)
+    # 1. Performa Liga Domestik 20 Match Terakhir (prior rating klub)
+    from club_data import get_club_strength, xg_prior_from_rating
+
+    strength = get_club_strength(team_name)
+    stats = get_team_power_index(
+        team_name, matches_df, last_n=20,
+        prior_xg=xg_prior_from_rating(strength["overall"]),
+    )
     bias = get_home_away_bias(team_name, is_home=is_home, matches_df=matches_df)
     
     base_xg = stats['avg_xg'] * bias

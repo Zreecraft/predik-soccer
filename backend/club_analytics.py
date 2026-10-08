@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 from assets import get_team_logo
+from club_data import ga_prior_from_rating, get_club_strength, xg_prior_from_rating
 from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES
 from team_analytics import clamp_match_xg, get_home_away_bias, get_team_form, get_team_power_index
 
@@ -57,7 +58,22 @@ def _team_hash(name: str) -> int:
 
 
 def _get_profile(team: str) -> dict:
-    return {**DEFAULT_PROFILE, **CLUB_PROFILES.get(team, {})}
+    """Profil tim: statis (overload/set-piece) -> live club_profiles.json (coach/formasi/rating)."""
+    profile = {**DEFAULT_PROFILE, **CLUB_PROFILES.get(team, {})}
+    live = _get_live_profile(team)
+    for key in ("coach", "formation", "stadium", "style", "rating", "coach_rating"):
+        if live.get(key) not in (None, ""):
+            profile[key] = live[key]
+    return profile
+
+
+def _get_live_profile(team: str) -> dict:
+    try:
+        from club_data import get_club_profile
+
+        return get_club_profile(team)
+    except Exception:
+        return {}
 
 
 def _difficulty_from_win_prob(win_pct: float) -> tuple:
@@ -193,7 +209,12 @@ def get_club_analytics(team: str) -> dict:
         shots_df = None
 
     profile = _get_profile(team)
-    power = get_team_power_index(team, historical_df, last_n=20)
+    team_strength = get_club_strength(team)
+    power = get_team_power_index(
+        team, historical_df, last_n=20,
+        prior_xg=xg_prior_from_rating(team_strength["overall"]),
+        prior_ga=ga_prior_from_rating(team_strength["overall"]),
+    )
 
     # Posisi liga saat ini
     league_code = None
@@ -248,12 +269,24 @@ def get_club_analytics(team: str) -> dict:
         h, a = row["home_team"], row["away_team"]
         is_home = h.lower() == team.lower()
         opponent = a if is_home else h
-        h_stats = get_team_power_index(h, historical_df, last_n=20)
-        a_stats = get_team_power_index(a, historical_df, last_n=20)
+        h_str = get_club_strength(h)
+        a_str = get_club_strength(a)
+        h_stats = get_team_power_index(
+            h, historical_df, last_n=20,
+            prior_xg=xg_prior_from_rating(h_str["overall"]),
+            prior_ga=ga_prior_from_rating(h_str["overall"]),
+        )
+        a_stats = get_team_power_index(
+            a, historical_df, last_n=20,
+            prior_xg=xg_prior_from_rating(a_str["overall"]),
+            prior_ga=ga_prior_from_rating(a_str["overall"]),
+        )
         h_bias = get_home_away_bias(h, is_home=True, matches_df=historical_df)
         a_bias = get_home_away_bias(a, is_home=False, matches_df=historical_df)
-        h_xg = clamp_match_xg(h_stats["avg_xg"] * h_bias)
-        a_xg = clamp_match_xg(a_stats["avg_xg"] * a_bias)
+        gap_mult_h = 1.0 + (h_str["overall"] - a_str["overall"]) * 0.004
+        gap_mult_a = 1.0 + (a_str["overall"] - h_str["overall"]) * 0.004
+        h_xg = clamp_match_xg(h_stats["avg_xg"] * h_bias * gap_mult_h)
+        a_xg = clamp_match_xg(a_stats["avg_xg"] * a_bias * gap_mult_a)
 
         rng = np.random.default_rng(abs(_team_hash(str(row.get("match_id", opponent)))) % (2**32))
         sims = 400
@@ -297,6 +330,8 @@ def get_club_analytics(team: str) -> dict:
             "stadium": profile["stadium"],
             "style": profile["style"],
             "overload_side": profile["overload_side"],
+            "rating": profile.get("rating"),
+            "coach_rating": profile.get("coach_rating"),
         },
         "power": power,
         "form": form,

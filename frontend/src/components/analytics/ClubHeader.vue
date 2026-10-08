@@ -42,6 +42,10 @@ defineProps({
       </div>
       <div class="flex gap-3">
         <div class="rounded-xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-center">
+          <div class="label-caps">Rating</div>
+          <div class="num mt-1 text-2xl font-bold text-amber-300">{{ data.profile?.rating ?? '—' }}</div>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950/40 px-4 py-3 text-center">
           <div class="label-caps">Power</div>
           <div class="num mt-1 text-2xl font-bold text-sky-400">{{ data.power?.power_score ?? '—' }}</div>
         </div>

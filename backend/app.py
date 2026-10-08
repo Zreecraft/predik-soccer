@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from assets import get_key_player, get_team_logo
 from club_analytics import get_club_analytics, LEAGUE_NAMES
+from club_data import ga_prior_from_rating, get_club_profile, get_club_strength, xg_prior_from_rating
 from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
 from season_projection import project_league
@@ -201,14 +202,33 @@ def predict_match(home_team: str, away_team: str):
 
     shots_df = _load_shots()
 
-    home_stats = get_team_power_index(home_team, matches_df, last_n=20)
-    away_stats = get_team_power_index(away_team, matches_df, last_n=20)
+    home_profile = get_club_profile(home_team)
+    away_profile = get_club_profile(away_team)
+    home_strength = get_club_strength(home_team)
+    away_strength = get_club_strength(away_team)
+    strength_gap = round(home_strength["overall"] - away_strength["overall"], 1)
+
+    home_stats = get_team_power_index(
+        home_team, matches_df, last_n=20,
+        prior_xg=xg_prior_from_rating(home_strength["overall"]),
+        prior_ga=ga_prior_from_rating(home_strength["overall"]),
+    )
+    away_stats = get_team_power_index(
+        away_team, matches_df, last_n=20,
+        prior_xg=xg_prior_from_rating(away_strength["overall"]),
+        prior_ga=ga_prior_from_rating(away_strength["overall"]),
+    )
 
     home_bias = get_home_away_bias(home_team, is_home=True, matches_df=matches_df)
     away_bias = get_home_away_bias(away_team, is_home=False, matches_df=matches_df)
 
-    final_home_xg = clamp_match_xg(home_stats["avg_xg"] * home_bias)
-    final_away_xg = clamp_match_xg(away_stats["avg_xg"] * away_bias)
+    # Blend rating kekuatan ke xG (power index = data historis; rating = prior jarak kekuatan)
+    def _blend_xg(base, bias, overall, opponent_overall):
+        gap_mult = 1.0 + (overall - opponent_overall) * 0.004  # +/-20 rating -> +/-8%
+        return clamp_match_xg(base * bias * gap_mult)
+
+    final_home_xg = _blend_xg(home_stats["avg_xg"], home_bias, home_strength["overall"], away_strength["overall"])
+    final_away_xg = _blend_xg(away_stats["avg_xg"], away_bias, away_strength["overall"], home_strength["overall"])
 
     home_sim, away_sim, prob_ht = simulate_10k_matches_minute_by_minute(
         final_home_xg, final_away_xg, iterations=10000, verbose=False
@@ -219,7 +239,8 @@ def predict_match(home_team: str, away_team: str):
     prob_away = round((np.sum(away_sim > home_sim) / 10000) * 100, 1)
 
     smart_h, smart_a, confidence = calculate_smart_projected_score(
-        home_sim, away_sim, prob_home, prob_away, final_home_xg, final_away_xg
+        home_sim, away_sim, prob_home, prob_away, final_home_xg, final_away_xg,
+        strength_gap=strength_gap,
     )
 
     home_form = get_team_form(home_team, matches_df, 5)
@@ -242,18 +263,34 @@ def predict_match(home_team: str, away_team: str):
             "logo": get_team_logo(home_team),
             "star_player": get_key_player(home_team),
             "form": home_form,
+            "coach": home_profile.get("coach"),
+            "formation": home_profile.get("formation"),
+            "strength": home_strength,
         },
         "away_team": {
             "name": away_team,
             "logo": get_team_logo(away_team),
             "star_player": get_key_player(away_team),
             "form": away_form,
+            "coach": away_profile.get("coach"),
+            "formation": away_profile.get("formation"),
+            "strength": away_strength,
+        },
+        "strength_gap": {
+            "value": abs(strength_gap),
+            "home": home_strength["overall"],
+            "away": away_strength["overall"],
+            "favorite": (
+                home_team if strength_gap >= 5
+                else away_team if strength_gap <= -5
+                else None
+            ),
         },
         "meta": {
-            "stadium": "Stadion pertandingan",
+            "stadium": home_profile.get("stadium") or "Stadion pertandingan",
             "referee": "Wasit pertandingan",
             "competition": "Liga",
-            "note": "Meta stadion/wasit placeholder — data Understat tidak menyertakan info ini.",
+            "note": "Stadion dari profil klub tuan rumah; wasit placeholder (data Understat tidak menyertakan info ini).",
         },
         "projection": {
             "score": f"{smart_h} - {smart_a}",
