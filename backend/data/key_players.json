@@ -20,9 +20,9 @@
         "image": "/assets/players/palmer.png"
     },
     "Tottenham": {
-        "player_name": "Son Heung-min",
-        "position": "LW",
-        "image": "/assets/players/son.png"
+        "player_name": "Dominic Solanke",
+        "position": "Centre-Forward",
+        "image": "/assets/players/dominic_solanke.png"
     },
     "Manchester United": {
         "player_name": "Bruno Fernandes",
@@ -108,5 +108,295 @@
         "player_name": "Ousmane Dembélé",
         "position": "RW",
         "image": "/assets/players/dembele.png"
+    },
+    "Alaves": {
+        "player_name": "Ander Guevara",
+        "position": "Midfielder",
+        "image": "/assets/players/ander_guevara.png"
+    },
+    "Aston Villa": {
+        "player_name": "Emi Buendía",
+        "position": "Right",
+        "image": "/assets/players/emi_buendía.png"
+    },
+    "Augsburg": {
+        "player_name": "Anton Kade",
+        "position": "Winger",
+        "image": "/assets/players/anton_kade.png"
+    },
+    "Bologna": {
+        "player_name": "Artem Dovbyk",
+        "position": "Centre-Forward",
+        "image": "/assets/players/artem_dovbyk.png"
+    },
+    "Borussia M.Gladbach": {
+        "player_name": "Isac Lidberg",
+        "position": "Centre-Forward",
+        "image": "/assets/players/isac_lidberg.png"
+    },
+    "Bournemouth": {
+        "player_name": "Álvaro Rodríguez",
+        "position": "Centre-Forward",
+        "image": "/assets/players/álvaro_rodríguez.png"
+    },
+    "Brentford": {
+        "player_name": "Callum Wilson",
+        "position": "Centre-Forward",
+        "image": "/assets/players/callum_wilson.png"
+    },
+    "Cagliari": {
+        "player_name": "Andrea Belotti",
+        "position": "Forward",
+        "image": "/assets/players/andrea_belotti.png"
+    },
+    "Celta Vigo": {
+        "player_name": "Borja Iglesias",
+        "position": "Centre-Forward",
+        "image": "/assets/players/borja_iglesias.png"
+    },
+    "Como": {
+        "player_name": "Álvaro Morata",
+        "position": "Centre-Forward",
+        "image": "/assets/players/álvaro_morata.png"
+    },
+    "Coventry": {
+        "player_name": "Brandon Thomas-Asante",
+        "position": "Centre-Forward",
+        "image": "/assets/players/brandon_thomas_asante.png"
+    },
+    "Crystal Palace": {
+        "player_name": "Daichi Kamada",
+        "position": "Attacking",
+        "image": "/assets/players/daichi_kamada.png"
+    },
+    "Deportivo La Coruna": {
+        "player_name": "Cristian Herrera",
+        "position": "Centre-Forward",
+        "image": "/assets/players/cristian_herrera.png"
+    },
+    "Eintracht Frankfurt": {
+        "player_name": "Jonathan Burkardt",
+        "position": "Centre-Forward",
+        "image": "/assets/players/jonathan_burkardt.png"
+    },
+    "Elche": {
+        "player_name": "Adam Boayar",
+        "position": "Second",
+        "image": "/assets/players/adam_boayar.png"
+    },
+    "Elversberg": {
+        "player_name": "Cole Campbell",
+        "position": "Right",
+        "image": "/assets/players/cole_campbell.png"
+    },
+    "Espanyol": {
+        "player_name": "Álex Calatrava",
+        "position": "Attacking",
+        "image": "/assets/players/álex_calatrava.png"
+    },
+    "Everton": {
+        "player_name": "Brennan Johnson",
+        "position": "Right",
+        "image": "/assets/players/brennan_johnson.png"
+    },
+    "FC Cologne": {
+        "player_name": "Florian Kainz",
+        "position": "Attacking",
+        "image": "/assets/players/florian_kainz.png"
+    },
+    "Fiorentina": {
+        "player_name": "Beto",
+        "position": "Centre-Forward",
+        "image": "/assets/players/beto.png"
+    },
+    "Freiburg": {
+        "player_name": "Derry Scherhant",
+        "position": "Centre-Forward",
+        "image": "/assets/players/derry_scherhant.png"
+    },
+    "Frosinone": {
+        "player_name": "Antonio Raimondo",
+        "position": "Forward",
+        "image": "/assets/players/antonio_raimondo.png"
+    },
+    "Fulham": {
+        "player_name": "Gonzalo García",
+        "position": "Centre-Forward",
+        "image": "/assets/players/gonzalo_garcía.png"
+    },
+    "Genoa": {
+        "player_name": "Caleb Ekuban",
+        "position": "Forward",
+        "image": "/assets/players/caleb_ekuban.png"
+    },
+    "Getafe": {
+        "player_name": "Borja Mayoral",
+        "position": "Centre-Forward",
+        "image": "/assets/players/borja_mayoral.png"
+    },
+    "Hamburger SV": {
+        "player_name": "Fábio Vieira",
+        "position": "Attacking",
+        "image": "/assets/players/fábio_vieira.png"
+    },
+    "Hoffenheim": {
+        "player_name": "Adam Hložek",
+        "position": "Centre-Forward",
+        "image": "/assets/players/adam_hložek.png"
+    },
+    "Hull": {
+        "player_name": "Joe Gelhardt",
+        "position": "Centre-Forward",
+        "image": "/assets/players/joe_gelhardt.png"
+    },
+    "Ipswich": {
+        "player_name": "Chuba Akpom",
+        "position": "Centre-Forward",
+        "image": "/assets/players/chuba_akpom.png"
+    },
+    "Lazio": {
+        "player_name": "Albert Guðmundsson",
+        "position": "Forward",
+        "image": "/assets/players/albert_guðmundsson.png"
+    },
+    "Lecce": {
+        "player_name": "Hamza Rafia",
+        "position": "Midfielder",
+        "image": "/assets/players/hamza_rafia.png"
+    },
+    "Leeds": {
+        "player_name": "Dominic Calvert-Lewin",
+        "position": "Centre-Forward",
+        "image": "/assets/players/dominic_calvert_lewin.png"
+    },
+    "Levante": {
+        "player_name": "Etta Eyong",
+        "position": "Centre-Forward",
+        "image": "/assets/players/etta_eyong.png"
+    },
+    "Mainz 05": {
+        "player_name": "Fabio Moreno Fell",
+        "position": "Forward",
+        "image": "/assets/players/fabio_moreno_fell.png"
+    },
+    "Malaga": {
+        "player_name": "Adrián Niño",
+        "position": "Centre-Forward",
+        "image": "/assets/players/adrián_niño.png"
+    },
+    "Monza": {
+        "player_name": "Andrea Petagna",
+        "position": "Forward",
+        "image": "/assets/players/andrea_petagna.png"
+    },
+    "Newcastle United": {
+        "player_name": "Aladji Bamba",
+        "position": "Midfielder",
+        "image": "/assets/players/aladji_bamba.png"
+    },
+    "Nottingham Forest": {
+        "player_name": "Chris Wood",
+        "position": "Centre-Forward",
+        "image": "/assets/players/chris_wood.png"
+    },
+    "Osasuna": {
+        "player_name": "Aimar Oroz",
+        "position": "Centre-Forward",
+        "image": "/assets/players/aimar_oroz.png"
+    },
+    "Paderborn": {
+        "player_name": "Deniz Zeitler",
+        "position": "Forward",
+        "image": "/assets/players/deniz_zeitler.png"
+    },
+    "Parma Calcio 1913": {
+        "player_name": "El Bilal Toure",
+        "position": "Forward",
+        "image": "/assets/players/el_bilal_toure.png"
+    },
+    "Racing Santander": {
+        "player_name": "Asier Villalibre",
+        "position": "Centre-Forward",
+        "image": "/assets/players/asier_villalibre.png"
+    },
+    "RasenBallsport Leipzig": {
+        "player_name": "Conrad Harder",
+        "position": "Centre-Forward",
+        "image": "/assets/players/conrad_harder.png"
+    },
+    "Rayo Vallecano": {
+        "player_name": "Alemão",
+        "position": "Centre-Forward",
+        "image": "/assets/players/alemão.png"
+    },
+    "Real Sociedad": {
+        "player_name": "Ander Barrenetxea",
+        "position": "Forward",
+        "image": "/assets/players/ander_barrenetxea.png"
+    },
+    "Sassuolo": {
+        "player_name": "Armand Laurienté",
+        "position": "Forward",
+        "image": "/assets/players/armand_laurienté.png"
+    },
+    "Schalke 04": {
+        "player_name": "Edin Džeko",
+        "position": "Centre-Forward",
+        "image": "/assets/players/edin_džeko.png"
+    },
+    "Sevilla": {
+        "player_name": "Alfon",
+        "position": "Left",
+        "image": "/assets/players/alfon.png"
+    },
+    "Sunderland": {
+        "player_name": "Brian Brobbey",
+        "position": "Centre-Forward",
+        "image": "/assets/players/brian_brobbey.png"
+    },
+    "Torino": {
+        "player_name": "Che Adams",
+        "position": "Centre-Forward",
+        "image": "/assets/players/che_adams.png"
+    },
+    "Udinese": {
+        "player_name": "Adam Buksa",
+        "position": "Centre-Forward",
+        "image": "/assets/players/adam_buksa.png"
+    },
+    "Union Berlin": {
+        "player_name": "Christopher Trimmel",
+        "position": "Forward",
+        "image": "/assets/players/christopher_trimmel.png"
+    },
+    "Valencia": {
+        "player_name": "Dani Raba",
+        "position": "Right",
+        "image": "/assets/players/dani_raba.png"
+    },
+    "Venezia": {
+        "player_name": "Akor Adams",
+        "position": "Forward",
+        "image": "/assets/players/akor_adams.png"
+    },
+    "VfB Stuttgart": {
+        "player_name": "Deniz Undav",
+        "position": "Centre-Forward",
+        "image": "/assets/players/deniz_undav.png"
+    },
+    "Villarreal": {
+        "player_name": "Georges Mikautadze",
+        "position": "Centre-Forward",
+        "image": "/assets/players/georges_mikautadze.png"
+    },
+    "Werder Bremen": {
+        "player_name": "Cedric Itten",
+        "position": "Centre-Forward",
+        "image": "/assets/players/cedric_itten.png"
+    },
+    "Brighton": {
+        "player_name": "Evan Ferguson",
+        "position": "Centre-Forward",
+        "image": "/assets/players/evan_ferguson.png"
     }
 }

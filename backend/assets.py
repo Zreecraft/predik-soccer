@@ -65,4 +65,15 @@ def get_team_logo(team_name: str) -> str:
 
 def get_key_player(team_name: str) -> dict:
     entry = _find(_load_players(), _PLAYERS_BY_CANON, team_name)
-    return entry or {"player_name": "Key Player", "position": "N/A", "image": None}
+    if entry:
+        return entry
+    # Fallback: bintang dari profil klub live (club_profiles.json)
+    try:
+        from club_data import star_player
+
+        fallback = star_player(team_name)
+        if fallback:
+            return fallback
+    except Exception:
+        pass
+    return {"player_name": "Key Player", "position": "N/A", "image": None}
