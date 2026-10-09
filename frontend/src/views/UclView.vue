@@ -4,37 +4,49 @@ import { RefreshCw } from 'lucide-vue-next'
 import { fetchUcl } from '@/services/api'
 import { useAsyncData } from '@/composables/useAsyncData'
 import PotGrid from '@/components/ucl/PotGrid.vue'
+import LeagueTable from '@/components/ucl/LeagueTable.vue'
 import BracketTree from '@/components/ucl/BracketTree.vue'
 import ChampionCard from '@/components/ucl/ChampionCard.vue'
 import SkeletonCard from '@/components/shared/SkeletonCard.vue'
+import UclDrawer from '@/components/ucl/UclDrawer.vue'
 
 const tabs = [
-  { id: 'all', label: 'Semua Babak' },
-  { id: 'pots', label: 'Fase Liga (Pot)' },
-  { id: 'r16', label: '16 Besar' },
-  { id: 'sf', label: 'Semifinal' },
-  { id: 'final', label: 'Final' },
+  { id: 'all', label: 'Bagan & Semua Babak' },
+  { id: 'bracket', label: 'Bagan Visual Gugur' },
+  { id: 'fase', label: 'Fase Liga & Play-off' },
 ]
 
 const active = ref('all')
 const { data, loading, error, load } = useAsyncData(fetchUcl)
 
-const showPots = computed(() => active.value === 'all' || active.value === 'pots')
-const showR16 = computed(() => active.value === 'all' || active.value === 'r16')
-const showSf = computed(() => active.value === 'all' || active.value === 'sf')
-const showFinal = computed(() => active.value === 'all' || active.value === 'final')
+// Drawer State Management
+const selectedMatch = ref(null)
+const isDrawerOpen = ref(false)
+
+function openDrawer(match) {
+  selectedMatch.value = match
+  isDrawerOpen.value = true
+}
+
+function closeDrawer() {
+  isDrawerOpen.value = false
+}
+
+const showBracket = computed(() => active.value === 'all' || active.value === 'bracket')
+const showFase = computed(() => active.value === 'all' || active.value === 'fase')
 
 onMounted(load)
 </script>
 
 <template>
   <div class="space-y-5">
+    <!-- Top Header -->
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <div class="label-caps text-sky-400/90">UEFA Champions League</div>
         <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-50">Bagan & Simulasi UCL</h1>
         <p class="mt-1 text-sm text-slate-400">
-          League Phase 36 tim, alokasi pot, dan knockout bracket dengan probabilitas pemenang.
+          Klasemen 36 tim, babak Play-off, dan knockout bracket simetris dengan probabilitas pemenang.
         </p>
       </div>
       <button class="btn-ghost" type="button" :disabled="loading" @click="load">
@@ -43,6 +55,7 @@ onMounted(load)
       </button>
     </div>
 
+    <!-- Tab navigation -->
     <div class="flex flex-wrap gap-2">
       <button
         v-for="t in tabs"
@@ -60,10 +73,12 @@ onMounted(load)
       </button>
     </div>
 
+    <!-- Error message -->
     <div v-if="error" class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
       {{ error }}
     </div>
 
+    <!-- Skeleton Loading -->
     <div v-if="loading && !data">
       <div class="grid gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2"><SkeletonCard :lines="10" /></div>
@@ -71,74 +86,37 @@ onMounted(load)
       </div>
     </div>
 
+    <!-- Main Content -->
     <template v-else-if="data">
-      <div class="grid gap-4 lg:grid-cols-3">
-        <div class="space-y-4 lg:col-span-2">
-          <PotGrid v-if="showPots" :pots="data.pots || {}" />
+      <!-- 1. Full-Width Symmetrical Visual Tournament Bracket -->
+      <div v-if="showBracket" class="w-full">
+        <BracketTree
+          :knockout="data.knockout_stage || {}"
+          :champion="data.champion || {}"
+          @select-match="openDrawer"
+        />
+      </div>
 
-          <div v-if="showR16" class="grid gap-4 xl:grid-cols-2">
-            <div class="panel p-4">
-              <BracketTree
-                :matches="data.knockout_stage?.playoffs || []"
-                title="Play-off Knockout"
-              />
-            </div>
-            <div class="panel p-4">
-              <BracketTree
-                :matches="data.knockout_stage?.round_of_16 || []"
-                title="Babak 16 Besar"
-              />
-            </div>
-          </div>
+      <!-- 2. Klasemen Fase Liga (seluruh 36 tim + zona play-off) -->
+      <LeagueTable v-if="showFase" :rows="data.league_phase || []" />
 
-          <div v-if="showSf" class="grid gap-4 xl:grid-cols-2">
-            <div class="panel p-4">
-              <BracketTree
-                :matches="data.knockout_stage?.quarter_finals || []"
-                title="Perempat Final"
-              />
-            </div>
-            <div class="panel p-4">
-              <BracketTree
-                :matches="data.knockout_stage?.semi_finals || []"
-                title="Semifinal"
-              />
-            </div>
-          </div>
-
-          <div v-if="showFinal" class="panel p-4">
-            <BracketTree
-              :matches="[data.knockout_stage?.final].filter(Boolean)"
-              title="Grand Final"
-            />
-          </div>
+      <!-- 3. Alokasi Pot & Champion -->
+      <div v-if="showFase" class="grid gap-4 lg:grid-cols-3">
+        <div class="lg:col-span-2">
+          <PotGrid :pots="data.pots || {}" />
         </div>
 
-        <div class="space-y-4">
+        <div>
           <ChampionCard :champion="data.champion || {}" />
-
-          <div class="panel p-5">
-            <div class="label-caps">League Phase Snapshot</div>
-            <div class="mt-3 space-y-2">
-              <div
-                v-for="row in (data.league_phase || []).slice(0, 8)"
-                :key="row.team"
-                class="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
-              >
-                <div class="flex min-w-0 items-center gap-2">
-                  <span class="num w-6 text-[11px] text-slate-500">{{ row.position }}</span>
-                  <img v-if="row.logo" :src="row.logo" class="h-5 w-5 object-contain" :alt="row.team" />
-                  <span class="truncate text-xs font-medium text-slate-200">{{ row.team }}</span>
-                </div>
-                <div class="num shrink-0 text-[11px] text-sky-400">{{ row.PTS }} pts</div>
-              </div>
-            </div>
-            <p class="mt-3 text-[11px] leading-relaxed text-slate-500">
-              8 teratas lolos langsung ke 16 besar. Posisi 9–24 melalui play-off knockout.
-            </p>
-          </div>
         </div>
       </div>
     </template>
+
+    <!-- Side-Over Drawer Modal -->
+    <UclDrawer
+      :is-open="isDrawerOpen"
+      :match-data="selectedMatch"
+      @close="closeDrawer"
+    />
   </div>
 </template>

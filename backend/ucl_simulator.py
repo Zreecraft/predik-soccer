@@ -72,6 +72,10 @@ def simulate_knockout_match(team1, team2, matches_df):
     agg1 = g1_h + g2_a
     agg2 = g1_a + g2_h
 
+    # Clamp agregat agar skor wajar & rapi di UI (maks 5-4)
+    agg1 = min(int(agg1), 5)
+    agg2 = min(int(agg2), 4)
+
     if agg1 > agg2:
         winner = team1
     elif agg2 > agg1:
@@ -80,7 +84,18 @@ def simulate_knockout_match(team1, team2, matches_df):
         # Poin Penentu jika Agregat Imbang (Adu Penalti)
         winner = team1 if random.random() > 0.5 else team2
 
-    return winner, f"{team1} {agg1} - {agg2} {team2}", agg1, agg2
+    xg1 = calculate_weighted_ucl_xg(team1, is_home=True, matches_df=matches_df) + \
+        calculate_weighted_ucl_xg(team1, is_home=False, matches_df=matches_df)
+    xg2 = calculate_weighted_ucl_xg(team2, is_home=True, matches_df=matches_df) + \
+        calculate_weighted_ucl_xg(team2, is_home=False, matches_df=matches_df)
+
+    details = {
+        "leg1": {"team_home": team1, "team_away": team2, "goals_home": int(g1_h), "goals_away": int(g1_a)},
+        "leg2": {"team_home": team2, "team_away": team1, "goals_home": int(g2_h), "goals_away": int(g2_a)},
+        "xg_home": round(xg1 / 2, 2),
+        "xg_away": round(xg2 / 2, 2),
+    }
+    return winner, f"{team1} {agg1} - {agg2} {team2}", agg1, agg2, details
 
 
 def knockout_win_probability(team1, team2, matches_df, n_sims=80):
@@ -159,12 +174,19 @@ def simulate_ucl_tournament(matches_df):
         if pos <= 8:
             status = "LOLOS"
             status_detail = "Direct 16"
+            is_seeded = True
+        elif pos <= 16:
+            status = "PLAY-OFF"
+            status_detail = "Play-off Knockout (Seeded)"
+            is_seeded = True
         elif pos <= 24:
             status = "PLAY-OFF"
-            status_detail = "Play-off Knockout"
+            status_detail = "Play-off Knockout (Unseeded)"
+            is_seeded = False
         else:
             status = "GUGUR"
             status_detail = "Eliminated"
+            is_seeded = False
         league_phase.append({
             "position": pos,
             "team": row['team'],
@@ -179,6 +201,7 @@ def simulate_ucl_tournament(matches_df):
             "avg_xg": float(row.get('avg_xg', 0)),
             "status": status,
             "status_detail": status_detail,
+            "is_seeded": is_seeded,
         })
 
     pot_labels = {1: "Pot 1", 2: "Pot 2", 3: "Pot 3", 4: "Pot 4"}
@@ -187,42 +210,108 @@ def simulate_ucl_tournament(matches_df):
         pot_num = min(4, (item["position"] - 1) // 9 + 1)
         pots[pot_labels[pot_num]].append(item)
 
-    def _knockout_round(team_pairs, label):
+    def _knockout_round(team_pairs, label, prefix, slot_names=None):
         results = []
         next_round = []
         for i, (t1, t2) in enumerate(team_pairs):
-            winner, score_str, agg1, agg2 = simulate_knockout_match(t1, t2, matches_df)
+            winner, score_str, agg1, agg2, details = simulate_knockout_match(t1, t2, matches_df)
             probs = knockout_win_probability(t1, t2, matches_df)
             next_round.append(winner)
+            side = "left" if i < (len(team_pairs) // 2) else "right"
+            slot = slot_names[i] if (slot_names and i < len(slot_names)) else f"{label} #{i + 1}"
+            l1_h = details["leg1"]["goals_home"]
+            l1_a = details["leg1"]["goals_away"]
+            l2_h = details["leg2"]["goals_home"]
+            l2_a = details["leg2"]["goals_away"]
             results.append({
+                "match_id": f"{prefix}_m{i + 1}",
                 "label": f"{label} #{i + 1}",
+                "round_name": label,
+                "bracket_slot": slot,
                 "team_home": t1,
                 "team_away": t2,
+                "seeded_team": t1,
+                "unseeded_team": t2,
                 "agg_home": int(agg1),
                 "agg_away": int(agg2),
                 "score": score_str,
+                "leg1_score": f"{l1_h} - {l1_a}",
+                "leg2_score": f"{l2_h} - {l2_a}",
+                "aggregate": f"{int(agg1)} - {int(agg2)}",
                 "winner": winner,
                 "win_prob_home": probs.get(t1, 50.0),
                 "win_prob_away": probs.get(t2, 50.0),
+                "winner_prob": probs.get(winner, 50.0),
+                "home_xg": details["xg_home"],
+                "away_xg": details["xg_away"],
+                "leg1": details["leg1"],
+                "leg2": details["leg2"],
+                "side": side,
             })
         return results, next_round
 
-    playoff_teams = list(df_ucl.iloc[8:24]['team'])
-    round_16_qualified = list(df_ucl.iloc[0:8]['team'])
+    # ==================================================================
+    # SWISS-MODEL SEEDING (REGULASI RESMI UEF)
+    # - Peringkat 1-8  : Direct R16 (seeded, tuan rumah leg 2)
+    # - Peringkat 9-16 : Play-off seeded | Peringkat 17-24: unseeded
+    # - Locked bracket tennis-style: P1 & P2 di ujung berseberangan
+    # ==================================================================
+    league_by_pos = [item["team"] for item in league_phase]  # index 0 = posisi 1
+    round_16_qualified = league_by_pos[0:8]    # posisi 1-8
+    po_seeded = league_by_pos[8:16]            # posisi 9-16 (urut peringkat)
+    po_unseeded = league_by_pos[16:24]         # posisi 17-24 (urut peringkat)
 
-    playoff_pairs = [(playoff_teams[i], playoff_teams[15 - i]) for i in range(8)]
-    playoff_results, playoff_winners = _knockout_round(playoff_pairs, "Play-off")
+    # ---- Pasangan Play-off (4 pair terstruktur, seeded = team_home / leg-2 home) ----
+    # Pair 1: 9/10  vs 23/24 | Pair 2: 11/12 vs 21/22
+    # Pair 3: 13/14 vs 19/20 | Pair 4: 15/16 vs 17/18
+    # po_unseeded = [17,18,19,20,21,22,23,24] -> idx: 0=17,1=18,2=19,3=20,4=21,5=22,6=23,7=24
+    po_pairs = [
+        (po_seeded[0], po_unseeded[7]),  # 9  vs 24
+        (po_seeded[1], po_unseeded[6]),  # 10 vs 23
+        (po_seeded[2], po_unseeded[5]),  # 11 vs 22
+        (po_seeded[3], po_unseeded[4]),  # 12 vs 21
+        (po_seeded[4], po_unseeded[3]),  # 13 vs 20
+        (po_seeded[5], po_unseeded[2]),  # 14 vs 19
+        (po_seeded[6], po_unseeded[1]),  # 15 vs 18
+        (po_seeded[7], po_unseeded[0]),  # 16 vs 17
+    ]
 
-    round_16_teams = round_16_qualified + playoff_winners
-    random.shuffle(round_16_teams)
-    r16_pairs = [(round_16_teams[i], round_16_teams[i + 1]) for i in range(0, 16, 2)]
-    r16_results, qf_teams = _knockout_round(r16_pairs, "16 Besar")
+    playoff_results, po_winners = _knockout_round(po_pairs, "Play-off", "playoff")
 
-    qf_pairs = [(qf_teams[i], qf_teams[i + 1]) for i in range(0, 8, 2)]
-    qf_results, sf_teams = _knockout_round(qf_pairs, "Perempat Final")
+    # po_winners[0..7] mengikuti urutan po_pairs:
+    #   [0]=Pair1a(9 vs 24), [1]=Pair1b(10 vs 23), [2]=Pair2a(11 vs 22), [3]=Pair2b(12 vs 21),
+    #   [4]=Pair3a(13 vs 20), [5]=Pair3b(14 vs 19), [6]=Pair4a(15 vs 18), [7]=Pair4b(16 vs 17)
 
-    sf_pairs = [(sf_teams[i], sf_teams[i + 1]) for i in range(0, 4, 2)]
-    sf_results, finalists = _knockout_round(sf_pairs, "Semifinal")
+    # ---- Bracket 16 Besar TERKUNCI (tennis-style, P1 vs P2 hanya di Final) ----
+    # Sisi KIRI bagan (match r16_m1..m4 -> QF kiri -> SF kiri -> Final):
+    #   m1: P1  vs w(Pair4a)   | m2: P8  vs w(Pair1a)
+    #   m3: P5  vs w(Pair2b)   | m4: P4  vs w(Pair3b)
+    # Sisi KANAN bagan:
+    #   m5: P2  vs w(Pair4b)   | m6: P7  vs w(Pair1b)
+    #   m7: P6  vs w(Pair2a)   | m8: P3  vs w(Pair3a)
+    r16_pairs = [
+        (round_16_qualified[0], po_winners[6]),  # P1  vs w(15/16-18)
+        (round_16_qualified[7], po_winners[0]),  # P8  vs w(9-24)
+        (round_16_qualified[4], po_winners[3]),  # P5  vs w(12-21)
+        (round_16_qualified[3], po_winners[5]),  # P4  vs w(14-19)
+        (round_16_qualified[1], po_winners[7]),  # P2  vs w(16-17)
+        (round_16_qualified[6], po_winners[1]),  # P7  vs w(10-23)
+        (round_16_qualified[5], po_winners[2]),  # P6  vs w(11-22)
+        (round_16_qualified[2], po_winners[4]),  # P3  vs w(13-20)
+    ]
+    r16_slots = [
+        "Top Left (P1)", "Mid-Left (P8)", "Center-Left (P5)", "Bottom-Left (P4)",
+        "Top Right (P2)", "Mid-Right (P7)", "Center-Right (P6)", "Bottom-Right (P3)",
+    ]
+    r16_results, qf_teams = _knockout_round(r16_pairs, "16 Besar", "r16", slot_names=r16_slots)
+
+    # Bracket terkunci: pemenang m1&m2 -> QF1, m3&m4 -> QF2, m5&m6 -> QF3, m7&m8 -> QF4
+    qf_pairs = [(qf_teams[0], qf_teams[1]), (qf_teams[2], qf_teams[3]),
+                (qf_teams[4], qf_teams[5]), (qf_teams[6], qf_teams[7])]
+    qf_results, sf_teams = _knockout_round(qf_pairs, "Perempat Final", "qf")
+
+    sf_pairs = [(sf_teams[0], sf_teams[1]), (sf_teams[2], sf_teams[3])]
+    sf_results, finalists = _knockout_round(sf_pairs, "Semifinal", "sf")
 
     f1, f2 = finalists[0], finalists[1]
     g1, g2 = simulate_match_xg(f1, f2, matches_df)
@@ -234,16 +323,31 @@ def simulate_ucl_tournament(matches_df):
         champion = f1 if g1 > g2 else f2
         final_note = ""
 
+    f1_xg = calculate_weighted_ucl_xg(f1, is_home=True, matches_df=matches_df)
+    f2_xg = calculate_weighted_ucl_xg(f2, is_home=False, matches_df=matches_df)
+
     final_match = {
+        "match_id": "final_m1",
         "label": "Grand Final",
+        "round_name": "Grand Final",
+        "bracket_slot": "Grand Final",
         "team_home": f1,
         "team_away": f2,
+        "seeded_team": f1,
+        "unseeded_team": f2,
         "agg_home": int(g1),
         "agg_away": int(g2),
         "score": f"{f1} {g1} - {g2} {f2}" + (f" ({final_note})" if final_note else ""),
+        "leg1_score": f"{g1} - {g2}",
+        "leg2_score": "—",
+        "aggregate": f"{int(g1)} - {int(g2)}",
         "winner": champion,
         "win_prob_home": final_probs.get(f1, 50.0),
         "win_prob_away": final_probs.get(f2, 50.0),
+        "winner_prob": final_probs.get(champion, 50.0),
+        "home_xg": round(f1_xg, 2),
+        "away_xg": round(f2_xg, 2),
+        "side": "center",
     }
 
     return {

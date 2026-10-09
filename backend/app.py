@@ -408,10 +408,14 @@ def simulate_ucl():
         for m in result["knockout_stage"][stage]:
             m["logo_home"] = get_team_logo(m["team_home"])
             m["logo_away"] = get_team_logo(m["team_away"])
+            m["star_player_home"] = get_key_player(m["team_home"])
+            m["star_player_away"] = get_key_player(m["team_away"])
 
     final_m = result["knockout_stage"]["final"]
     final_m["logo_home"] = get_team_logo(final_m["team_home"])
     final_m["logo_away"] = get_team_logo(final_m["team_away"])
+    final_m["star_player_home"] = get_key_player(final_m["team_home"])
+    final_m["star_player_away"] = get_key_player(final_m["team_away"])
 
     champion = result["champion"]
     champion["logo"] = get_team_logo(champion["team"])
@@ -451,4 +455,4 @@ def list_teams(league: str | None = None):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("app:app", host="127.0.0.1", port=8001, reload=True)
