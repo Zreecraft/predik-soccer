@@ -118,8 +118,19 @@ def knockout_win_probability(team1, team2, matches_df, n_sims=80):
     }
 
 
-def simulate_ucl_tournament(matches_df):
-    """Simulasi UCL terstruktur: pots, bracket, champion, win probabilities."""
+def simulate_ucl_tournament(matches_df, overrides=None):
+    """Simulasi UCL terstruktur: pots, bracket, champion, win probabilities.
+
+    overrides (opsional, untuk fitur What-If Interactive Simulator):
+        {
+          "league_fixtures": {"lp_m1": {"goals_home": 3, "goals_away": 0}, ...},
+          "knockout": {"playoff_m1": {"agg_home": 2, "agg_away": 1, "winner": "Arsenal"}, ...}
+        }
+    """
+    overrides = overrides or {}
+    lp_over = overrides.get("league_fixtures") or {}
+    ko_over = overrides.get("knockout") or {}
+
     random.seed(42)
     standings = {t: {'P': 0, 'PTS': 0, 'W': 0, 'D': 0, 'L': 0, 'GF': 0, 'GA': 0, 'GD': 0, 'xg_for': 0.0, 'xg_against': 0.0} for t in UCL_TEAMS}
 
@@ -129,10 +140,26 @@ def simulate_ucl_tournament(matches_df):
         for opp in opponents[:4]:
             fixtures.append((team, opp))
 
-    for h_team, a_team in fixtures:
+    league_fixtures = []
+    for i, (h_team, a_team) in enumerate(fixtures):
+        match_id = f"lp_m{i + 1}"
         h_xg = calculate_weighted_ucl_xg(h_team, is_home=True, matches_df=matches_df)
         a_xg = calculate_weighted_ucl_xg(a_team, is_home=False, matches_df=matches_df)
         h_g, a_g = simulate_match_xg(h_team, a_team, matches_df)
+
+        # What-If: skor manual dari pengguna menggantikan hasil simulasi
+        over = lp_over.get(match_id)
+        if over:
+            h_g = int(over.get("goals_home", h_g))
+            a_g = int(over.get("goals_away", a_g))
+
+        league_fixtures.append({
+            "match_id": match_id,
+            "home": h_team,
+            "away": a_team,
+            "goals_home": int(h_g),
+            "goals_away": int(a_g),
+        })
 
         standings[h_team]['P'] += 1
         standings[a_team]['P'] += 1
@@ -216,6 +243,29 @@ def simulate_ucl_tournament(matches_df):
         for i, (t1, t2) in enumerate(team_pairs):
             winner, score_str, agg1, agg2, details = simulate_knockout_match(t1, t2, matches_df)
             probs = knockout_win_probability(t1, t2, matches_df)
+            match_id = f"{prefix}_m{i + 1}"
+
+            # What-If: agregat & pemenang manual dari pengguna
+            over = ko_over.get(match_id)
+            if over:
+                agg1 = int(over.get("agg_home", agg1))
+                agg2 = int(over.get("agg_away", agg2))
+                if over.get("winner") in (t1, t2):
+                    winner = over["winner"]
+                elif agg1 > agg2:
+                    winner = t1
+                elif agg2 > agg1:
+                    winner = t2
+                else:
+                    winner = t1 if random.random() > 0.5 else t2
+                details = {
+                    "leg1": {"team_home": t1, "team_away": t2, "goals_home": agg1, "goals_away": agg2},
+                    "leg2": {"team_home": t2, "team_away": t1, "goals_home": 0, "goals_away": 0},
+                    "xg_home": details.get("xg_home", 0.0),
+                    "xg_away": details.get("xg_away", 0.0),
+                }
+                score_str = f"{t1} {agg1} - {agg2} {t2}"
+
             next_round.append(winner)
             side = "left" if i < (len(team_pairs) // 2) else "right"
             slot = slot_names[i] if (slot_names and i < len(slot_names)) else f"{label} #{i + 1}"
@@ -224,7 +274,7 @@ def simulate_ucl_tournament(matches_df):
             l2_h = details["leg2"]["goals_home"]
             l2_a = details["leg2"]["goals_away"]
             results.append({
-                "match_id": f"{prefix}_m{i + 1}",
+                "match_id": match_id,
                 "label": f"{label} #{i + 1}",
                 "round_name": label,
                 "bracket_slot": slot,
@@ -236,7 +286,7 @@ def simulate_ucl_tournament(matches_df):
                 "agg_away": int(agg2),
                 "score": score_str,
                 "leg1_score": f"{l1_h} - {l1_a}",
-                "leg2_score": f"{l2_h} - {l2_a}",
+                "leg2_score": "—" if over else f"{l2_h} - {l2_a}",
                 "aggregate": f"{int(agg1)} - {int(agg2)}",
                 "winner": winner,
                 "win_prob_home": probs.get(t1, 50.0),
@@ -323,6 +373,21 @@ def simulate_ucl_tournament(matches_df):
         champion = f1 if g1 > g2 else f2
         final_note = ""
 
+    # What-If: skor Grand Final manual dari pengguna
+    final_over = ko_over.get("final_m1")
+    if final_over:
+        g1 = int(final_over.get("agg_home", g1))
+        g2 = int(final_over.get("agg_away", g2))
+        if final_over.get("winner") in (f1, f2):
+            champion = final_over["winner"]
+        elif g1 > g2:
+            champion = f1
+        elif g2 > g1:
+            champion = f2
+        else:
+            champion = f1 if random.random() > 0.5 else f2
+        final_note = "What-if"
+
     f1_xg = calculate_weighted_ucl_xg(f1, is_home=True, matches_df=matches_df)
     f2_xg = calculate_weighted_ucl_xg(f2, is_home=False, matches_df=matches_df)
 
@@ -352,6 +417,7 @@ def simulate_ucl_tournament(matches_df):
 
     return {
         "league_phase": league_phase,
+        "league_fixtures": league_fixtures,
         "pots": pots,
         "knockout_stage": {
             "playoffs": playoff_results,
@@ -447,7 +513,7 @@ def run_ucl_simulation():
     playoff_winners = []
     for i in range(8):
         t1, t2 = playoff_teams[i], playoff_teams[15 - i]
-        winner, score_str, agg1, agg2 = simulate_knockout_match(t1, t2, matches_df)
+        winner, score_str, agg1, agg2, _details = simulate_knockout_match(t1, t2, matches_df)
         playoff_winners.append(winner)
         print(f" • Play-off #{i+1}: {score_str} ➡️ [{winner.upper()} LOLOS]")
 
@@ -460,7 +526,7 @@ def run_ucl_simulation():
     qf_teams = []
     random.shuffle(round_16_teams)
     for i in range(0, 16, 2):
-        winner, score_str, agg1, agg2 = simulate_knockout_match(round_16_teams[i], round_16_teams[i+1], matches_df)
+        winner, score_str, agg1, agg2, _details = simulate_knockout_match(round_16_teams[i], round_16_teams[i+1], matches_df)
         qf_teams.append(winner)
         print(f" • Match #{i//2 + 1}: {score_str} ➡️ [{winner.upper()} LOLOS]")
 
@@ -470,7 +536,7 @@ def run_ucl_simulation():
     print("="*65)
     sf_teams = []
     for i in range(0, 8, 2):
-        winner, score_str, agg1, agg2 = simulate_knockout_match(qf_teams[i], qf_teams[i+1], matches_df)
+        winner, score_str, agg1, agg2, _details = simulate_knockout_match(qf_teams[i], qf_teams[i+1], matches_df)
         sf_teams.append(winner)
         print(f" • QF #{i//2 + 1}: {score_str} ➡️ [{winner.upper()} LOLOS]")
 
@@ -480,7 +546,7 @@ def run_ucl_simulation():
     print("="*65)
     finalists = []
     for i in range(0, 4, 2):
-        winner, score_str, agg1, agg2 = simulate_knockout_match(sf_teams[i], sf_teams[i+1], matches_df)
+        winner, score_str, agg1, agg2, _details = simulate_knockout_match(sf_teams[i], sf_teams[i+1], matches_df)
         finalists.append(winner)
         print(f" • SF #{i//2 + 1}: {score_str} ➡️ [{winner.upper()} LOLOS KE FINAL]")
 

@@ -1,7 +1,15 @@
 <script setup>
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
 defineProps({
   rows: { type: Array, default: () => [] },
 })
+
+function goToAnalytics(team) {
+  router.push({ path: '/analytics', query: { team } })
+}
 
 function zoneClass(zone) {
   if (zone === 'UCL') return 'border-l-emerald-500'
@@ -43,8 +51,9 @@ function pctColor(pct, inverse = false) {
           <tr
             v-for="row in rows"
             :key="row.team"
-            class="border-b border-slate-800/70 transition hover:bg-slate-800/30"
+            class="cursor-pointer border-b border-slate-800/70 transition hover:bg-slate-800/50"
             :class="zoneClass(row.zone)"
+            @click="goToAnalytics(row.team)"
           >
             <td class="num px-4 py-3 text-slate-400">{{ row.projected_position }}</td>
             <td class="px-4 py-3">

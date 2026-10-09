@@ -26,4 +26,7 @@ export const fetchShots = (home, away) =>
 export const fetchStandings = (league, nSeasons = 350) =>
   api.get(`/standings/${league}`, { params: { n_seasons: nSeasons } }).then((r) => r.data)
 export const fetchUcl = () => api.get('/ucl/simulate').then((r) => r.data)
+export const postUclWhatIf = (overrides) =>
+  api.post('/ucl/whatif', { overrides }).then((r) => r.data)
+export const fetchModelStats = () => api.get('/model/stats').then((r) => r.data)
 export const fetchAnalytics = (team) => api.get(`/analytics/${encodeURIComponent(team)}`).then((r) => r.data)

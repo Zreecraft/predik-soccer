@@ -7,9 +7,10 @@ import PlayerCutout from '@/components/shared/PlayerCutout.vue'
 const props = defineProps({
   knockout: { type: Object, default: () => ({}) },
   champion: { type: Object, default: () => ({}) },
+  edit: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['select-match'])
+const emit = defineEmits(['select-match', 'edit-score'])
 
 const activeTab = ref('po')
 
@@ -90,7 +91,7 @@ function handleSelectMatch(match) {
               :key="'po-l-' + (m?.match_id || i)"
               class="branch flex flex-1 items-center"
             >
-              <BracketNode v-if="m" :match="m" @select="handleSelectMatch" />
+              <BracketNode v-if="m" :match="m" :edit="edit" @select="handleSelectMatch" @edit-score="emit('edit-score', $event)" />
             </div>
           </div>
 
@@ -101,7 +102,7 @@ function handleSelectMatch(match) {
               :key="m.match_id || i"
               class="branch flex flex-1 items-center"
             >
-              <BracketNode :match="m" @select="handleSelectMatch" />
+              <BracketNode :match="m" :edit="edit" @select="handleSelectMatch" @edit-score="emit('edit-score', $event)" />
             </div>
           </div>
 
@@ -112,7 +113,7 @@ function handleSelectMatch(match) {
               :key="m.match_id || i"
               class="branch flex flex-1 items-center"
             >
-              <BracketNode :match="m" @select="handleSelectMatch" />
+              <BracketNode :match="m" :edit="edit" @select="handleSelectMatch" @edit-score="emit('edit-score', $event)" />
             </div>
           </div>
 
@@ -175,7 +176,7 @@ function handleSelectMatch(match) {
 
             <!-- Grand Final Match (di-center vertikal 50% kolom) -->
             <div v-if="finalMatch" class="absolute left-0 right-0 top-1/2 -translate-y-1/2">
-              <BracketNode :match="finalMatch" :highlight="true" @select="handleSelectMatch" />
+              <BracketNode :match="finalMatch" :highlight="true" :edit="edit" @select="handleSelectMatch" @edit-score="emit('edit-score', $event)" />
             </div>
           </div>
 
@@ -186,7 +187,7 @@ function handleSelectMatch(match) {
               :key="m.match_id || i"
               class="branch flex flex-1 items-center"
             >
-              <BracketNode :match="m" @select="handleSelectMatch" />
+              <BracketNode :match="m" :edit="edit" @select="handleSelectMatch" @edit-score="emit('edit-score', $event)" />
             </div>
           </div>
 
@@ -197,7 +198,7 @@ function handleSelectMatch(match) {
               :key="m.match_id || i"
               class="branch flex flex-1 items-center"
             >
-              <BracketNode :match="m" @select="handleSelectMatch" />
+              <BracketNode :match="m" :edit="edit" @select="handleSelectMatch" @edit-score="emit('edit-score', $event)" />
             </div>
           </div>
 
@@ -208,7 +209,7 @@ function handleSelectMatch(match) {
               :key="'po-r-' + (m?.match_id || i)"
               class="branch flex flex-1 items-center"
             >
-              <BracketNode v-if="m" :match="m" @select="handleSelectMatch" />
+              <BracketNode v-if="m" :match="m" :edit="edit" @select="handleSelectMatch" @edit-score="emit('edit-score', $event)" />
             </div>
           </div>
         </div>

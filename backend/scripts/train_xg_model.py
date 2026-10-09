@@ -41,6 +41,11 @@ def train_xgboost_model():
     # Simpan Model Latihan
     joblib.dump(model, XG_MODEL)
     print("✅ Model ML berhasil dilatih & disimpan sebagai 'xg_model.pkl'!")
+    return {
+        "n_samples": int(len(df)),
+        "accuracy_test": round(float(model.score(X_test, y_test)), 4),
+        "model_path": str(XG_MODEL),
+    }
 
 if __name__ == "__main__":
     train_xgboost_model()

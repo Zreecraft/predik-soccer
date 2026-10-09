@@ -15,7 +15,7 @@ from team_aliases import team_abbr
 from team_analytics import clamp_match_xg, get_home_away_bias, get_team_form, get_team_power_index
 from ucl_simulator import simulate_ucl_tournament
 
-app = FastAPI(title="Analytica FC API", version="2.0.0")
+app = FastAPI(title="Analytica FC API", version="2.0.1")
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,16 +26,22 @@ app.add_middleware(
 )
 
 _SHOTS_CACHE = None
+_SHOTS_CACHE_MTIME = None
 _UCL_CACHE = None
 
 
 def _load_shots() -> pd.DataFrame | None:
-    global _SHOTS_CACHE
-    if _SHOTS_CACHE is None:
+    global _SHOTS_CACHE, _SHOTS_CACHE_MTIME
+    try:
+        mtime = REAL_SHOTS_DATA.stat().st_mtime
+    except OSError:
+        mtime = None
+    if _SHOTS_CACHE is None or mtime != _SHOTS_CACHE_MTIME:
         try:
             _SHOTS_CACHE = pd.read_csv(REAL_SHOTS_DATA)
         except FileNotFoundError:
             _SHOTS_CACHE = pd.DataFrame()
+        _SHOTS_CACHE_MTIME = mtime
     return _SHOTS_CACHE
 
 
@@ -246,6 +252,20 @@ def predict_match(home_team: str, away_team: str):
     home_form = get_team_form(home_team, matches_df, 5)
     away_form = get_team_form(away_team, matches_df, 5)
 
+    # Self-learning: catat prediksi ke SQLite (evaluasi Brier/Log-Loss nanti)
+    try:
+        from database import get_db
+        _db = get_db()
+        _db.execute(
+            "INSERT INTO prediction_logs (home_team, away_team, projected_home_goals, "
+            "projected_away_goals, prob_home, prob_draw, prob_away) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (home_team, away_team, int(smart_h), int(smart_a), prob_home, prob_draw, prob_away),
+        )
+        _db.commit()
+        _db.close()
+    except Exception:
+        pass
+
     home_shots = _team_shot_summary(home_team, shots_df)
     away_shots = _team_shot_summary(away_team, shots_df)
 
@@ -387,19 +407,8 @@ def _zone_label(pos: int, total: int) -> str:
     return "MID"
 
 
-@app.get("/api/ucl/simulate")
-def simulate_ucl():
-    global _UCL_CACHE
-    try:
-        matches_df = pd.read_csv(HISTORICAL_MATCHES)
-    except FileNotFoundError:
-        raise HTTPException(status_code=500, detail="Data histori pertandingan belum ada.")
-
-    if _UCL_CACHE is None:
-        _UCL_CACHE = simulate_ucl_tournament(matches_df)
-
-    result = json.loads(json.dumps(_UCL_CACHE))
-
+def _enrich_ucl(result: dict) -> dict:
+    """Lengkapi hasil simulasi UCL dengan logo & star player."""
     for item in result["league_phase"]:
         item["logo"] = get_team_logo(item["team"])
         item["star_player"] = get_key_player(item["team"])
@@ -421,6 +430,39 @@ def simulate_ucl():
     champion["logo"] = get_team_logo(champion["team"])
     champion["star_player"] = get_key_player(champion["team"])
     return result
+
+
+@app.get("/api/ucl/simulate")
+def simulate_ucl():
+    global _UCL_CACHE
+    try:
+        matches_df = pd.read_csv(HISTORICAL_MATCHES)
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="Data histori pertandingan belum ada.")
+
+    if _UCL_CACHE is None:
+        _UCL_CACHE = simulate_ucl_tournament(matches_df)
+
+    return _enrich_ucl(json.loads(json.dumps(_UCL_CACHE)))
+
+
+@app.post("/api/ucl/whatif")
+def ucl_whatif(payload: dict | None = None):
+    """What-If Interactive Simulator: re-simulasi UCL dengan skor manual pengguna.
+
+    Body: {"overrides": {"league_fixtures": {"lp_m1": {"goals_home": 3, "goals_away": 0}},
+                          "knockout": {"playoff_m1": {"agg_home": 2, "agg_away": 1}}}}
+    """
+    overrides = (payload or {}).get("overrides") or {}
+    try:
+        matches_df = pd.read_csv(HISTORICAL_MATCHES)
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="Data histori pertandingan belum ada.")
+    try:
+        result = simulate_ucl_tournament(matches_df, overrides=overrides)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"What-if simulation gagal: {e}")
+    return _enrich_ucl(result)
 
 
 @app.get("/api/analytics/{team}")
@@ -451,6 +493,34 @@ def list_teams(league: str | None = None):
             for t in teams
         ],
     }
+
+
+# ==========================================
+# SELF-LEARNING: PREDICTION LOGS & RETRAIN
+# ==========================================
+
+@app.get("/api/model/stats")
+def model_stats():
+    """Statistik log prediksi & metrik model (Brier, accuracy)."""
+    from model_retrainer import get_model_stats
+    return get_model_stats()
+
+
+@app.post("/api/model/evaluate")
+def model_evaluate():
+    """Sinkron hasil riil dari historical_matches → hitung Brier/Log-Loss → tandai EVALUATED."""
+    from model_retrainer import evaluate_pending_predictions
+    try:
+        return evaluate_pending_predictions()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Evaluasi gagal: {e}")
+
+
+@app.post("/api/model/retrain")
+def model_retrain():
+    """Retrain XGBoost dari data tembakan terbaru (feedback loop)."""
+    from model_retrainer import retrain_model
+    return retrain_model()
 
 
 if __name__ == "__main__":

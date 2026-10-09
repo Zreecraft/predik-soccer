@@ -5,9 +5,10 @@ import { Trophy } from 'lucide-vue-next'
 const props = defineProps({
   match: { type: Object, required: true },
   highlight: { type: Boolean, default: false },
+  edit: { type: Boolean, default: false },
 })
 
-defineEmits(['select'])
+const emit = defineEmits(['select', 'edit-score'])
 
 const isR16 = computed(() => String(props.match?.match_id || '').startsWith('r16'))
 const isPlayoff = computed(() => String(props.match?.match_id || '').startsWith('playoff'))
@@ -17,6 +18,11 @@ const showTag = computed(
 
 const homeProb = computed(() => Number(props.match?.win_prob_home) || 50)
 const awayProb = computed(() => Number(props.match?.win_prob_away) || 100 - homeProb.value)
+
+function onScoreChange(side, e) {
+  const v = Math.max(0, Math.min(20, parseInt(e.target.value, 10) || 0))
+  emit('edit-score', { match: props.match, side, value: v })
+}
 </script>
 
 <template>
@@ -38,7 +44,19 @@ const awayProb = computed(() => Number(props.match?.win_prob_away) || 100 - home
         class="mcard__logo"
       />
       <span class="mcard__name">{{ match.team_home || 'TBD' }}</span>
-      <span class="mcard__score">{{ match.agg_home ?? '–' }}</span>
+      <input
+        v-if="edit"
+        class="mcard__score mcard__score--input"
+        type="number"
+        min="0"
+        max="20"
+        :value="match.agg_home ?? 0"
+        :disabled="!match.team_home"
+        title="Ubah skor agregat (kandang)"
+        @click.stop
+        @change="onScoreChange('home', $event)"
+      />
+      <span v-else class="mcard__score">{{ match.agg_home ?? '–' }}</span>
       <Trophy v-if="match.winner && match.winner === match.team_home" :size="11" class="mcard__flag" />
     </div>
 
@@ -51,7 +69,19 @@ const awayProb = computed(() => Number(props.match?.win_prob_away) || 100 - home
         class="mcard__logo"
       />
       <span class="mcard__name">{{ match.team_away || 'TBD' }}</span>
-      <span class="mcard__score">{{ match.agg_away ?? '–' }}</span>
+      <input
+        v-if="edit"
+        class="mcard__score mcard__score--input"
+        type="number"
+        min="0"
+        max="20"
+        :value="match.agg_away ?? 0"
+        :disabled="!match.team_away"
+        title="Ubah skor agregat (tandang)"
+        @click.stop
+        @change="onScoreChange('away', $event)"
+      />
+      <span v-else class="mcard__score">{{ match.agg_away ?? '–' }}</span>
       <Trophy v-if="match.winner && match.winner === match.team_away" :size="11" class="mcard__flag" />
     </div>
 
@@ -175,6 +205,30 @@ const awayProb = computed(() => Number(props.match?.win_prob_away) || 100 - home
   color: #34d399;
   background: rgba(16, 185, 129, 0.1);
   border-color: rgba(16, 185, 129, 0.5);
+}
+
+/* Input skor What-If */
+.mcard__score--input {
+  width: 42px;
+  padding: 2px 4px;
+  cursor: text;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.mcard__score--input::-webkit-outer-spin-button,
+.mcard__score--input::-webkit-inner-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+}
+.mcard__score--input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+}
+.mcard__score--input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 .mcard__flag {
   flex-shrink: 0;

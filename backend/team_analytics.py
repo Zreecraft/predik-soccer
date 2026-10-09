@@ -119,11 +119,15 @@ def get_team_form(team: str, historical_df: pd.DataFrame, n: int = 5) -> list:
         is_home = _is_home(team, row)
         gf = int(row["home_goals"]) if is_home else int(row["away_goals"])
         ga = int(row["away_goals"]) if is_home else int(row["home_goals"])
+        xg_for = float(row.get("home_xg", 0) or 0) if is_home else float(row.get("away_xg", 0) or 0)
+        xg_against = float(row.get("away_xg", 0) or 0) if is_home else float(row.get("home_xg", 0) or 0)
         form.append({
             "result": "W" if gf > ga else ("D" if gf == ga else "L"),
             "score": f"{gf}-{ga}",
             "opponent": row["away_team"] if is_home else row["home_team"],
             "is_home": is_home,
             "date": str(row["datetime"]),
+            "xg_for": round(xg_for, 2),
+            "xg_against": round(xg_against, 2),
         })
     return form

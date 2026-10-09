@@ -1,47 +1,81 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { RefreshCw } from 'lucide-vue-next'
-import { fetchAnalytics, fetchTeams } from '@/services/api'
+import { fetchAnalytics, fetchLeagues, fetchTeams } from '@/services/api'
 import { useAsyncData } from '@/composables/useAsyncData'
+import { LEAGUE_LABELS } from '@/utils/format'
 import ClubHeader from '@/components/analytics/ClubHeader.vue'
 import TerritorialHeatmap from '@/components/analytics/TerritorialHeatmap.vue'
 import TacticalBullets from '@/components/analytics/TacticalBullets.vue'
 import UpcomingFixturesTable from '@/components/analytics/UpcomingFixturesTable.vue'
-import FormBadges from '@/components/shared/FormBadges.vue'
+import FormHistoryTable from '@/components/analytics/FormHistoryTable.vue'
 import SkeletonCard from '@/components/shared/SkeletonCard.vue'
 
 const route = useRoute()
 const router = useRouter()
 
-const teams = ref([])
-const team = ref(route.query.team || 'Arsenal')
+const selectedLeague = ref(route.query.league || '')
+const selectedTeam = ref(route.query.team || 'Arsenal')
+const leagues = ref([])
+const leagueTeams = ref([])
+const allTeams = ref([])
+
 const { data, loading, error, load } = useAsyncData(fetchAnalytics)
 
+const filteredTeams = computed(() => {
+  if (!selectedLeague.value) return allTeams.value
+  return leagueTeams.value
+})
+
 async function reload() {
-  router.replace({ query: { team: team.value } })
-  await load(team.value)
+  if (!selectedTeam.value) return
+  router.replace({ query: { team: selectedTeam.value, league: selectedLeague.value || undefined } })
+  await load(selectedTeam.value)
 }
 
-watch(team, reload)
+async function onLeagueChange() {
+  selectedLeague.value ? (leagueTeams.value = await fetchTeamsByLeague(selectedLeague.value)) : (leagueTeams.value = allTeams.value)
+  if (leagueTeams.value.length && !leagueTeams.value.includes(selectedTeam.value)) {
+    selectedTeam.value = leagueTeams.value[0]
+  }
+}
+
+async function fetchTeamsByLeague(leagueCode) {
+  try {
+    const res = await fetchTeams(leagueCode)
+    return (res.teams || []).map((x) => x.name)
+  } catch {
+    return []
+  }
+}
+
+watch(selectedTeam, reload)
 
 onMounted(async () => {
   try {
-    const t = await fetchTeams()
-    teams.value = (t.teams || []).map((x) => x.name)
+    const [lRes, tRes] = await Promise.all([fetchLeagues(), fetchTeams()])
+    leagues.value = Array.isArray(lRes) ? lRes.map((x) => x.id) : (lRes.leagues || [])
+    allTeams.value = (tRes.teams || []).map((x) => x.name)
+    leagueTeams.value = allTeams.value
   } catch {
-    teams.value = []
+    leagues.value = []
+    allTeams.value = ['Arsenal', 'Manchester City', 'Real Madrid', 'Inter', 'Bayern Munich']
+    leagueTeams.value = allTeams.value
   }
-  if (!teams.value.includes(team.value) && teams.value.length) {
-    team.value = teams.value[0]
-  } else {
-    await reload()
+
+  if (route.query.team) {
+    selectedTeam.value = route.query.team
+  } else if (!allTeams.value.includes(selectedTeam.value) && allTeams.value.length) {
+    selectedTeam.value = allTeams.value[0]
   }
+  await reload()
 })
 </script>
 
 <template>
   <div class="space-y-5">
+    <!-- Header & Two-Tier Filters -->
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <div class="label-caps text-sky-400/90">Tactical Scouting</div>
@@ -50,13 +84,26 @@ onMounted(async () => {
           Laporan pemantauan taktis, matriks kendali teritorial, dan proyeksi jadwal.
         </p>
       </div>
+
       <div class="flex flex-wrap items-center gap-2">
+        <!-- 1. Tier 1: League Filter -->
         <select
-          v-model="team"
+          v-model="selectedLeague"
+          class="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
+          @change="onLeagueChange"
+        >
+          <option value="">Semua Liga</option>
+          <option v-for="l in leagues" :key="l" :value="l">{{ LEAGUE_LABELS[l] || l }}</option>
+        </select>
+
+        <!-- 2. Tier 2: Team Filter -->
+        <select
+          v-model="selectedTeam"
           class="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
         >
-          <option v-for="t in teams" :key="t" :value="t">{{ t }}</option>
+          <option v-for="t in filteredTeams" :key="t" :value="t">{{ t }}</option>
         </select>
+
         <button class="btn-ghost" type="button" :disabled="loading" @click="reload">
           <RefreshCw :size="14" :class="loading ? 'animate-spin' : ''" />
           Muat Ulang
@@ -85,7 +132,7 @@ onMounted(async () => {
         <TerritorialHeatmap :cells="data.territorial || []" :side="data.profile?.overload_side || 'Kanan'" />
 
         <div class="panel p-5">
-          <div class="label-caps">Tren xG</div>
+          <div class="label-caps">Tren xG & Hasil</div>
           <h3 class="mb-3 mt-1 text-base font-semibold text-slate-100">10 Laga Terakhir</h3>
           <div class="space-y-2">
             <div
@@ -109,7 +156,7 @@ onMounted(async () => {
           </div>
 
           <div class="mt-5">
-            <FormBadges :form="data.form || []" label="Form Terkini" />
+            <FormHistoryTable :history="data.form || []" />
           </div>
 
           <div class="mt-5 rounded-lg border border-slate-800 bg-slate-950/40 p-3">
@@ -117,7 +164,7 @@ onMounted(async () => {
             <div class="num mt-2 grid grid-cols-2 gap-2 text-xs text-slate-300 sm:grid-cols-4">
               <div>Shots: <span class="text-slate-100">{{ data.shot_metrics?.shots ?? 0 }}</span></div>
               <div>Goals: <span class="text-emerald-400">{{ data.shot_metrics?.goals ?? 0 }}</span></div>
-              <div>xG: <span class="text-sky-400">{{ data.shot_metrics?.xg ?? 0 }}</span></div>
+              <div>xG: <span class="text-sky-400">{{ data.shot_metrics?.xg_total ?? data.shot_metrics?.xg ?? 0 }}</span></div>
               <div>Conv: <span class="text-amber-400">{{ data.shot_metrics?.conversion_pct ?? 0 }}%</span></div>
             </div>
           </div>
