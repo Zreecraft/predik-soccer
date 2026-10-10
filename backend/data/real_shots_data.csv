@@ -1397,6 +1397,132 @@ id,league,team_name,opponent,is_home,minute,player,X,Y,xG,shotType,situation,res
 696690,EPL,Manchester United,Fulham,0,90,Mason Mount,0.86,0.39799999237060546,0.04348843917250633,RightFoot,OpenPlay,BlockedShot
 696691,EPL,Manchester United,Fulham,0,92,Lisandro Martínez,0.924000015258789,0.3340000152587891,0.04550798609852791,RightFoot,FromCorner,BlockedShot
 696692,EPL,Manchester United,Fulham,0,93,Patrick Dorgu,0.960999984741211,0.5629999923706055,0.06385853886604309,Head,FromCorner,MissedShots
+697105,EPL,Arsenal,Leeds,1,20,Kai Havertz,0.9109999847412109,0.45099998474121095,0.3064013719558716,Head,OpenPlay,SavedShot
+697106,EPL,Arsenal,Leeds,1,22,Myles Lewis-Skelly,0.7619999694824219,0.5259999847412109,0.022845348343253136,LeftFoot,OpenPlay,BlockedShot
+697109,EPL,Arsenal,Leeds,1,28,Noni Madueke,0.8809999847412109,0.5620000076293945,0.07855633646249771,RightFoot,OpenPlay,MissedShots
+697111,EPL,Arsenal,Leeds,1,41,Kai Havertz,0.9169999694824219,0.5679999923706055,0.0927436351776123,Head,OpenPlay,MissedShots
+697114,EPL,Arsenal,Leeds,1,50,Martin Odegaard,0.8440000152587891,0.545,0.08396236598491669,LeftFoot,OpenPlay,SavedShot
+697118,EPL,Arsenal,Leeds,1,61,Noni Madueke,0.8490000152587891,0.735,0.02877873368561268,RightFoot,OpenPlay,BlockedShot
+697119,EPL,Arsenal,Leeds,1,61,Riccardo Calafiori,0.955,0.52,0.5818591713905334,LeftFoot,OpenPlay,Goal
+697121,EPL,Arsenal,Leeds,1,66,Riccardo Calafiori,0.8490000152587891,0.5470000076293945,0.05807964876294136,LeftFoot,FromCorner,MissedShots
+697122,EPL,Arsenal,Leeds,1,69,Bruno Guimarães,0.8219999694824218,0.5229999923706055,0.05881455913186073,RightFoot,OpenPlay,Goal
+697123,EPL,Arsenal,Leeds,1,74,Bukayo Saka,0.8240000152587891,0.3890000152587891,0.08751137554645538,LeftFoot,OpenPlay,MissedShots
+697124,EPL,Arsenal,Leeds,1,82,Martin Odegaard,0.97,0.5170000076293946,0.6205666661262512,RightFoot,OpenPlay,SavedShot
+697125,EPL,Arsenal,Leeds,1,91,Noni Madueke,0.8119999694824219,0.544000015258789,0.06708559393882751,LeftFoot,OpenPlay,BlockedShot
+697126,EPL,Arsenal,Leeds,1,95,Bukayo Saka,0.8140000152587891,0.5640000152587891,0.23340411484241486,LeftFoot,OpenPlay,SavedShot
+697103,EPL,Leeds,Arsenal,0,7,James Justin,0.8730000305175781,0.41200000762939454,0.024073585867881775,Head,SetPiece,BlockedShot
+697104,EPL,Leeds,Arsenal,0,7,Noah Okafor,0.8519999694824218,0.5929999923706055,0.05536128580570221,RightFoot,SetPiece,BlockedShot
+697107,EPL,Leeds,Arsenal,0,24,Anton Stach,0.955,0.37799999237060544,0.27619612216949463,RightFoot,OpenPlay,BlockedShot
+697108,EPL,Leeds,Arsenal,0,26,Jayden Bogle,0.9580000305175781,0.5879999923706055,0.47015297412872314,RightFoot,OpenPlay,SavedShot
+697110,EPL,Leeds,Arsenal,0,34,Ethan Ampadu,0.8169999694824219,0.34599998474121096,0.009635455906391144,Head,SetPiece,SavedShot
+697112,EPL,Leeds,Arsenal,0,43,Gabriel Gudmundsson,0.9740000152587891,0.654000015258789,0.025388697162270546,LeftFoot,OpenPlay,SavedShot
+697113,EPL,Leeds,Arsenal,0,44,Anton Stach,0.9109999847412109,0.6329999923706054,0.020544592291116714,Head,OpenPlay,MissedShots
+697115,EPL,Leeds,Arsenal,0,51,James Justin,0.794000015258789,0.34799999237060547,0.02388421818614006,LeftFoot,OpenPlay,MissedShots
+697116,EPL,Leeds,Arsenal,0,52,Ao Tanaka,0.7809999847412109,0.54,0.034863512963056564,RightFoot,OpenPlay,SavedShot
+697117,EPL,Leeds,Arsenal,0,54,James Justin,0.9230000305175782,0.3139999961853027,0.24919262528419495,RightFoot,OpenPlay,Goal
+697120,EPL,Leeds,Arsenal,0,63,Gabriel Gudmundsson,0.715999984741211,0.48200000762939454,0.010304292663931847,LeftFoot,OpenPlay,MissedShots
+697307,EPL,Aston Villa,Brentford,1,8,Nicolas Jackson,0.8730000305175781,0.6809999847412109,0.054194606840610504,LeftFoot,OpenPlay,BlockedShot
+697308,EPL,Aston Villa,Brentford,1,8,Johan Manzambi,0.715999984741211,0.6430000305175781,0.01249395590275526,RightFoot,OpenPlay,MissedShots
+697310,EPL,Aston Villa,Brentford,1,11,Emiliano Buendía,0.7980000305175782,0.61,0.03225357085466385,LeftFoot,OpenPlay,BlockedShot
+697311,EPL,Aston Villa,Brentford,1,11,Nicolas Jackson,0.9369999694824219,0.40099998474121096,0.3860394358634949,RightFoot,OpenPlay,Goal
+697313,EPL,Aston Villa,Brentford,1,30,Johan Manzambi,0.855999984741211,0.5409999847412109,0.08378706872463226,RightFoot,OpenPlay,BlockedShot
+697314,EPL,Aston Villa,Brentford,1,30,Johan Manzambi,0.855,0.5279999923706055,0.07098329067230225,RightFoot,OpenPlay,SavedShot
+697315,EPL,Aston Villa,Brentford,1,30,Emiliano Buendía,0.899000015258789,0.575999984741211,0.10179134458303452,LeftFoot,OpenPlay,MissedShots
+697317,EPL,Aston Villa,Brentford,1,46,Nicolas Jackson,0.875,0.6179999923706054,0.09339258074760437,RightFoot,OpenPlay,MissedShots
+697319,EPL,Aston Villa,Brentford,1,49,Nicolas Jackson,0.8530000305175781,0.7119999694824218,0.030828868970274925,RightFoot,OpenPlay,SavedShot
+697320,EPL,Aston Villa,Brentford,1,49,John McGinn,0.91,0.49900001525878906,0.4294418394565582,LeftFoot,OpenPlay,SavedShot
+697325,EPL,Aston Villa,Brentford,1,57,Emiliano Buendía,0.899000015258789,0.7140000152587891,0.04642550274729729,RightFoot,OpenPlay,MissedShots
+697326,EPL,Aston Villa,Brentford,1,59,Johan Manzambi,0.8140000152587891,0.51,0.05825719237327576,RightFoot,OpenPlay,BlockedShot
+697327,EPL,Aston Villa,Brentford,1,59,Johan Manzambi,0.8809999847412109,0.710999984741211,0.041102685034275055,RightFoot,OpenPlay,MissedShots
+697328,EPL,Aston Villa,Brentford,1,61,Emiliano Buendía,0.8240000152587891,0.4809999847412109,0.07149268686771393,RightFoot,OpenPlay,BlockedShot
+697329,EPL,Aston Villa,Brentford,1,69,Johan Manzambi,0.8680000305175781,0.6659999847412109,0.08242160081863403,RightFoot,OpenPlay,BlockedShot
+697331,EPL,Aston Villa,Brentford,1,76,John McGinn,0.850999984741211,0.67,0.05091232433915138,RightFoot,OpenPlay,Goal
+697334,EPL,Aston Villa,Brentford,1,82,Johan Manzambi,0.7369999694824219,0.5770000076293945,0.05255808308720589,RightFoot,DirectFreekick,BlockedShot
+697335,EPL,Aston Villa,Brentford,1,83,John McGinn,0.86,0.6179999923706054,0.06657467037439346,LeftFoot,OpenPlay,SavedShot
+697337,EPL,Aston Villa,Brentford,1,86,Boubacar Kamara,0.8590000152587891,0.34900001525878904,0.051653068512678146,RightFoot,OpenPlay,MissedShots
+697339,EPL,Aston Villa,Brentford,1,95,Ibrahim Mbaye,0.970999984741211,0.669000015258789,0.06859947741031647,LeftFoot,OpenPlay,SavedShot
+697306,EPL,Brentford,Aston Villa,0,3,Kevin Schade,0.8169999694824219,0.529000015258789,0.0964340791106224,RightFoot,OpenPlay,MissedShots
+697309,EPL,Brentford,Aston Villa,0,9,Yehor Yarmolyuk,0.8480000305175781,0.4759999847412109,0.06935077905654907,RightFoot,OpenPlay,Goal
+697312,EPL,Brentford,Aston Villa,0,16,Kevin Schade,0.9119999694824219,0.5120000076293946,0.055986832827329636,Head,OpenPlay,MissedShots
+697316,EPL,Brentford,Aston Villa,0,31,Jaidon Anthony,0.8580000305175781,0.36400001525878906,0.08165065199136734,RightFoot,OpenPlay,SavedShot
+697318,EPL,Brentford,Aston Villa,0,46,Kevin Schade,0.8869999694824219,0.6880000305175781,0.05439647659659386,LeftFoot,OpenPlay,MissedShots
+697321,EPL,Brentford,Aston Villa,0,48,Kevin Schade,0.8580000305175781,0.5920000076293945,0.11114361882209778,RightFoot,OpenPlay,SavedShot
+697322,EPL,Brentford,Aston Villa,0,49,Keane Lewis-Potter,0.8490000152587891,0.7019999694824218,0.03461874648928642,RightFoot,OpenPlay,BlockedShot
+697323,EPL,Brentford,Aston Villa,0,53,Thiago,0.914000015258789,0.4259999847412109,0.09834374487400055,RightFoot,OpenPlay,MissedShots
+697324,EPL,Brentford,Aston Villa,0,56,El Hadji Malick Diouf,0.775,0.6940000152587891,0.015768632292747498,LeftFoot,OpenPlay,MissedShots
+697330,EPL,Brentford,Aston Villa,0,72,Jaidon Anthony,0.9540000152587891,0.585,0.11439993232488632,Head,OpenPlay,MissedShots
+697332,EPL,Brentford,Aston Villa,0,78,Kristoffer Ajer,0.905,0.6509999847412109,0.05693555250763893,RightFoot,OpenPlay,BlockedShot
+697333,EPL,Brentford,Aston Villa,0,78,Kristoffer Ajer,0.9230000305175782,0.600999984741211,0.41203585267066956,RightFoot,OpenPlay,Goal
+697336,EPL,Brentford,Aston Villa,0,85,Dango Ouattara,0.875,0.3170000076293945,0.03493067994713783,LeftFoot,SetPiece,MissedShots
+697338,EPL,Brentford,Aston Villa,0,94,El Hadji Malick Diouf,0.8540000152587891,0.6709999847412109,0.04528062418103218,RightFoot,OpenPlay,BlockedShot
+697340,EPL,Chelsea,Bournemouth,1,1,Jordan Henderson,0.8,0.3970000076293945,0.036960095167160034,RightFoot,OpenPlay,Goal
+697341,EPL,Chelsea,Bournemouth,1,2,Pedro Neto,0.9180000305175782,0.34599998474121096,0.328635573387146,LeftFoot,OpenPlay,SavedShot
+697342,EPL,Chelsea,Bournemouth,1,2,Morgan Rogers,0.84,0.6580000305175782,0.06328863650560379,RightFoot,OpenPlay,Goal
+697344,EPL,Chelsea,Bournemouth,1,22,Pedro Neto,0.845999984741211,0.47099998474121096,0.11668635159730911,LeftFoot,OpenPlay,BlockedShot
+697345,EPL,Chelsea,Bournemouth,1,22,Jordan Henderson,0.8109999847412109,0.3870000076293945,0.02316225692629814,RightFoot,OpenPlay,MissedShots
+697346,EPL,Chelsea,Bournemouth,1,26,Morgan Rogers,0.8580000305175781,0.47200000762939454,0.09214531630277634,RightFoot,OpenPlay,BlockedShot
+697349,EPL,Chelsea,Bournemouth,1,42,Moisés Caicedo,0.860999984741211,0.4979999923706055,0.03140927478671074,Head,SetPiece,MissedShots
+697351,EPL,Chelsea,Bournemouth,1,45,João Pedro,0.860999984741211,0.4329999923706055,0.11421648412942886,RightFoot,OpenPlay,Goal
+697355,EPL,Chelsea,Bournemouth,1,66,João Pedro,0.9269999694824219,0.504000015258789,0.5253304839134216,RightFoot,OpenPlay,Goal
+697356,EPL,Chelsea,Bournemouth,1,69,Jordan Henderson,0.715,0.500999984741211,0.044069159775972366,RightFoot,DirectFreekick,Goal
+697343,EPL,Bournemouth,Chelsea,0,5,Rayan,0.9330000305175781,0.705,0.05713247135281563,LeftFoot,OpenPlay,MissedShots
+697347,EPL,Bournemouth,Chelsea,0,35,Rayan,0.865,0.6730000305175782,0.28916290402412415,LeftFoot,OpenPlay,SavedShot
+697348,EPL,Bournemouth,Chelsea,0,35,Ryan Christie,0.7130000305175781,0.605999984741211,0.008282899856567383,LeftFoot,OpenPlay,SavedShot
+697350,EPL,Bournemouth,Chelsea,0,46,António Silva,0.919000015258789,0.455,0.08860214054584503,Head,FromCorner,SavedShot
+697352,EPL,Bournemouth,Chelsea,0,50,António Silva,0.9719999694824218,0.504000015258789,0.3479458689689636,Head,FromCorner,BlockedShot
+697353,EPL,Bournemouth,Chelsea,0,50,Evanilson,0.975,0.4979999923706055,0.7914536595344543,RightFoot,FromCorner,Goal
+697354,EPL,Bournemouth,Chelsea,0,60,Evanilson,0.7669999694824219,0.5870000076293945,0.025897089391946793,LeftFoot,OpenPlay,MissedShots
+697357,EPL,Bournemouth,Chelsea,0,84,Evanilson,0.885,0.43599998474121093,0.035716716200113297,Head,OpenPlay,MissedShots
+697358,EPL,Bournemouth,Chelsea,0,87,Alvaro Rodríguez,0.8159999847412109,0.6580000305175782,0.033252883702516556,LeftFoot,OpenPlay,BlockedShot
+697359,EPL,Ipswich,Fulham,1,15,Julio Enciso,0.7719999694824219,0.4929999923706055,0.0238528810441494,RightFoot,OpenPlay,MissedShots
+697360,EPL,Ipswich,Fulham,1,18,Jaden Philogene-Bidace,0.8809999847412109,0.7519999694824219,0.03258847817778587,RightFoot,OpenPlay,SavedShot
+697368,EPL,Ipswich,Fulham,1,49,Leif Davis,0.7380000305175781,0.43400001525878906,0.05400662124156952,LeftFoot,DirectFreekick,MissedShots
+697369,EPL,Ipswich,Fulham,1,51,Julio Enciso,0.7190000152587891,0.519000015258789,0.017514100298285484,RightFoot,OpenPlay,SavedShot
+697372,EPL,Ipswich,Fulham,1,57,Emersonn,0.9269999694824219,0.46799999237060547,0.31016719341278076,Head,OpenPlay,ShotOnPost
+697375,EPL,Ipswich,Fulham,1,60,Emersonn,0.914000015258789,0.534000015258789,0.04689047113060951,Head,OpenPlay,MissedShots
+697376,EPL,Ipswich,Fulham,1,67,Issa Diop,0.9069999694824219,0.625,0.06932929903268814,LeftFoot,SetPiece,MissedShots
+697377,EPL,Ipswich,Fulham,1,85,Sindre Egeli,0.904000015258789,0.33,0.04872053116559982,LeftFoot,OpenPlay,SavedShot
+697378,EPL,Ipswich,Fulham,1,85,Chuba Akpom,0.9519999694824218,0.5579999923706055,0.0946253091096878,RightFoot,OpenPlay,BlockedShot
+697379,EPL,Ipswich,Fulham,1,87,Guemissongui Ouattara,0.749000015258789,0.30100000381469727,0.010050387121737003,LeftFoot,OpenPlay,Goal
+697380,EPL,Ipswich,Fulham,1,90,Dara O&#039;Shea,0.96,0.5379999923706055,0.5514363646507263,Head,SetPiece,Goal
+697361,EPL,Fulham,Ipswich,0,21,David Affengruber,0.9319999694824219,0.43900001525878907,0.09369973093271255,Head,FromCorner,MissedShots
+697362,EPL,Fulham,Ipswich,0,23,Ryan Sessegnon,0.9459999847412109,0.62,0.04238184913992882,Head,OpenPlay,MissedShots
+697363,EPL,Fulham,Ipswich,0,27,Sander Berge,0.7469999694824219,0.4329999923706055,0.05960281938314438,RightFoot,DirectFreekick,BlockedShot
+697364,EPL,Fulham,Ipswich,0,27,Shea Charles,0.8130000305175781,0.535,0.04362943023443222,RightFoot,SetPiece,MissedShots
+697365,EPL,Fulham,Ipswich,0,29,Sander Berge,0.8959999847412109,0.325,0.07231917977333069,RightFoot,OpenPlay,SavedShot
+697366,EPL,Fulham,Ipswich,0,36,Gonzalo García,0.8859999847412109,0.66,0.07064685225486755,RightFoot,OpenPlay,MissedShots
+697367,EPL,Fulham,Ipswich,0,43,Ryan Sessegnon,0.8069999694824219,0.5879999923706055,0.04776190593838692,RightFoot,OpenPlay,MissedShots
+697370,EPL,Fulham,Ipswich,0,52,Gonzalo García,0.905,0.52,0.445612370967865,RightFoot,OpenPlay,BlockedShot
+697371,EPL,Fulham,Ipswich,0,54,Ryan Sessegnon,0.7469999694824219,0.51,0.01674712635576725,LeftFoot,FromCorner,Goal
+697373,EPL,Fulham,Ipswich,0,57,Oscar Bobb,0.8809999847412109,0.4570000076293945,0.4949480891227722,LeftFoot,OpenPlay,MissedShots
+697374,EPL,Fulham,Ipswich,0,59,Gonzalo García,0.8819999694824219,0.4809999847412109,0.21565036475658417,Head,OpenPlay,SavedShot
+697381,EPL,Fulham,Ipswich,0,93,Kevin,0.9080000305175782,0.4379999923706055,0.11533459275960922,RightFoot,OpenPlay,SavedShot
+697382,EPL,Fulham,Ipswich,0,93,Hugo Larsson,0.85,0.5259999847412109,0.06022922322154045,RightFoot,OpenPlay,BlockedShot
+697452,EPL,Sunderland,Brighton,1,6,Kevin Danso,0.960999984741211,0.5470000076293945,0.1538865715265274,OtherBodyPart,FromCorner,BlockedShot
+697458,EPL,Sunderland,Brighton,1,21,Wilson Isidor,0.950999984741211,0.5770000076293945,0.11548672616481781,RightFoot,OpenPlay,BlockedShot
+697459,EPL,Sunderland,Brighton,1,28,Thomas Meunier,0.904000015258789,0.39099998474121095,0.3593258261680603,RightFoot,OpenPlay,BlockedShot
+697460,EPL,Sunderland,Brighton,1,38,Nordi Mukiele,0.6530000305175782,0.3129999923706055,0.009587956592440605,RightFoot,OpenPlay,SavedShot
+697464,EPL,Sunderland,Brighton,1,58,Granit Xhaka,0.740999984741211,0.3579999923706055,0.04762190952897072,LeftFoot,DirectFreekick,SavedShot
+697466,EPL,Sunderland,Brighton,1,64,Granit Xhaka,0.705,0.49900001525878906,0.014949065633118153,LeftFoot,OpenPlay,MissedShots
+697467,EPL,Sunderland,Brighton,1,66,Malick Fofana,0.85,0.7619999694824219,0.02486840821802616,RightFoot,OpenPlay,SavedShot
+697469,EPL,Sunderland,Brighton,1,71,Granit Xhaka,0.774000015258789,0.7140000152587891,0.018380947411060333,LeftFoot,OpenPlay,MissedShots
+697470,EPL,Sunderland,Brighton,1,73,Nordi Mukiele,0.7530000305175781,0.445,0.022778375074267387,RightFoot,OpenPlay,BlockedShot
+697471,EPL,Sunderland,Brighton,1,74,Wilson Isidor,0.805,0.4759999847412109,0.03487839177250862,RightFoot,OpenPlay,BlockedShot
+697474,EPL,Sunderland,Brighton,1,77,Nordi Mukiele,0.7609999847412109,0.42900001525878906,0.02563992142677307,RightFoot,OpenPlay,BlockedShot
+697475,EPL,Sunderland,Brighton,1,79,Enzo Le Fée,0.8059999847412109,0.6509999847412109,0.04236858710646629,RightFoot,SetPiece,BlockedShot
+697453,EPL,Brighton,Sunderland,0,7,Diego Gómez,0.8369999694824218,0.664000015258789,0.27853918075561523,RightFoot,OpenPlay,SavedShot
+697454,EPL,Brighton,Sunderland,0,9,Luka Vuskovic,0.975,0.5579999923706055,0.37562254071235657,Head,FromCorner,MissedShots
+697455,EPL,Brighton,Sunderland,0,10,Yasin Ayari,0.8130000305175781,0.44799999237060545,0.04894082993268967,LeftFoot,OpenPlay,MissedShots
+697456,EPL,Brighton,Sunderland,0,11,Diego Gómez,0.799000015258789,0.3189999961853027,0.025535117834806442,RightFoot,OpenPlay,BlockedShot
+697457,EPL,Brighton,Sunderland,0,19,Charalampos Kostoulas,0.71,0.6090000152587891,0.013211721554398537,RightFoot,OpenPlay,BlockedShot
+697461,EPL,Brighton,Sunderland,0,47,Pascal Struijk,0.8969999694824219,0.44299999237060544,0.12259718030691147,Head,SetPiece,ShotOnPost
+697462,EPL,Brighton,Sunderland,0,45,Diego Gómez,0.769000015258789,0.2589999961853027,0.01437637023627758,RightFoot,OpenPlay,SavedShot
+697463,EPL,Brighton,Sunderland,0,52,Maxim De Cuyper,0.88,0.62,0.2837822735309601,LeftFoot,OpenPlay,Goal
+697465,EPL,Brighton,Sunderland,0,61,Diego Gómez,0.44599998474121094,0.08199999809265136,0.009734326042234898,RightFoot,OpenPlay,MissedShots
+697468,EPL,Brighton,Sunderland,0,70,Yasin Ayari,0.795,0.7319999694824219,0.042981673032045364,RightFoot,OpenPlay,MissedShots
+697472,EPL,Brighton,Sunderland,0,75,Luka Vuskovic,0.885,0.43099998474121093,0.0653400644659996,RightFoot,FromCorner,MissedShots
+697473,EPL,Brighton,Sunderland,0,77,Pascal Groß,0.3990000152587891,0.4159999847412109,0.009779630228877068,RightFoot,OpenPlay,MissedShots
+697476,EPL,Brighton,Sunderland,0,92,Jaouen Hadjam,0.92,0.654000015258789,0.3511824309825897,LeftFoot,OpenPlay,Goal
 688265,La_liga,Alaves,Getafe,1,10,Nahuel Tenaglia,0.9080000305175782,0.43,0.029014641419053078,Head,SetPiece,BlockedShot
 688266,La_liga,Alaves,Getafe,1,19,Antonio Martínez,0.8519999694824218,0.5459999847412109,0.07876139879226685,LeftFoot,OpenPlay,MissedShots
 688267,La_liga,Alaves,Getafe,1,31,Antonio Martínez,0.8619999694824219,0.46,0.05149449408054352,RightFoot,OpenPlay,MissedShots
@@ -3252,6 +3378,60 @@ id,league,team_name,opponent,is_home,minute,player,X,Y,xG,shotType,situation,res
 696957,La_liga,Real Sociedad,Valencia,0,80,Gonçalo Guedes,0.835,0.7930000305175782,0.02263001725077629,RightFoot,OpenPlay,SavedShot
 696960,La_liga,Real Sociedad,Valencia,0,83,Luken Beitia,0.045999999046325686,0.49200000762939455,0.0,RightFoot,OpenPlay,OwnGoal
 696961,La_liga,Real Sociedad,Valencia,0,90,Ander Barrenetxea,0.8780000305175781,0.30200000762939455,0.04273388534784317,RightFoot,FromCorner,Goal
+696989,La_liga,Malaga,Espanyol,1,9,David Larrubia,0.8569999694824219,0.47900001525878905,0.09792128950357437,LeftFoot,OpenPlay,SavedShot
+696991,La_liga,Malaga,Espanyol,1,18,David Larrubia,0.8569999694824219,0.3129999923706055,0.04104816913604736,LeftFoot,OpenPlay,SavedShot
+696995,La_liga,Malaga,Espanyol,1,25,Rafa Rodríguez,0.904000015258789,0.6029999923706054,0.012776810675859451,Head,SetPiece,MissedShots
+696996,La_liga,Malaga,Espanyol,1,29,Ángel Recio,0.86,0.5259999847412109,0.04035128280520439,Head,SetPiece,MissedShots
+696997,La_liga,Malaga,Espanyol,1,38,Rafa Rodríguez,0.764000015258789,0.535,0.029400210827589035,RightFoot,OpenPlay,SavedShot
+697000,La_liga,Malaga,Espanyol,1,48,Chupe,0.8819999694824219,0.325,0.04946465790271759,RightFoot,OpenPlay,SavedShot
+697002,La_liga,Malaga,Espanyol,1,53,Rafa Rodríguez,0.870999984741211,0.33799999237060546,0.060702160000801086,RightFoot,OpenPlay,MissedShots
+697003,La_liga,Malaga,Espanyol,1,59,Pablo Martínez,0.6940000152587891,0.4909999847412109,0.04086613655090332,RightFoot,DirectFreekick,ShotOnPost
+697005,La_liga,Malaga,Espanyol,1,71,Fernando Calero,0.9130000305175782,0.48,0.08461948484182358,RightFoot,FromCorner,MissedShots
+697006,La_liga,Malaga,Espanyol,1,76,Pablo Martínez,0.705,0.4979999923706055,0.04552891477942467,RightFoot,DirectFreekick,SavedShot
+697007,La_liga,Malaga,Espanyol,1,77,Pablo Martínez,0.750999984741211,0.43,0.022336676716804504,LeftFoot,OpenPlay,MissedShots
+697008,La_liga,Malaga,Espanyol,1,79,Ángel Recio,0.875,0.5370000076293945,0.014331120066344738,Head,FromCorner,BlockedShot
+697009,La_liga,Malaga,Espanyol,1,79,Adam Aznou,0.77,0.6070000076293945,0.029826229438185692,LeftFoot,FromCorner,BlockedShot
+697010,La_liga,Malaga,Espanyol,1,84,Adrián Niño,0.7380000305175781,0.5259999847412109,0.06398885697126389,RightFoot,DirectFreekick,SavedShot
+697012,La_liga,Malaga,Espanyol,1,92,Adrián Niño,0.8490000152587891,0.4759999847412109,0.052489109337329865,RightFoot,OpenPlay,Goal
+696990,La_liga,Espanyol,Malaga,0,12,Bryan Zaragoza,0.879000015258789,0.634000015258789,0.12703673541545868,RightFoot,OpenPlay,Goal
+696992,La_liga,Espanyol,Malaga,0,19,Roberto Fernández,0.9530000305175781,0.44799999237060545,0.5969516634941101,RightFoot,OpenPlay,BlockedShot
+696993,La_liga,Espanyol,Malaga,0,21,Roberto Fernández,0.875,0.4540000152587891,0.1386311650276184,LeftFoot,OpenPlay,SavedShot
+696994,La_liga,Espanyol,Malaga,0,21,Javi Hernández,0.860999984741211,0.49599998474121093,0.1479044258594513,RightFoot,OpenPlay,BlockedShot
+696998,La_liga,Espanyol,Malaga,0,44,Roberto Fernández,0.8080000305175781,0.5170000076293946,0.059696048498153687,LeftFoot,OpenPlay,BlockedShot
+696999,La_liga,Espanyol,Malaga,0,46,Tyrhys Dolan,0.8469999694824218,0.33599998474121096,0.05160015821456909,LeftFoot,OpenPlay,BlockedShot
+697001,La_liga,Espanyol,Malaga,0,49,Edu Expósito,0.8140000152587891,0.5159999847412109,0.06973254680633545,RightFoot,OpenPlay,MissedShots
+697004,La_liga,Espanyol,Malaga,0,65,Roberto Fernández,0.8959999847412109,0.6909999847412109,0.05755306035280228,LeftFoot,OpenPlay,SavedShot
+697011,La_liga,Espanyol,Malaga,0,89,Cala,0.8090000152587891,0.4929999923706055,0.15106691420078278,LeftFoot,DirectFreekick,MissedShots
+697383,La_liga,Alaves,Atletico Madrid,1,4,Ángel Pérez,0.8,0.2979999923706055,0.04138258844614029,RightFoot,OpenPlay,MissedShots
+697384,La_liga,Alaves,Atletico Madrid,1,5,Ángel Pérez,0.884000015258789,0.24399999618530274,0.02784523367881775,RightFoot,OpenPlay,MissedShots
+697392,La_liga,Alaves,Atletico Madrid,1,36,Antonio Martínez,0.925,0.6609999847412109,0.007759775500744581,Head,SetPiece,SavedShot
+697395,La_liga,Alaves,Atletico Madrid,1,44,Ángel Pérez,0.8440000152587891,0.36,0.047199688851833344,LeftFoot,OpenPlay,SavedShot
+697396,La_liga,Alaves,Atletico Madrid,1,50,Lucas Boyé,0.885,0.5,0.7432776093482971,RightFoot,Penalty,Goal
+697397,La_liga,Alaves,Atletico Madrid,1,49,Abderrahmane Rebbach,0.7369999694824219,0.6809999847412109,0.01444986928254366,RightFoot,OpenPlay,BlockedShot
+697400,La_liga,Alaves,Atletico Madrid,1,64,Mariano,0.7619999694824219,0.3029999923706055,0.016927184537053108,RightFoot,OpenPlay,BlockedShot
+697410,La_liga,Alaves,Atletico Madrid,1,84,Mariano,0.8519999694824218,0.6370000076293946,0.10729683935642242,RightFoot,OpenPlay,MissedShots
+697385,La_liga,Atletico Madrid,Alaves,0,13,Jonathan Christian David,0.8069999694824219,0.47099998474121096,0.07522182166576385,LeftFoot,OpenPlay,SavedShot
+697386,La_liga,Atletico Madrid,Alaves,0,15,Ademola Lookman,0.92,0.7140000152587891,0.04185640439391136,RightFoot,OpenPlay,BlockedShot
+697387,La_liga,Atletico Madrid,Alaves,0,19,Marcos Llorente,0.769000015258789,0.39099998474121095,0.02597091905772686,RightFoot,OpenPlay,SavedShot
+697388,La_liga,Atletico Madrid,Alaves,0,22,Ademola Lookman,0.9080000305175782,0.7030000305175781,0.042704612016677856,LeftFoot,OpenPlay,BlockedShot
+697389,La_liga,Atletico Madrid,Alaves,0,29,Pablo Barrios Rivas,0.774000015258789,0.5620000076293945,0.017590928822755814,RightFoot,FromCorner,MissedShots
+697390,La_liga,Atletico Madrid,Alaves,0,32,Álex Grimaldo,0.914000015258789,0.6580000305175782,0.309856653213501,LeftFoot,OpenPlay,Goal
+697391,La_liga,Atletico Madrid,Alaves,0,35,Álex Grimaldo,0.720999984741211,0.6329999923706054,0.022627517580986023,LeftFoot,OpenPlay,MissedShots
+697393,La_liga,Atletico Madrid,Alaves,0,37,Giuliano Simeone,0.8780000305175781,0.5309999847412109,0.044280555099248886,Head,OpenPlay,BlockedShot
+697394,La_liga,Atletico Madrid,Alaves,0,42,Ademola Lookman,0.9290000152587891,0.45799999237060546,0.1476384699344635,LeftFoot,OpenPlay,BlockedShot
+697398,La_liga,Atletico Madrid,Alaves,0,54,Cristian Romero,0.9690000152587891,0.455,0.09356041997671127,Head,FromCorner,BlockedShot
+697399,La_liga,Atletico Madrid,Alaves,0,61,Julián Álvarez,0.764000015258789,0.685,0.05905534699559212,RightFoot,DirectFreekick,ShotOnPost
+697401,La_liga,Atletico Madrid,Alaves,0,65,Marcos Llorente,0.855,0.4979999923706055,0.07338796555995941,LeftFoot,OpenPlay,SavedShot
+697402,La_liga,Atletico Madrid,Alaves,0,72,Alexander Sørloth,0.9530000305175781,0.49400001525878906,0.14931662380695343,Head,OpenPlay,BlockedShot
+697403,La_liga,Atletico Madrid,Alaves,0,72,Álex Baena,0.799000015258789,0.7730000305175782,0.019715381786227226,RightFoot,FromCorner,BlockedShot
+697404,La_liga,Atletico Madrid,Alaves,0,73,Marcos Llorente,0.7880000305175782,0.45,0.038262758404016495,LeftFoot,OpenPlay,BlockedShot
+697405,La_liga,Atletico Madrid,Alaves,0,76,Julián Álvarez,0.7869999694824219,0.6090000152587891,0.030934588983654976,RightFoot,OpenPlay,BlockedShot
+697406,La_liga,Atletico Madrid,Alaves,0,76,Álex Grimaldo,0.779000015258789,0.6990000152587891,0.024301545694470406,LeftFoot,FromCorner,SavedShot
+697407,La_liga,Atletico Madrid,Alaves,0,79,Álex Baena,0.8090000152587891,0.27899999618530275,0.027089355513453484,RightFoot,FromCorner,BlockedShot
+697408,La_liga,Atletico Madrid,Alaves,0,79,David Hancko,0.9069999694824219,0.4620000076293945,0.09406261146068573,RightFoot,FromCorner,MissedShots
+697409,La_liga,Atletico Madrid,Alaves,0,83,Álex Baena,0.7669999694824219,0.53,0.03829972818493843,RightFoot,FromCorner,SavedShot
+697411,La_liga,Atletico Madrid,Alaves,0,86,Cristian Romero,0.9730000305175781,0.44299999237060544,0.573022723197937,Head,OpenPlay,Goal
+697412,La_liga,Atletico Madrid,Alaves,0,95,Julián Álvarez,0.9109999847412109,0.2929999923706055,0.05359083414077759,RightFoot,OpenPlay,BlockedShot
 688786,Serie_A,Inter,Monza,1,5,Hakan Calhanoglu,0.735,0.33799999237060546,0.013272741809487343,RightFoot,OpenPlay,Goal
 688787,Serie_A,Inter,Monza,1,9,Francesco Pio Esposito,0.855999984741211,0.575999984741211,0.1063079759478569,RightFoot,OpenPlay,BlockedShot
 688788,Serie_A,Inter,Monza,1,25,Nicolò Barella,0.8569999694824219,0.7119999694824218,0.04580744355916977,RightFoot,OpenPlay,MissedShots
@@ -4705,6 +4885,30 @@ id,league,team_name,opponent,is_home,minute,player,X,Y,xG,shotType,situation,res
 696876,Serie_A,Lecce,AC Milan,0,80,Oumar Ngom,0.685,0.6129999923706054,0.00854113046079874,RightFoot,OpenPlay,SavedShot
 696877,Serie_A,Lecce,AC Milan,0,83,Amar Ahmed Fatah,0.8380000305175781,0.645,0.04662167653441429,RightFoot,OpenPlay,SavedShot
 696878,Serie_A,Lecce,AC Milan,0,85,Lassana Coulibaly,0.904000015258789,0.534000015258789,0.07148484885692596,Head,FromCorner,BlockedShot
+697477,Serie_A,Genoa,Fiorentina,1,6,Stephan El Shaarawy,0.7809999847412109,0.5359999847412109,0.03461945801973343,RightFoot,OpenPlay,SavedShot
+697478,Serie_A,Genoa,Fiorentina,1,6,Mikael Ellertsson,0.9109999847412109,0.3870000076293945,0.33061060309410095,LeftFoot,OpenPlay,MissedShots
+697479,Serie_A,Genoa,Fiorentina,1,6,Milutin Osmajic,0.9369999694824219,0.5970000076293945,0.37375879287719727,RightFoot,OpenPlay,Goal
+697481,Serie_A,Genoa,Fiorentina,1,14,Junior Messias,0.9340000152587891,0.5209999847412109,0.449553519487381,LeftFoot,OpenPlay,Goal
+697483,Serie_A,Genoa,Fiorentina,1,21,Stephan El Shaarawy,0.7069999694824218,0.485,0.04077795147895813,RightFoot,DirectFreekick,SavedShot
+697484,Serie_A,Genoa,Fiorentina,1,22,Hamed Junior Traore,0.7719999694824219,0.47,0.02930264361202717,RightFoot,OpenPlay,MissedShots
+697485,Serie_A,Genoa,Fiorentina,1,26,Kingsley Ehizibue,0.8640000152587891,0.3170000076293945,0.056449152529239655,RightFoot,OpenPlay,BlockedShot
+697486,Serie_A,Genoa,Fiorentina,1,26,Stephan El Shaarawy,0.874000015258789,0.644000015258789,0.042510561645030975,LeftFoot,OpenPlay,MissedShots
+697488,Serie_A,Genoa,Fiorentina,1,31,Milutin Osmajic,0.909000015258789,0.34400001525878904,0.0927138403058052,RightFoot,OpenPlay,MissedShots
+697494,Serie_A,Genoa,Fiorentina,1,72,Johan Vásquez,0.049000000953674315,0.6419999694824219,0.0,LeftFoot,OpenPlay,OwnGoal
+697496,Serie_A,Genoa,Fiorentina,1,77,Alessandro Marcandalli,0.89,0.47700000762939454,0.016493195667862892,Head,FromCorner,MissedShots
+697480,Serie_A,Fiorentina,Genoa,0,9,Cher Ndour,0.8830000305175781,0.385,0.07738812267780304,LeftFoot,OpenPlay,SavedShot
+697482,Serie_A,Fiorentina,Genoa,0,18,Franco Mastantuono,0.7630000305175781,0.49900001525878906,0.025823386386036873,LeftFoot,OpenPlay,BlockedShot
+697487,Serie_A,Fiorentina,Genoa,0,31,Franco Mastantuono,0.8780000305175781,0.3160000038146973,0.06096728518605232,LeftFoot,OpenPlay,BlockedShot
+697489,Serie_A,Fiorentina,Genoa,0,41,Christ Inao Oulaï,0.8830000305175781,0.54,0.11319132149219513,RightFoot,OpenPlay,MissedShots
+697490,Serie_A,Fiorentina,Genoa,0,43,Luca Ranieri,0.98,0.3990000152587891,0.03560013696551323,Head,FromCorner,MissedShots
+697491,Serie_A,Fiorentina,Genoa,0,44,Franco Mastantuono,0.8690000152587891,0.315,0.090878427028656,LeftFoot,OpenPlay,SavedShot
+697492,Serie_A,Fiorentina,Genoa,0,51,Nicolo Fagioli,0.855999984741211,0.3579999923706055,0.0538751445710659,RightFoot,OpenPlay,BlockedShot
+697493,Serie_A,Fiorentina,Genoa,0,63,Beto,0.89,0.5170000076293946,0.07091415673494339,RightFoot,OpenPlay,MissedShots
+697495,Serie_A,Fiorentina,Genoa,0,76,Cher Ndour,0.8769999694824219,0.37900001525878907,0.0640593096613884,RightFoot,OpenPlay,MissedShots
+697497,Serie_A,Fiorentina,Genoa,0,78,Alieu Njie,0.9830000305175781,0.6179999923706054,0.09872376173734665,LeftFoot,OpenPlay,SavedShot
+697498,Serie_A,Fiorentina,Genoa,0,83,Cher Ndour,0.7980000305175782,0.34599998474121096,0.02533635124564171,RightFoot,OpenPlay,ShotOnPost
+697499,Serie_A,Fiorentina,Genoa,0,90,Pote,0.8040000152587891,0.529000015258789,0.04411222040653229,RightFoot,OpenPlay,BlockedShot
+697500,Serie_A,Fiorentina,Genoa,0,95,Mateo Pellegrino,0.884000015258789,0.49700000762939456,0.024843651801347733,Head,OpenPlay,MissedShots
 690131,Bundesliga,Bayern Munich,VfB Stuttgart,1,16,Michael Olise,0.754000015258789,0.4109999847412109,0.06620727479457855,LeftFoot,DirectFreekick,ShotOnPost
 690132,Bundesliga,Bayern Munich,VfB Stuttgart,1,20,Dayotchanculle Upamecano,0.9769999694824218,0.5509999847412109,0.5120856165885925,Head,FromCorner,Goal
 690133,Bundesliga,Bayern Munich,VfB Stuttgart,1,25,Luis Díaz,0.874000015258789,0.425,0.3856953978538513,RightFoot,OpenPlay,SavedShot
@@ -5827,3 +6031,216 @@ id,league,team_name,opponent,is_home,minute,player,X,Y,xG,shotType,situation,res
 696859,Bundesliga,Hoffenheim,Paderborn,0,82,Patrick Wimmer,0.7730000305175782,0.5890000152587891,0.021945955231785774,LeftFoot,OpenPlay,MissedShots
 696860,Bundesliga,Hoffenheim,Paderborn,0,83,Fisnik Asllani,0.7769999694824219,0.435,0.031552497297525406,RightFoot,OpenPlay,BlockedShot
 696861,Bundesliga,Hoffenheim,Paderborn,0,84,Bambasé Conté,0.830999984741211,0.39299999237060546,0.039056506007909775,LeftFoot,FromCorner,BlockedShot
+697041,Bundesliga,Borussia Dortmund,Werder Bremen,1,1,Marcel Sabitzer,0.764000015258789,0.6759999847412109,0.022596027702093124,RightFoot,OpenPlay,MissedShots
+697042,Bundesliga,Borussia Dortmund,Werder Bremen,1,32,Serhou Guirassy,0.95,0.4209999847412109,0.04546751827001572,Head,FromCorner,MissedShots
+697045,Bundesliga,Borussia Dortmund,Werder Bremen,1,38,Marcel Sabitzer,0.705,0.67,0.03459634259343147,RightFoot,DirectFreekick,MissedShots
+697046,Bundesliga,Borussia Dortmund,Werder Bremen,1,40,Marcel Sabitzer,0.889000015258789,0.66,0.07647538930177689,RightFoot,OpenPlay,SavedShot
+697047,Bundesliga,Borussia Dortmund,Werder Bremen,1,42,Maximilian Beier,0.935,0.3920000076293945,0.3126835823059082,RightFoot,OpenPlay,SavedShot
+697048,Bundesliga,Borussia Dortmund,Werder Bremen,1,46,Jobe Bellingham,0.74,0.33,0.017810486257076263,RightFoot,OpenPlay,BlockedShot
+697049,Bundesliga,Borussia Dortmund,Werder Bremen,1,46,Nico Schlotterbeck,0.7530000305175781,0.6869999694824219,0.019083941355347633,LeftFoot,OpenPlay,SavedShot
+697050,Bundesliga,Borussia Dortmund,Werder Bremen,1,48,Ethan Nwaneri,0.7719999694824219,0.4379999923706055,0.037526700645685196,LeftFoot,OpenPlay,SavedShot
+697051,Bundesliga,Borussia Dortmund,Werder Bremen,1,49,Maximilian Beier,0.914000015258789,0.56,0.09550812840461731,Head,OpenPlay,MissedShots
+697052,Bundesliga,Borussia Dortmund,Werder Bremen,1,52,Maximilian Beier,0.8159999847412109,0.6530000305175782,0.04611529782414436,RightFoot,OpenPlay,BlockedShot
+697053,Bundesliga,Borussia Dortmund,Werder Bremen,1,53,Ethan Nwaneri,0.8830000305175781,0.3890000152587891,0.09535232186317444,LeftFoot,OpenPlay,MissedShots
+697055,Bundesliga,Borussia Dortmund,Werder Bremen,1,55,Nico Schlotterbeck,0.7680000305175781,0.6170000076293946,0.021003535017371178,LeftFoot,OpenPlay,MissedShots
+697056,Bundesliga,Borussia Dortmund,Werder Bremen,1,55,Nico Schlotterbeck,0.750999984741211,0.5970000076293945,0.015229208394885063,RightFoot,OpenPlay,MissedShots
+697057,Bundesliga,Borussia Dortmund,Werder Bremen,1,57,Waldemar Anton,0.7519999694824219,0.34900001525878904,0.014480057172477245,RightFoot,OpenPlay,BlockedShot
+697058,Bundesliga,Borussia Dortmund,Werder Bremen,1,57,Serhou Guirassy,0.955,0.5020000076293946,0.5515087842941284,Head,OpenPlay,MissedShots
+697059,Bundesliga,Borussia Dortmund,Werder Bremen,1,60,Ethan Nwaneri,0.9169999694824219,0.64,0.093841552734375,LeftFoot,OpenPlay,SavedShot
+697060,Bundesliga,Borussia Dortmund,Werder Bremen,1,65,Marcel Sabitzer,0.9059999847412109,0.67,0.06696169823408127,LeftFoot,OpenPlay,SavedShot
+697061,Bundesliga,Borussia Dortmund,Werder Bremen,1,77,Kouakou Gadou,0.7440000152587891,0.2979999923706055,0.01687406376004219,RightFoot,OpenPlay,SavedShot
+697062,Bundesliga,Borussia Dortmund,Werder Bremen,1,79,Fabio Silva,0.889000015258789,0.37599998474121094,0.12632139027118683,RightFoot,OpenPlay,MissedShots
+697063,Bundesliga,Borussia Dortmund,Werder Bremen,1,79,Daniel Svensson,0.914000015258789,0.47900001525878905,0.597777247428894,LeftFoot,OpenPlay,Goal
+697065,Bundesliga,Borussia Dortmund,Werder Bremen,1,84,Nico Schlotterbeck,0.9619999694824218,0.46299999237060546,0.38550683856010437,Head,FromCorner,Goal
+697043,Bundesliga,Werder Bremen,Borussia Dortmund,0,35,Olivier Deman,0.825999984741211,0.5329999923706055,0.04636220633983612,LeftFoot,FromCorner,BlockedShot
+697044,Bundesliga,Werder Bremen,Borussia Dortmund,0,36,Ludovit Reis,0.8630000305175781,0.2929999923706055,0.0652855783700943,RightFoot,OpenPlay,MissedShots
+697054,Bundesliga,Werder Bremen,Borussia Dortmund,0,53,Niclas Füllkrug,0.87,0.47299999237060547,0.1960027813911438,RightFoot,OpenPlay,SavedShot
+697064,Bundesliga,Werder Bremen,Borussia Dortmund,0,81,Oskar Wójcik,0.6759999847412109,0.4470000076293945,0.013178074732422829,RightFoot,OpenPlay,MissedShots
+697066,Bundesliga,Werder Bremen,Borussia Dortmund,0,87,Ludovit Reis,0.7290000152587891,0.41900001525878905,0.014382281340658665,RightFoot,OpenPlay,Goal
+697067,Bundesliga,Werder Bremen,Borussia Dortmund,0,89,Ludovit Reis,0.8619999694824219,0.5620000076293945,0.07259564846754074,RightFoot,OpenPlay,BlockedShot
+697068,Bundesliga,Werder Bremen,Borussia Dortmund,0,91,Niclas Füllkrug,0.8930000305175781,0.5279999923706055,0.28160810470581055,Head,SetPiece,Goal
+697069,Bundesliga,Werder Bremen,Borussia Dortmund,0,94,Paul Erevbenagie,0.904000015258789,0.455,0.04103437438607216,Head,OpenPlay,MissedShots
+697070,Bundesliga,Werder Bremen,Borussia Dortmund,0,94,Mick Schmetgens,0.8230000305175781,0.4279999923706055,0.08315916359424591,LeftFoot,OpenPlay,BlockedShot
+697071,Bundesliga,Werder Bremen,Borussia Dortmund,0,95,Marco Grüll,0.6980000305175781,0.514000015258789,0.016986168920993805,RightFoot,OpenPlay,BlockedShot
+697072,Bundesliga,Werder Bremen,Borussia Dortmund,0,95,Oskar Wójcik,0.9080000305175782,0.5690000152587891,0.018674157559871674,Head,FromCorner,SavedShot
+697413,Bundesliga,Mainz 05,Bayer Leverkusen,1,2,Phillip Tietz,0.8980000305175782,0.5379999923706055,0.08244979381561279,Head,OpenPlay,SavedShot
+697418,Bundesliga,Mainz 05,Bayer Leverkusen,1,18,Nadiem Amiri,0.7569999694824219,0.37099998474121093,0.0620000846683979,RightFoot,DirectFreekick,BlockedShot
+697419,Bundesliga,Mainz 05,Bayer Leverkusen,1,24,Philipp Mwene,0.8980000305175782,0.6,0.023729121312499046,Head,OpenPlay,MissedShots
+697420,Bundesliga,Mainz 05,Bayer Leverkusen,1,26,Eric Martel,0.875,0.600999984741211,0.015859663486480713,Head,SetPiece,MissedShots
+697421,Bundesliga,Mainz 05,Bayer Leverkusen,1,27,Eric Martel,0.895,0.505,0.06993390619754791,LeftFoot,OpenPlay,MissedShots
+697422,Bundesliga,Mainz 05,Bayer Leverkusen,1,29,Philipp Mwene,0.9419999694824219,0.5329999923706055,0.11318625509738922,Head,OpenPlay,MissedShots
+697423,Bundesliga,Mainz 05,Bayer Leverkusen,1,32,Eric Martel,0.9309999847412109,0.455,0.10923443734645844,Head,FromCorner,BlockedShot
+697424,Bundesliga,Mainz 05,Bayer Leverkusen,1,32,Anthony Caci,0.98,0.49400001525878906,0.2574746906757355,RightFoot,FromCorner,Goal
+697425,Bundesliga,Mainz 05,Bayer Leverkusen,1,41,Anthony Caci,0.8580000305175781,0.48900001525878906,0.05574149265885353,LeftFoot,OpenPlay,BlockedShot
+697426,Bundesliga,Mainz 05,Bayer Leverkusen,1,41,Kaishu Sano,0.7930000305175782,0.5679999923706055,0.03728185221552849,RightFoot,OpenPlay,BlockedShot
+697427,Bundesliga,Mainz 05,Bayer Leverkusen,1,41,Anthony Caci,0.8780000305175781,0.3139999961853027,0.04551028087735176,LeftFoot,OpenPlay,Goal
+697428,Bundesliga,Mainz 05,Bayer Leverkusen,1,42,Phillip Tietz,0.9730000305175781,0.41700000762939454,0.3080371916294098,Head,OpenPlay,MissedShots
+697429,Bundesliga,Mainz 05,Bayer Leverkusen,1,43,Phillip Tietz,0.870999984741211,0.47900001525878905,0.0434645377099514,Head,OpenPlay,BlockedShot
+697430,Bundesliga,Mainz 05,Bayer Leverkusen,1,45,Kacper Potulski,0.9169999694824219,0.4620000076293945,0.04300632327795029,Head,FromCorner,MissedShots
+697431,Bundesliga,Mainz 05,Bayer Leverkusen,1,48,Nadiem Amiri,0.845,0.3920000076293945,0.07647380977869034,LeftFoot,OpenPlay,MissedShots
+697434,Bundesliga,Mainz 05,Bayer Leverkusen,1,52,Eric Martel,0.765,0.590999984741211,0.026102369651198387,RightFoot,OpenPlay,BlockedShot
+697438,Bundesliga,Mainz 05,Bayer Leverkusen,1,57,Philipp Mwene,0.865999984741211,0.6020000076293945,0.07594673335552216,RightFoot,OpenPlay,BlockedShot
+697439,Bundesliga,Mainz 05,Bayer Leverkusen,1,64,Phillip Tietz,0.8109999847412109,0.48,0.05631053447723389,RightFoot,OpenPlay,MissedShots
+697443,Bundesliga,Mainz 05,Bayer Leverkusen,1,74,Nadiem Amiri,0.7480000305175781,0.6140000152587891,0.015903165563941002,RightFoot,OpenPlay,MissedShots
+697446,Bundesliga,Mainz 05,Bayer Leverkusen,1,86,Ransford Königsdörffer,0.8869999694824219,0.5179999923706055,0.06841900944709778,Head,OpenPlay,MissedShots
+697448,Bundesliga,Mainz 05,Bayer Leverkusen,1,91,Phillip Tietz,0.9259999847412109,0.545,0.06638814508914948,Head,OpenPlay,MissedShots
+697449,Bundesliga,Mainz 05,Bayer Leverkusen,1,91,Lennard Maloney,0.8069999694824219,0.5209999847412109,0.05437954142689705,LeftFoot,OpenPlay,BlockedShot
+697450,Bundesliga,Mainz 05,Bayer Leverkusen,1,91,Benedict Hollerbach,0.9390000152587891,0.46599998474121096,0.5264524817466736,RightFoot,OpenPlay,Goal
+697414,Bundesliga,Bayer Leverkusen,Mainz 05,0,4,Robert Andrich,0.8169999694824219,0.4570000076293945,0.05308331176638603,RightFoot,OpenPlay,Goal
+697415,Bundesliga,Bayer Leverkusen,Mainz 05,0,8,Patrik Schick,0.9009999847412109,0.6170000076293946,0.3501431941986084,LeftFoot,OpenPlay,Goal
+697416,Bundesliga,Bayer Leverkusen,Mainz 05,0,10,Ibrahim Maza,0.8880000305175781,0.49700000762939456,0.4301416873931885,RightFoot,OpenPlay,MissedShots
+697417,Bundesliga,Bayer Leverkusen,Mainz 05,0,13,Edmond Tapsoba,0.9259999847412109,0.595999984741211,0.05732779949903488,Head,SetPiece,SavedShot
+697432,Bundesliga,Bayer Leverkusen,Mainz 05,0,51,Moussa Diaby,0.8419999694824218,0.6379999923706055,0.05777895823121071,LeftFoot,OpenPlay,BlockedShot
+697433,Bundesliga,Bayer Leverkusen,Mainz 05,0,51,Miguel Gutiérrez,0.8540000152587891,0.674000015258789,0.03647065907716751,LeftFoot,OpenPlay,MissedShots
+697435,Bundesliga,Bayer Leverkusen,Mainz 05,0,54,Miguel Gutiérrez,0.92,0.66,0.02942110225558281,LeftFoot,OpenPlay,MissedShots
+697436,Bundesliga,Bayer Leverkusen,Mainz 05,0,54,Jarell Quansah,0.9109999847412109,0.539000015258789,0.4632883071899414,RightFoot,OpenPlay,SavedShot
+697437,Bundesliga,Bayer Leverkusen,Mainz 05,0,54,Jarell Quansah,0.9019999694824219,0.52,0.305570513010025,Head,OpenPlay,Goal
+697440,Bundesliga,Bayer Leverkusen,Mainz 05,0,64,Moussa Diaby,0.81,0.4759999847412109,0.06894705444574356,LeftFoot,OpenPlay,Goal
+697441,Bundesliga,Bayer Leverkusen,Mainz 05,0,68,Martin Terrier,0.9069999694824219,0.4779999923706055,0.14381447434425354,RightFoot,OpenPlay,MissedShots
+697442,Bundesliga,Bayer Leverkusen,Mainz 05,0,70,Martin Terrier,0.965,0.5509999847412109,0.14998799562454224,Head,OpenPlay,MissedShots
+697444,Bundesliga,Bayer Leverkusen,Mainz 05,0,77,Malik Tillman,0.8019999694824219,0.34299999237060547,0.03412126377224922,RightFoot,OpenPlay,BlockedShot
+697445,Bundesliga,Bayer Leverkusen,Mainz 05,0,78,Edmond Tapsoba,0.909000015258789,0.48200000762939454,0.08387897163629532,Head,FromCorner,MissedShots
+697447,Bundesliga,Bayer Leverkusen,Mainz 05,0,89,Miguel Gutiérrez,0.8730000305175781,0.6480000305175782,0.09585867822170258,LeftFoot,OpenPlay,BlockedShot
+697451,Bundesliga,Bayer Leverkusen,Mainz 05,0,94,Nathan Tella,0.8219999694824218,0.46900001525878904,0.0777893140912056,RightFoot,OpenPlay,SavedShot
+697193,Bundesliga,Paderborn,VfB Stuttgart,1,9,Gabriel Vidovic,0.8490000152587891,0.515,0.037598926573991776,LeftFoot,FromCorner,MissedShots
+697195,Bundesliga,Paderborn,VfB Stuttgart,1,16,Laurin Curda,0.7619999694824219,0.41200000762939454,0.02073139324784279,RightFoot,OpenPlay,BlockedShot
+697199,Bundesliga,Paderborn,VfB Stuttgart,1,21,Laurin Curda,0.6959999847412109,0.4759999847412109,0.018693020567297935,LeftFoot,OpenPlay,MissedShots
+697203,Bundesliga,Paderborn,VfB Stuttgart,1,31,Laurin Ulrich,0.845999984741211,0.37099998474121093,0.05562243610620499,RightFoot,OpenPlay,BlockedShot
+697204,Bundesliga,Paderborn,VfB Stuttgart,1,31,Santiago Castañeda,0.7709999847412109,0.47900001525878905,0.03098759800195694,RightFoot,OpenPlay,SavedShot
+697205,Bundesliga,Paderborn,VfB Stuttgart,1,34,Raphael Obermair,0.8190000152587891,0.515,0.05068833753466606,RightFoot,OpenPlay,BlockedShot
+697206,Bundesliga,Paderborn,VfB Stuttgart,1,40,Raphael Obermair,0.925,0.65,0.32553818821907043,LeftFoot,OpenPlay,SavedShot
+697207,Bundesliga,Paderborn,VfB Stuttgart,1,41,Marvin Pieringer,0.875,0.5,0.04823404550552368,Head,FromCorner,MissedShots
+697208,Bundesliga,Paderborn,VfB Stuttgart,1,43,Gabriel Vidovic,0.8919999694824219,0.7290000152587891,0.036410141736269,RightFoot,OpenPlay,BlockedShot
+697211,Bundesliga,Paderborn,VfB Stuttgart,1,51,Gabriel Vidovic,0.8009999847412109,0.5079999923706054,0.04414031654596329,LeftFoot,FromCorner,BlockedShot
+697212,Bundesliga,Paderborn,VfB Stuttgart,1,51,Laurin Ulrich,0.855999984741211,0.4259999847412109,0.04839238151907921,RightFoot,FromCorner,MissedShots
+697213,Bundesliga,Paderborn,VfB Stuttgart,1,53,Laurin Ulrich,0.8119999694824219,0.34099998474121096,0.027709010988473892,RightFoot,OpenPlay,MissedShots
+697214,Bundesliga,Paderborn,VfB Stuttgart,1,57,Laurin Curda,0.7659999847412109,0.45,0.011898481287062168,RightFoot,OpenPlay,SavedShot
+697215,Bundesliga,Paderborn,VfB Stuttgart,1,58,Marvin Pieringer,0.9619999694824218,0.539000015258789,0.5156027674674988,Head,OpenPlay,MissedShots
+697216,Bundesliga,Paderborn,VfB Stuttgart,1,59,Gabriel Vidovic,0.8390000152587891,0.515,0.05772147327661514,LeftFoot,OpenPlay,BlockedShot
+697219,Bundesliga,Paderborn,VfB Stuttgart,1,67,Stefano Marino,0.8140000152587891,0.6359999847412109,0.03723090514540672,RightFoot,OpenPlay,BlockedShot
+697222,Bundesliga,Paderborn,VfB Stuttgart,1,81,Oliver Batista Meier,0.8809999847412109,0.55,0.10195479542016983,RightFoot,OpenPlay,BlockedShot
+697223,Bundesliga,Paderborn,VfB Stuttgart,1,81,Steffen Tigges,0.8730000305175781,0.5070000076293946,0.02738266810774803,Head,OpenPlay,MissedShots
+697224,Bundesliga,Paderborn,VfB Stuttgart,1,81,Rayan Philippe,0.9180000305175782,0.44400001525878907,0.4581184387207031,LeftFoot,OpenPlay,BlockedShot
+697226,Bundesliga,Paderborn,VfB Stuttgart,1,86,Steffen Tigges,0.8980000305175782,0.6170000076293946,0.017773542553186417,Head,OpenPlay,MissedShots
+697227,Bundesliga,Paderborn,VfB Stuttgart,1,89,Rayan Philippe,0.8540000152587891,0.7019999694824218,0.03183726221323013,LeftFoot,OpenPlay,BlockedShot
+697228,Bundesliga,Paderborn,VfB Stuttgart,1,89,Jano ter Horst,0.8819999694824219,0.514000015258789,0.08529291301965714,RightFoot,FromCorner,MissedShots
+697229,Bundesliga,Paderborn,VfB Stuttgart,1,91,Steffen Tigges,0.874000015258789,0.39799999237060546,0.017539676278829575,Head,OpenPlay,MissedShots
+697190,Bundesliga,VfB Stuttgart,Paderborn,0,4,Deniz Undav,0.754000015258789,0.54,0.02552754245698452,RightFoot,OpenPlay,SavedShot
+697191,Bundesliga,VfB Stuttgart,Paderborn,0,5,Julian Chabot,0.9619999694824218,0.56,0.07046718895435333,Head,FromCorner,MissedShots
+697192,Bundesliga,VfB Stuttgart,Paderborn,0,5,Ermedin Demirovic,0.8540000152587891,0.40200000762939453,0.063057541847229,RightFoot,FromCorner,BlockedShot
+697194,Bundesliga,VfB Stuttgart,Paderborn,0,11,Ermedin Demirovic,0.9019999694824219,0.5220000076293946,0.3254626989364624,RightFoot,OpenPlay,SavedShot
+697196,Bundesliga,VfB Stuttgart,Paderborn,0,19,Atakan Karazor,0.8630000305175781,0.5829999923706055,0.08363638073205948,RightFoot,OpenPlay,BlockedShot
+697197,Bundesliga,VfB Stuttgart,Paderborn,0,19,Deniz Undav,0.9590000152587891,0.44599998474121094,0.15227539837360382,RightFoot,OpenPlay,BlockedShot
+697198,Bundesliga,VfB Stuttgart,Paderborn,0,20,Ermedin Demirovic,0.875,0.549000015258789,0.08184261620044708,RightFoot,OpenPlay,MissedShots
+697200,Bundesliga,VfB Stuttgart,Paderborn,0,21,Jamie Leweling,0.9209999847412109,0.33099998474121095,0.25655242800712585,RightFoot,OpenPlay,SavedShot
+697201,Bundesliga,VfB Stuttgart,Paderborn,0,24,Julian Chabot,0.9830000305175781,0.4129999923706055,0.2715723216533661,Head,SetPiece,Goal
+697202,Bundesliga,VfB Stuttgart,Paderborn,0,29,Jamie Leweling,0.87,0.3629999923706055,0.03311294689774513,RightFoot,OpenPlay,ShotOnPost
+697209,Bundesliga,VfB Stuttgart,Paderborn,0,46,Chris Führich,0.91,0.675,0.22560210525989532,RightFoot,OpenPlay,BlockedShot
+697210,Bundesliga,VfB Stuttgart,Paderborn,0,47,Chris Führich,0.8490000152587891,0.6079999923706054,0.08768195658922195,RightFoot,OpenPlay,SavedShot
+697217,Bundesliga,VfB Stuttgart,Paderborn,0,62,Ermedin Demirovic,0.9,0.6070000076293945,0.3109320104122162,LeftFoot,OpenPlay,SavedShot
+697218,Bundesliga,VfB Stuttgart,Paderborn,0,63,Deniz Undav,0.94,0.3370000076293945,0.05097408965229988,RightFoot,FromCorner,BlockedShot
+697220,Bundesliga,VfB Stuttgart,Paderborn,0,75,Ermedin Demirovic,0.9640000152587891,0.5779999923706055,0.3306739926338196,Head,FromCorner,BlockedShot
+697221,Bundesliga,VfB Stuttgart,Paderborn,0,80,Dzenan Pejcinovic,0.7859999847412109,0.32099998474121094,0.034484993666410446,LeftFoot,OpenPlay,MissedShots
+697225,Bundesliga,VfB Stuttgart,Paderborn,0,82,Chris Führich,0.9019999694824219,0.6379999923706055,0.1071842610836029,LeftFoot,OpenPlay,Goal
+697230,Bundesliga,VfB Stuttgart,Paderborn,0,92,Leo Sauer,0.914000015258789,0.26299999237060545,0.09394368529319763,RightFoot,OpenPlay,MissedShots
+697264,Bundesliga,Augsburg,Bayern Munich,1,0,Robin Fellhauer,0.9390000152587891,0.3970000076293945,0.3984706699848175,RightFoot,OpenPlay,Goal
+697265,Bundesliga,Augsburg,Bayern Munich,1,3,Robin Fellhauer,0.7530000305175781,0.46299999237060546,0.015824569389224052,RightFoot,OpenPlay,BlockedShot
+697266,Bundesliga,Augsburg,Bayern Munich,1,3,Calvin Brackelmann,0.855,0.669000015258789,0.05376856401562691,LeftFoot,OpenPlay,BlockedShot
+697273,Bundesliga,Augsburg,Bayern Munich,1,16,Robin Fellhauer,0.8680000305175781,0.4,0.05990354344248772,RightFoot,FromCorner,MissedShots
+697276,Bundesliga,Augsburg,Bayern Munich,1,34,Chrislain Matsima,0.9490000152587891,0.44400001525878907,0.0685451477766037,Head,FromCorner,MissedShots
+697277,Bundesliga,Augsburg,Bayern Munich,1,34,Juma Bah,0.9669999694824218,0.5559999847412109,0.5896929502487183,LeftFoot,FromCorner,MissedShots
+697279,Bundesliga,Augsburg,Bayern Munich,1,37,Rodrigo Ribeiro,0.8809999847412109,0.44,0.060575876384973526,Head,OpenPlay,MissedShots
+697286,Bundesliga,Augsburg,Bayern Munich,1,60,Seol Young-Woo,0.915,0.30700000762939456,0.07967042922973633,LeftFoot,OpenPlay,BlockedShot
+697289,Bundesliga,Augsburg,Bayern Munich,1,63,Calvin Brackelmann,0.8380000305175781,0.72,0.10265026241540909,LeftFoot,OpenPlay,SavedShot
+697290,Bundesliga,Augsburg,Bayern Munich,1,63,Rodrigo Ribeiro,0.9319999694824219,0.455,0.5017961859703064,LeftFoot,OpenPlay,Goal
+697294,Bundesliga,Augsburg,Bayern Munich,1,79,Arijon Ibrahimovic,0.8669999694824219,0.6909999847412109,0.0778181403875351,LeftFoot,OpenPlay,SavedShot
+697305,Bundesliga,Augsburg,Bayern Munich,1,94,Anton Kade,0.7769999694824219,0.4520000076293945,0.041632816195487976,RightFoot,OpenPlay,SavedShot
+697267,Bundesliga,Bayern Munich,Augsburg,0,8,Harry Kane,0.7959999847412109,0.58,0.03221651166677475,RightFoot,OpenPlay,MissedShots
+697268,Bundesliga,Bayern Munich,Augsburg,0,11,Harry Kane,0.7659999847412109,0.509000015258789,0.029806634411215782,LeftFoot,OpenPlay,MissedShots
+697269,Bundesliga,Bayern Munich,Augsburg,0,12,Michael Olise,0.7719999694824219,0.29100000381469726,0.019673382863402367,LeftFoot,OpenPlay,SavedShot
+697270,Bundesliga,Bayern Munich,Augsburg,0,13,Harry Kane,0.955999984741211,0.5020000076293946,0.4493754208087921,Head,FromCorner,MissedShots
+697271,Bundesliga,Bayern Munich,Augsburg,0,14,Ismael Saibari,0.84,0.6890000152587891,0.0367402508854866,RightFoot,OpenPlay,BlockedShot
+697272,Bundesliga,Bayern Munich,Augsburg,0,15,Alphonso Davies,0.8069999694824219,0.3940000152587891,0.03648620471358299,LeftFoot,FromCorner,MissedShots
+697274,Bundesliga,Bayern Munich,Augsburg,0,31,Dayotchanculle Upamecano,0.9690000152587891,0.5209999847412109,0.13765503466129303,RightFoot,FromCorner,SavedShot
+697275,Bundesliga,Bayern Munich,Augsburg,0,33,Harry Kane,0.87,0.39299999237060546,0.11848480254411697,RightFoot,OpenPlay,BlockedShot
+697278,Bundesliga,Bayern Munich,Augsburg,0,36,Ismael Saibari,0.915,0.34599998474121096,0.13121159374713898,RightFoot,OpenPlay,MissedShots
+697280,Bundesliga,Bayern Munich,Augsburg,0,46,Ismael Saibari,0.8130000305175781,0.4859999847412109,0.04727581515908241,LeftFoot,OpenPlay,SavedShot
+697281,Bundesliga,Bayern Munich,Augsburg,0,49,Harry Kane,0.950999984741211,0.46900001525878904,0.54437255859375,RightFoot,OpenPlay,ShotOnPost
+697282,Bundesliga,Bayern Munich,Augsburg,0,54,Ismael Saibari,0.9169999694824219,0.534000015258789,0.45741158723831177,RightFoot,OpenPlay,Goal
+697283,Bundesliga,Bayern Munich,Augsburg,0,56,Ismael Saibari,0.9580000305175781,0.525,0.14089028537273407,RightFoot,OpenPlay,BlockedShot
+697284,Bundesliga,Bayern Munich,Augsburg,0,57,Harry Kane,0.7559999847412109,0.6029999923706054,0.02469521388411522,RightFoot,OpenPlay,BlockedShot
+697285,Bundesliga,Bayern Munich,Augsburg,0,58,Harry Kane,0.88,0.385,0.09021618217229843,RightFoot,OpenPlay,BlockedShot
+697287,Bundesliga,Bayern Munich,Augsburg,0,62,Joshua Kimmich,0.6940000152587891,0.4829999923706055,0.013458468951284885,RightFoot,OpenPlay,MissedShots
+697288,Bundesliga,Bayern Munich,Augsburg,0,63,Ismael Saibari,0.7759999847412109,0.6140000152587891,0.02836032770574093,LeftFoot,OpenPlay,MissedShots
+697291,Bundesliga,Bayern Munich,Augsburg,0,69,Michael Olise,0.765,0.5070000076293946,0.02792457304894924,LeftFoot,OpenPlay,MissedShots
+697292,Bundesliga,Bayern Munich,Augsburg,0,77,Nathaniel Brown,0.8,0.385,0.033256664872169495,LeftFoot,OpenPlay,BlockedShot
+697293,Bundesliga,Bayern Munich,Augsburg,0,78,Harry Kane,0.96,0.44400001525878907,0.48908689618110657,Head,OpenPlay,SavedShot
+697295,Bundesliga,Bayern Munich,Augsburg,0,79,Nathaniel Brown,0.9430000305175781,0.48900001525878906,0.47827211022377014,LeftFoot,OpenPlay,Goal
+697296,Bundesliga,Bayern Munich,Augsburg,0,82,Serge Gnabry,0.950999984741211,0.495,0.6608046293258667,RightFoot,OpenPlay,ShotOnPost
+697297,Bundesliga,Bayern Munich,Augsburg,0,82,Serge Gnabry,0.9519999694824218,0.4979999923706055,0.65263432264328,RightFoot,OpenPlay,SavedShot
+697298,Bundesliga,Bayern Munich,Augsburg,0,83,Michael Olise,0.9669999694824218,0.3039999961853027,0.042086102068424225,LeftFoot,OpenPlay,BlockedShot
+697299,Bundesliga,Bayern Munich,Augsburg,0,84,Dayotchanculle Upamecano,0.915,0.4640000152587891,0.08756683021783829,RightFoot,FromCorner,BlockedShot
+697300,Bundesliga,Bayern Munich,Augsburg,0,85,Serge Gnabry,0.97,0.34700000762939454,0.082024946808815,LeftFoot,OpenPlay,BlockedShot
+697301,Bundesliga,Bayern Munich,Augsburg,0,88,Michael Olise,0.7340000152587891,0.549000015258789,0.02307845838367939,LeftFoot,OpenPlay,SavedShot
+697302,Bundesliga,Bayern Munich,Augsburg,0,88,Lennart Karl,0.9680000305175781,0.3079999923706055,0.04414520412683487,RightFoot,OpenPlay,MissedShots
+697303,Bundesliga,Bayern Munich,Augsburg,0,90,Tom Bischof,0.7419999694824219,0.4229999923706055,0.018538067117333412,LeftFoot,OpenPlay,SavedShot
+697304,Bundesliga,Bayern Munich,Augsburg,0,91,Michael Olise,0.7859999847412109,0.5429999923706055,0.03501031920313835,LeftFoot,OpenPlay,SavedShot
+697231,Bundesliga,Hoffenheim,Hamburger SV,1,0,Fisnik Asllani,0.7709999847412109,0.6309999847412109,0.026463007554411888,RightFoot,OpenPlay,SavedShot
+697234,Bundesliga,Hoffenheim,Hamburger SV,1,3,Tim Lemperle,0.925,0.41200000762939454,0.14844059944152832,RightFoot,OpenPlay,MissedShots
+697240,Bundesliga,Hoffenheim,Hamburger SV,1,24,Tim Lemperle,0.8569999694824219,0.24100000381469727,0.02302907221019268,RightFoot,OpenPlay,MissedShots
+697241,Bundesliga,Hoffenheim,Hamburger SV,1,37,Koki Machida,0.7219999694824218,0.5779999923706055,0.01743052527308464,LeftFoot,OpenPlay,BlockedShot
+697242,Bundesliga,Hoffenheim,Hamburger SV,1,40,Bambasé Conté,0.9640000152587891,0.445,0.11054340749979019,LeftFoot,OpenPlay,BlockedShot
+697243,Bundesliga,Hoffenheim,Hamburger SV,1,41,Vladimir Coufal,0.8319999694824218,0.27,0.01966884359717369,RightFoot,FromCorner,MissedShots
+697244,Bundesliga,Hoffenheim,Hamburger SV,1,42,Tim Lemperle,0.8619999694824219,0.5690000152587891,0.06290929764509201,LeftFoot,OpenPlay,BlockedShot
+697245,Bundesliga,Hoffenheim,Hamburger SV,1,45,Fisnik Asllani,0.8680000305175781,0.5659999847412109,0.0657135397195816,RightFoot,OpenPlay,BlockedShot
+697246,Bundesliga,Hoffenheim,Hamburger SV,1,45,Ozan Kabak,0.775,0.37900001525878907,0.02493038959801197,RightFoot,OpenPlay,MissedShots
+697247,Bundesliga,Hoffenheim,Hamburger SV,1,45,Wouter Burger,0.9180000305175782,0.5879999923706055,0.027573877945542336,Head,OpenPlay,SavedShot
+697248,Bundesliga,Hoffenheim,Hamburger SV,1,49,Fisnik Asllani,0.8119999694824219,0.525,0.05605417862534523,LeftFoot,OpenPlay,BlockedShot
+697249,Bundesliga,Hoffenheim,Hamburger SV,1,50,Tim Lemperle,0.955999984741211,0.4620000076293945,0.1337880939245224,Head,FromCorner,SavedShot
+697251,Bundesliga,Hoffenheim,Hamburger SV,1,47,Wouter Burger,0.8059999847412109,0.48400001525878905,0.04989788308739662,RightFoot,OpenPlay,BlockedShot
+697253,Bundesliga,Hoffenheim,Hamburger SV,1,52,Bambasé Conté,0.8090000152587891,0.4759999847412109,0.0762711763381958,LeftFoot,OpenPlay,Goal
+697254,Bundesliga,Hoffenheim,Hamburger SV,1,57,Ozan Kabak,0.9019999694824219,0.44599998474121094,0.019028544425964355,Head,FromCorner,BlockedShot
+697255,Bundesliga,Hoffenheim,Hamburger SV,1,58,Tim Lemperle,0.8669999694824219,0.7140000152587891,0.044400542974472046,RightFoot,OpenPlay,MissedShots
+697257,Bundesliga,Hoffenheim,Hamburger SV,1,71,Andrej Kramaric,0.7240000152587891,0.53,0.02560727298259735,RightFoot,OpenPlay,BlockedShot
+697232,Bundesliga,Hamburger SV,Hoffenheim,0,1,Fábio Vieira,0.720999984741211,0.4179999923706055,0.04719027504324913,LeftFoot,DirectFreekick,BlockedShot
+697233,Bundesliga,Hamburger SV,Hoffenheim,0,1,Nicolai Remberg,0.9219999694824219,0.5309999847412109,0.06299087405204773,Head,SetPiece,MissedShots
+697235,Bundesliga,Hamburger SV,Hoffenheim,0,7,Fábio Vieira,0.7119999694824218,0.45599998474121095,0.01422208920121193,LeftFoot,OpenPlay,BlockedShot
+697236,Bundesliga,Hamburger SV,Hoffenheim,0,11,Yussuf Poulsen,0.8619999694824219,0.49700000762939456,0.037801593542099,Head,SetPiece,MissedShots
+697237,Bundesliga,Hamburger SV,Hoffenheim,0,11,Nicolás Capaldo,0.9480000305175781,0.7080000305175781,0.03607945144176483,LeftFoot,SetPiece,MissedShots
+697238,Bundesliga,Hamburger SV,Hoffenheim,0,11,Yussuf Poulsen,0.9530000305175781,0.46599998474121096,0.6346836090087891,LeftFoot,SetPiece,Goal
+697239,Bundesliga,Hamburger SV,Hoffenheim,0,19,David Møller Wolfe,0.8119999694824219,0.27899999618530275,0.029437405988574028,LeftFoot,OpenPlay,MissedShots
+697250,Bundesliga,Hamburger SV,Hoffenheim,0,50,Sebastiaan Bornauw,0.02799999952316284,0.5029999923706054,0.0,OtherBodyPart,FromCorner,OwnGoal
+697252,Bundesliga,Hamburger SV,Hoffenheim,0,49,Fábio Vieira,0.9119999694824219,0.7119999694824218,0.05087827146053314,LeftFoot,OpenPlay,MissedShots
+697256,Bundesliga,Hamburger SV,Hoffenheim,0,66,Fábio Vieira,0.7969999694824219,0.3390000152587891,0.023650534451007843,LeftFoot,SetPiece,BlockedShot
+697258,Bundesliga,Hamburger SV,Hoffenheim,0,78,Terem Igobor Moffi,0.9219999694824219,0.5479999923706055,0.08663929998874664,LeftFoot,OpenPlay,MissedShots
+697259,Bundesliga,Hamburger SV,Hoffenheim,0,82,Terem Igobor Moffi,0.9169999694824219,0.519000015258789,0.2926085889339447,Head,OpenPlay,Goal
+697260,Bundesliga,Hamburger SV,Hoffenheim,0,87,Fábio Vieira,0.905,0.3659999847412109,0.17849647998809814,RightFoot,OpenPlay,SavedShot
+697261,Bundesliga,Hamburger SV,Hoffenheim,0,88,Nicolás Capaldo,0.9359999847412109,0.40200000762939453,0.01861475594341755,Head,FromCorner,MissedShots
+697262,Bundesliga,Hamburger SV,Hoffenheim,0,89,Alexander Røssing-Lelesiit,0.8380000305175781,0.38,0.020603805780410767,LeftFoot,OpenPlay,BlockedShot
+697263,Bundesliga,Hamburger SV,Hoffenheim,0,93,Miro Muheim,0.7880000305175782,0.565,0.02547520399093628,LeftFoot,FromCorner,Goal
+697164,Bundesliga,Union Berlin,Elversberg,1,1,Felix Uduokhai,0.8919999694824219,0.49599998474121093,0.0687582790851593,Head,FromCorner,MissedShots
+697165,Bundesliga,Union Berlin,Elversberg,1,9,Tim Skarke,0.885,0.6790000152587891,0.05233912169933319,RightFoot,OpenPlay,SavedShot
+697166,Bundesliga,Union Berlin,Elversberg,1,14,Tim Skarke,0.7440000152587891,0.3509999847412109,0.021454202011227608,RightFoot,OpenPlay,SavedShot
+697167,Bundesliga,Union Berlin,Elversberg,1,25,Andras Schafer,0.6830000305175781,0.3770000076293945,0.0317688025534153,RightFoot,DirectFreekick,SavedShot
+697168,Bundesliga,Union Berlin,Elversberg,1,29,Felix Uduokhai,0.8909999847412109,0.4859999847412109,0.01801433227956295,Head,FromCorner,SavedShot
+697171,Bundesliga,Union Berlin,Elversberg,1,46,Andras Schafer,0.7380000305175781,0.580999984741211,0.017557285726070404,RightFoot,OpenPlay,MissedShots
+697174,Bundesliga,Union Berlin,Elversberg,1,55,Woo-Yeong Jeong,0.8919999694824219,0.3340000152587891,0.05787819251418114,RightFoot,OpenPlay,BlockedShot
+697175,Bundesliga,Union Berlin,Elversberg,1,55,Kastriot Imeri,0.955999984741211,0.30100000381469727,0.04555820673704147,RightFoot,OpenPlay,SavedShot
+697176,Bundesliga,Union Berlin,Elversberg,1,55,Woo-Yeong Jeong,0.8669999694824219,0.385,0.06782175600528717,LeftFoot,OpenPlay,BlockedShot
+697177,Bundesliga,Union Berlin,Elversberg,1,57,Zeno Van den Bosch,0.9390000152587891,0.485,0.07284356653690338,Head,FromCorner,MissedShots
+697178,Bundesliga,Union Berlin,Elversberg,1,61,Tom Rothe,0.9069999694824219,0.485,0.08039923012256622,Head,FromCorner,BlockedShot
+697179,Bundesliga,Union Berlin,Elversberg,1,61,Tom Rothe,0.914000015258789,0.43599998474121093,0.09681031107902527,RightFoot,FromCorner,MissedShots
+697180,Bundesliga,Union Berlin,Elversberg,1,65,Livan Burcu,0.8680000305175781,0.629000015258789,0.09051372855901718,LeftFoot,OpenPlay,BlockedShot
+697182,Bundesliga,Union Berlin,Elversberg,1,78,Mekhi Gray,0.9430000305175781,0.5479999923706055,0.14474952220916748,Head,OpenPlay,MissedShots
+697183,Bundesliga,Union Berlin,Elversberg,1,79,Janik Haberer,0.9180000305175782,0.46900001525878904,0.09276089072227478,RightFoot,OpenPlay,MissedShots
+697184,Bundesliga,Union Berlin,Elversberg,1,80,Livan Burcu,0.815,0.5420000076293945,0.03917018324136734,RightFoot,FromCorner,Goal
+697187,Bundesliga,Union Berlin,Elversberg,1,85,Livan Burcu,0.9169999694824219,0.5870000076293945,0.1294655203819275,RightFoot,OpenPlay,BlockedShot
+697188,Bundesliga,Union Berlin,Elversberg,1,85,Andras Schafer,0.8290000152587891,0.525,0.07112659513950348,RightFoot,OpenPlay,BlockedShot
+697189,Bundesliga,Union Berlin,Elversberg,1,85,Rani Khedira,0.8169999694824219,0.5279999923706055,0.06180185824632645,RightFoot,OpenPlay,BlockedShot
+697169,Bundesliga,Elversberg,Union Berlin,0,34,Maximilian Rohr,0.8769999694824219,0.4179999923706055,0.031110936775803566,Head,FromCorner,ShotOnPost
+697170,Bundesliga,Elversberg,Union Berlin,0,46,Noah Darvich,0.8830000305175781,0.73,0.040626078844070435,LeftFoot,OpenPlay,SavedShot
+697172,Bundesliga,Elversberg,Union Berlin,0,48,Lasse Günther,0.8580000305175781,0.5970000076293945,0.03973736986517906,LeftFoot,FromCorner,MissedShots
+697173,Bundesliga,Elversberg,Union Berlin,0,48,Noel Futkeu,0.855,0.525,0.07501585781574249,RightFoot,FromCorner,MissedShots
+697181,Bundesliga,Elversberg,Union Berlin,0,69,Maurice Krattenmacher,0.8869999694824219,0.6580000305175782,0.06574925035238266,LeftFoot,OpenPlay,ShotOnPost
+697185,Bundesliga,Elversberg,Union Berlin,0,81,Cole Campbell,0.735999984741211,0.7080000305175781,0.015081199817359447,LeftFoot,OpenPlay,SavedShot
+697186,Bundesliga,Elversberg,Union Berlin,0,82,Lukas Pinckert,0.8909999847412109,0.5709999847412109,0.015520731918513775,Head,FromCorner,MissedShots

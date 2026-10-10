@@ -49,6 +49,11 @@ match_id,league,season,datetime,home_team,away_team,home_goals,away_goals,home_x
 31225,EPL,2026,2026-09-20 13:00:00,Leeds,Crystal Palace,0,0,1.08552,1.12905
 31228,EPL,2026,2026-09-20 13:00:00,Bournemouth,Liverpool,0,1,0.944706,1.29116
 31229,EPL,2026,2026-09-20 15:30:00,Fulham,Manchester United,1,1,1.71719,2.12453
+31230,EPL,2026,2026-10-10 11:30:00,Arsenal,Leeds,2,1,2.32061,1.19826
+31231,EPL,2026,2026-10-10 14:00:00,Aston Villa,Brentford,2,2,1.83842,1.28128
+31232,EPL,2026,2026-10-10 14:00:00,Chelsea,Bournemouth,5,1,1.3732,1.67505
+31233,EPL,2026,2026-10-10 14:00:00,Ipswich,Fulham,2,1,1.25918,1.77856
+31234,EPL,2026,2026-10-10 14:00:00,Sunderland,Brighton,0,2,0.869773,1.64162
 30770,La_liga,2026,2026-08-15 17:30:00,Alaves,Getafe,3,0,2.28581,0.259705
 30771,La_liga,2026,2026-08-15 19:30:00,Sevilla,Rayo Vallecano,2,1,2.01841,1.91219
 30772,La_liga,2026,2026-08-16 15:00:00,Racing Santander,Villarreal,2,2,1.96477,0.768799
@@ -118,6 +123,8 @@ match_id,league,season,datetime,home_team,away_team,home_goals,away_goals,home_x
 30833,La_liga,2026,2026-09-20 16:30:00,Deportivo La Coruna,Real Betis,1,1,1.93872,1.00253
 30839,La_liga,2026,2026-09-20 16:30:00,Villarreal,Levante,3,1,4.28569,0.941792
 30838,La_liga,2026,2026-09-20 19:00:00,Valencia,Real Sociedad,2,3,1.52762,2.33411
+30845,La_liga,2026,2026-10-09 19:00:00,Malaga,Espanyol,1,1,0.685224,1.37967
+30840,La_liga,2026,2026-10-10 14:15:00,Alaves,Atletico Madrid,1,2,1.00614,2.00235
 31560,Serie_A,2026,2026-08-22 16:30:00,Inter,Monza,4,1,1.5385,1.21666
 31561,Serie_A,2026,2026-08-22 16:30:00,Udinese,Como,1,1,2.12071,2.38585
 31562,Serie_A,2026,2026-08-22 18:45:00,Parma Calcio 1913,Cagliari,0,1,1.02972,1.2574
@@ -168,6 +175,7 @@ match_id,league,season,datetime,home_team,away_team,home_goals,away_goals,home_x
 31607,Serie_A,2026,2026-09-20 13:00:00,Parma Calcio 1913,Genoa,2,1,0.860604,0.86391
 31608,Serie_A,2026,2026-09-20 16:00:00,Juventus,Atalanta,2,0,1.91682,0.489173
 31609,Serie_A,2026,2026-09-20 18:45:00,AC Milan,Lecce,3,0,2.47529,0.217933
+31613,Serie_A,2026,2026-10-10 13:00:00,Genoa,Fiorentina,2,1,1.32071,0.785713
 32247,Bundesliga,2026,2026-08-28 18:30:00,Bayern Munich,VfB Stuttgart,5,1,4.07897,1.24951
 32248,Bundesliga,2026,2026-08-29 13:30:00,Union Berlin,Eintracht Frankfurt,3,3,2.28332,2.1189
 32249,Bundesliga,2026,2026-08-29 13:30:00,FC Cologne,Hoffenheim,3,2,2.31412,1.92317
@@ -204,3 +212,9 @@ match_id,league,season,datetime,home_team,away_team,home_goals,away_goals,home_x
 32277,Bundesliga,2026,2026-09-20 13:30:00,Bayer Leverkusen,RasenBallsport Leipzig,2,0,2.54515,0.929998
 32761,Bundesliga,2026,2026-09-20 15:30:00,Schalke 04,Elversberg,0,0,1.26962,0.795372
 32278,Bundesliga,2026,2026-09-20 17:30:00,Paderborn,Hoffenheim,3,1,1.34065,1.67256
+32283,Bundesliga,2026,2026-10-09 18:30:00,Borussia Dortmund,Werder Bremen,2,2,2.61721,0.849269
+32279,Bundesliga,2026,2026-10-10 13:30:00,Mainz 05,Bayer Leverkusen,3,4,2.17445,2.29395
+32280,Bundesliga,2026,2026-10-10 13:30:00,Paderborn,VfB Stuttgart,0,2,2.09455,2.5878
+32282,Bundesliga,2026,2026-10-10 13:30:00,Augsburg,Bayern Munich,2,2,1.95757,4.58048
+32286,Bundesliga,2026,2026-10-10 13:30:00,Hoffenheim,Hamburger SV,2,3,0.930112,1.51198
+32762,Bundesliga,2026,2026-10-10 13:30:00,Union Berlin,Elversberg,1,0,1.23712,0.27986

@@ -55,6 +55,31 @@ TEAM_ALIASES = {
     "RasenBallsport Leipzig": "RB Leipzig",
     "Venezia FC": "Venezia",
     "Parma": "Parma Calcio 1913",
+    # nama dari ESPN / sumber live
+    "AFC Bournemouth": "Bournemouth",
+    "Brighton & Hove Albion": "Brighton",
+    "Ipswich Town": "Ipswich",
+    "Hamburg SV": "Hamburger SV",
+    "1. FC Union Berlin": "Union Berlin",
+    "SV Elversberg": "Elversberg",
+    "SC Paderborn 07": "Paderborn",
+    "FC Augsburg": "Augsburg",
+    "TSG Hoffenheim": "Hoffenheim",
+    "Feyenoord Rotterdam": "Feyenoord",
+    "Vitesse Arnhem": "Vitesse",
+    "AZ Alkmaar": "AZ Alkmaar",
+    "Go Ahead Eagles": "Go Ahead Eagles",
+    # singkatan umum (prediksi / ESPN)
+    "Man Utd": "Manchester United",
+    "Man United": "Manchester United",
+    "Man City": "Manchester City",
+    "Spurs": "Tottenham",
+    "Wolves": "Wolverhampton",
+    "Wolverhampton Wanderers": "Wolverhampton",
+    "Nottm Forest": "Nottingham Forest",
+    "Sheff Utd": "Sheffield United",
+    "Athletic Bilbao": "Athletic Club",
+    "Atletico de Madrid": "Atletico Madrid",
 }
 
 # Short abbreviation untuk ticker & UI (uppercase 2-4 char)
@@ -138,6 +163,26 @@ def canonical_team(name: str) -> str:
         return name
     name = str(name).strip()
     return TEAM_ALIASES.get(name, name)
+
+
+# prefix umum yang dipakai sumber data (ESPN dkk.)
+_PREFIXES = {
+    "fc", "afc", "sc", "sv", "tsg", "vfb", "vfl", "1.", "1", "2.", "3.",
+    "rc", "as", "ac", "cd", "ud", "sk", "cf", "us", "sd", "ss", "sp",
+}
+
+
+def team_key(name: str) -> str:
+    """Kunci perbandingan nama tim: kanonik + lowercase + buang prefix klub."""
+    n = canonical_team(name).lower() if name else ""
+    n = n.replace("&", " and ").replace(".", " ").replace("'", "")
+    words = [w for w in n.split() if w]
+    while words and words[0] in _PREFIXES:
+        words.pop(0)
+    # buang digit ekor (mis. "union berlin 1892") — kecuali angka bagian nama (mainz 05)
+    while words and words[-1].isdigit() and len(words) > 1 and len(words[-1]) > 2:
+        words.pop()
+    return " ".join(words)
 
 
 def team_abbr(name: str) -> str:

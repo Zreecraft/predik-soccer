@@ -9,6 +9,8 @@ from assets import get_key_player, get_team_logo
 from club_analytics import get_club_analytics, LEAGUE_NAMES
 from club_data import ga_prior_from_rating, get_club_profile, get_club_strength, xg_prior_from_rating
 from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES
+import livescore
+import match_detail
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
 from season_projection import project_league
 from team_aliases import team_abbr
@@ -43,6 +45,174 @@ def _load_shots() -> pd.DataFrame | None:
             _SHOTS_CACHE = pd.DataFrame()
         _SHOTS_CACHE_MTIME = mtime
     return _SHOTS_CACHE
+
+
+def _outcome(hg: int, ag: int) -> str:
+    if hg > ag: return "home"
+    if hg == ag: return "draw"
+    return "away"
+
+def _finished_verdict(actual_h: int, actual_a: int, source: str,
+                      pred_h: int, pred_a: int, home_team: str, away_team: str) -> dict:
+    """Bangun verdict akhir. `correct` = skor TEPAT (bukan cuma outcome)."""
+    pred_outcome = _outcome(pred_h, pred_a)
+    actual_outcome = _outcome(actual_h, actual_a)
+    exact = pred_h == actual_h and pred_a == actual_a
+    if source in ("espn", "api", "understat"):  # data asli -> evaluasi model
+        try:
+            from database import get_db
+            db = get_db()
+            db.execute(
+                "UPDATE prediction_logs SET actual_home_goals=?, actual_away_goals=?, status='EVALUATED' "
+                "WHERE home_team=? AND away_team=? AND status='PENDING'",
+                (actual_h, actual_a, home_team, away_team),
+            )
+            db.commit()
+            db.close()
+        except Exception:
+            pass
+    return {
+        "status": "finished",
+        "actual_home": actual_h,
+        "actual_away": actual_a,
+        "actual_outcome": actual_outcome,
+        "predicted_outcome": pred_outcome,
+        "exact": exact,
+        "outcome_correct": pred_outcome == actual_outcome,
+        "correct": exact,
+        "predicted_score": f"{pred_h}-{pred_a}",
+        "actual_score": f"{actual_h}-{actual_a}",
+        "source": source,
+    }
+
+def _match_result(home_team: str, away_team: str,
+                  pred_h: int, pred_a: int,
+                  prob_h: float, prob_d: float, prob_a: float) -> dict:
+    """Cek hasil laga. Prioritas: data ASLI (ESPN/football-data) -> historical
+    Understat (guard tanggal) -> jendela kickoff (live/mock fallback)."""
+    from team_aliases import team_key
+    hk, ak = team_key(home_team), team_key(away_team)
+
+    def _same(m_home, m_away):
+        return team_key(m_home) == hk and team_key(m_away) == ak
+
+    # 1. Data ASLI dari live API (ESPN tanpa key / football-data.org dengan key)
+    try:
+        live = livescore.get_live_matches()
+        src = live.get("source", "mock")
+        for m in live.get("matches", []):
+            if not _same(m.get("home") or "", m.get("away") or ""):
+                continue
+            if m.get("live") and m.get("home_score") is not None:
+                return {
+                    "status": "live",
+                    "actual_home": m.get("home_score"),
+                    "actual_away": m.get("away_score"),
+                    "minute": m.get("minute"),
+                    "predicted_score": f"{pred_h}-{pred_a}",
+                    "source": src,
+                }
+            if m.get("status") == "FINISHED" and m.get("home_score") is not None:
+                return _finished_verdict(int(m["home_score"]), int(m["away_score"]),
+                                         src, pred_h, pred_a, home_team, away_team)
+    except Exception:
+        pass
+
+    # 2. Historical Understat (skor asli) — wajib satu laga dengan fixture (±1 hari)
+    try:
+        hist = pd.read_csv(HISTORICAL_MATCHES)
+        hmask = [_same(r.home_team, r.away_team) for r in hist.itertuples()]
+        matches = hist[hmask]
+        if not matches.empty:
+            fx_date = None
+            try:
+                fx = pd.read_csv(UPCOMING_FIXTURES)
+                fmask = [_same(r.home_team, r.away_team) for r in fx.itertuples()]
+                frows = fx[fmask]
+                if not frows.empty:
+                    fx_date = pd.Timestamp(frows.sort_values("date").iloc[-1]["date"])
+                    if fx_date.tzinfo is None:
+                        fx_date = fx_date.tz_localize("UTC")
+            except Exception:
+                pass
+            cand = matches.sort_values("datetime")
+            if fx_date is not None:
+                dts = pd.to_datetime(cand["datetime"], errors="coerce", utc=True)
+                near = cand[(dts - fx_date).abs() <= pd.Timedelta(days=1)]
+                cand = near
+            if not cand.empty:
+                latest = cand.iloc[-1]
+                return _finished_verdict(int(latest["home_goals"]), int(latest["away_goals"]),
+                                         "understat", pred_h, pred_a, home_team, away_team)
+    except FileNotFoundError:
+        pass
+
+    # 3. Jendela kickoff (fallback: live/mock dari fixtures lokal)
+    try:
+        fx = pd.read_csv(UPCOMING_FIXTURES)
+        fmask = [_same(r.home_team, r.away_team) for r in fx.itertuples()]
+        row = fx[fmask]
+        if not row.empty:
+            latest = row.sort_values("date").iloc[-1]
+            kickoff = pd.Timestamp(latest["date"])
+            if kickoff.tzinfo is None:
+                kickoff = kickoff.tz_localize("UTC")
+            now = pd.Timestamp.now(tz="UTC")
+            elapsed = (now - kickoff).total_seconds() / 60
+
+            if elapsed < 0:
+                return {"status": "upcoming"}  # belum kickoff
+
+            src = "mock"
+            try:
+                src = livescore.get_live_matches().get("source", "mock")
+            except Exception:
+                pass
+
+            if elapsed <= 130:
+                # sedang live — skor dari livescore bila ada, tanpa skor jika tidak
+                out = {"status": "live", "predicted_score": f"{pred_h}-{pred_a}", "source": src}
+                try:
+                    live = livescore.get_live_matches()
+                    for m in live.get("matches", []):
+                        if _same(m.get("home") or "", m.get("away") or "") and m.get("live"):
+                            out.update({
+                                "actual_home": m.get("home_score"),
+                                "actual_away": m.get("away_score"),
+                                "minute": m.get("minute"),
+                            })
+                            break
+                except Exception:
+                    pass
+                if "actual_home" not in out and src == "mock":
+                    from livescore import _mock_score
+                    hs, as_ = _mock_score(int(latest["match_id"]),
+                                          min(max(1, int(elapsed)), 90))
+                    out.update({"actual_home": hs, "actual_away": as_})
+                return out
+
+            # finished — coba skor livescore (mock terakhir), verdict tetap dilabeli sumbernya
+            try:
+                live = livescore.get_live_matches()
+                for m in live.get("matches", []):
+                    if (_same(m.get("home") or "", m.get("away") or "")
+                            and m.get("status") == "FINISHED"
+                            and m.get("home_score") is not None):
+                        return _finished_verdict(int(m["home_score"]), int(m["away_score"]),
+                                                 live.get("source", "mock"),
+                                                 pred_h, pred_a, home_team, away_team)
+            except Exception:
+                pass
+            try:
+                from livescore import _mock_score
+                ah, aa = _mock_score(int(latest["match_id"]), 90)
+                return _finished_verdict(ah, aa, "mock", pred_h, pred_a, home_team, away_team)
+            except Exception:
+                pass
+    except FileNotFoundError:
+        pass
+
+    return {"status": "upcoming"}
 
 
 def _team_shot_summary(team: str, shots_df: pd.DataFrame) -> dict:
@@ -199,6 +369,57 @@ def get_ticker(limit: int = 16):
     return {"items": items, "total": len(items)}
 
 
+@app.get("/api/live/matches")
+def live_matches():
+    """Skor live semua laga (polling server 55s, source: api|mock)."""
+    return livescore.get_live_matches()
+
+
+@app.get("/api/live/standings/{league_code}")
+def live_standings(league_code: str):
+    """Klasemen aktual + overlay skor live yang sedang berjalan."""
+    try:
+        return livescore.get_live_standings(league_code)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.get("/api/live/ucl")
+def live_ucl():
+    """Laga Champions League yang sedang berlangsung / jadwal hari ini."""
+    return livescore.get_live_ucl()
+
+
+@app.get("/api/live/match/{match_id}/detail")
+def live_match_detail(
+    match_id: str,
+    home: str | None = None,
+    away: str | None = None,
+    league: str | None = None,
+    refresh: bool = False,
+):
+    """Detail laga: timeline gol/kartu, offside, line-up, statistik tim.
+
+    Jika id tidak ada di daftar livescore (laga lama), backend resolve id ESPN
+    dari query home/away bila diberikan. Laga mock → available=false.
+    """
+    try:
+        return match_detail.get_match_detail(
+            match_id, home=home, away=away, league=league, force=refresh
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Detail laga gagal diambil: {e}")
+
+
+@app.get("/api/live/match/detail")
+def live_match_detail_by_teams(home: str, away: str, league: str | None = None, refresh: bool = False):
+    """Detail laga berdasar nama tim — resolve id ESPN otomatis (scan 7 hari)."""
+    try:
+        return match_detail.get_match_detail(home=home, away=away, league=league, force=refresh)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Detail laga gagal diambil: {e}")
+
+
 @app.get("/api/predict")
 def predict_match(home_team: str, away_team: str):
     try:
@@ -276,6 +497,9 @@ def predict_match(home_team: str, away_team: str):
         home_team, away_team, home_tactical, away_tactical, final_home_xg, final_away_xg
     )
 
+    # Cek hasil akhir (historical) / live score
+    result = _match_result(home_team, away_team, smart_h, smart_a, prob_home, prob_draw, prob_away)
+
     return {
         "match": f"{home_team} vs {away_team}",
         "home_team": {
@@ -337,6 +561,7 @@ def predict_match(home_team: str, away_team: str):
             "away": {k: v for k, v in away_shots.items() if k != "points"},
         },
         "differential_summary": differential,
+        "result": result,
     }
 
 

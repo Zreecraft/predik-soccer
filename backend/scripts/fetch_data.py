@@ -116,11 +116,13 @@ async def fetch_all_leagues_data():
 
             print(f"   -> kumulatif: {len(all_matches)} laga, {len(all_shots)} shots")
 
-    df_matches = pd.DataFrame(all_matches)
-    df_matches.to_csv(HISTORICAL_MATCHES, index=False)
+    if all_matches:
+        pd.DataFrame(all_matches).to_csv(HISTORICAL_MATCHES, index=False)
+    else:
+        print("⚠️ Tidak ada laga berhasil diambil — historical_matches.csv TIDAK diubah.")
 
-    df_shots = pd.DataFrame(all_shots)
-    if not df_shots.empty:
+    if all_shots:
+        df_shots = pd.DataFrame(all_shots)
         cols = [
             "id",
             "league",
@@ -138,8 +140,10 @@ async def fetch_all_leagues_data():
         ]
         df_shots = df_shots[[c for c in cols if c in df_shots.columns]]
         df_shots.to_csv(REAL_SHOTS_DATA, index=False)
+    else:
+        print("- Tidak ada shots berhasil diambil - real_shots_data.csv TIDAK diubah.")
 
-    print(f"\n✅ BERHASIL! Total {len(df_matches)} Matches & {len(df_shots)} Shots tersimpan.")
+    print(f"\n✅ BERHASIL! Total {len(all_matches)} Matches & {len(all_shots)} Shots tersimpan.")
 
 
 if __name__ == "__main__":

@@ -1,9 +1,10 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { Activity, BarChart3, GitBranch, LineChart, Menu, X } from 'lucide-vue-next'
+import { BarChart3, Crosshair, GitBranch, LineChart, Menu, MonitorPlay, X } from 'lucide-vue-next'
 import { fetchTicker } from '@/services/api'
 import { abbrTeam } from '@/utils/format'
+import LiveTicker from '@/components/shared/LiveTicker.vue'
 
 const route = useRoute()
 const tickerItems = ref([])
@@ -11,7 +12,8 @@ const tickerLoading = ref(false)
 const mobileOpen = ref(false)
 
 const links = [
-  { to: '/predict', label: 'Prediksi Laga', icon: Activity },
+  { to: '/predict', label: 'Prediksi Laga', icon: Crosshair },
+  { to: '/match', label: 'Match Centre', icon: MonitorPlay },
   { to: '/standings', label: 'Proyeksi Liga', icon: LineChart },
   { to: '/ucl', label: 'Bagan UCL', icon: GitBranch },
   { to: '/analytics', label: 'Analitik Klub', icon: BarChart3 },
@@ -51,10 +53,14 @@ onMounted(async () => {
 <template>
   <header class="sticky top-0 z-50 border-b border-slate-800 bg-canvas/95 backdrop-blur">
     <div class="mx-auto flex h-14 max-w-[1400px] items-center justify-between gap-4 px-4 sm:px-6">
-      <RouterLink to="/predict" class="flex items-center gap-3">
-        <span class="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-500/40 bg-sky-500/10">
-          <Activity class="h-4 w-4 text-sky-400" :size="16" />
-        </span>
+      <RouterLink to="/predict" class="group flex items-center gap-3">
+        <img
+          src="/logo.svg"
+          alt=""
+          class="h-9 w-9 rounded-xl border border-slate-700/70 bg-slate-950/60 p-1 transition group-hover:border-sky-500/50"
+          width="36"
+          height="36"
+        />
         <span class="flex flex-col leading-none">
           <span class="text-sm font-extrabold tracking-[0.18em] text-slate-50">ANALYTICA FC</span>
           <span class="mt-0.5 text-[10px] font-semibold tracking-[0.22em] text-sky-400/90">TELEMETRI</span>
@@ -100,6 +106,9 @@ onMounted(async () => {
         {{ link.label }}
       </RouterLink>
     </nav>
+
+    <!-- Live score ticker -->
+    <LiveTicker />
 
     <!-- Fixture ticker -->
     <div class="border-t border-slate-800/80 bg-slate-950/60">

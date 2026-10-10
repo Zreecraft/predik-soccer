@@ -11,6 +11,7 @@ import TacticalBullets from '@/components/analytics/TacticalBullets.vue'
 import UpcomingFixturesTable from '@/components/analytics/UpcomingFixturesTable.vue'
 import FormHistoryTable from '@/components/analytics/FormHistoryTable.vue'
 import SkeletonCard from '@/components/shared/SkeletonCard.vue'
+import PageHeader from '@/components/shared/PageHeader.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -76,16 +77,12 @@ onMounted(async () => {
 <template>
   <div class="space-y-5">
     <!-- Header & Two-Tier Filters -->
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div class="label-caps text-sky-400/90">Tactical Scouting</div>
-        <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-50">Analitik Klub</h1>
-        <p class="mt-1 text-sm text-slate-400">
-          Laporan pemantauan taktis, matriks kendali teritorial, dan proyeksi jadwal.
-        </p>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
+    <PageHeader
+      eyebrow="Tactical Scouting"
+      title="Analitik Klub"
+      subtitle="Laporan pemantauan taktis, matriks kendali teritorial, dan proyeksi jadwal."
+    >
+      <template #actions>
         <!-- 1. Tier 1: League Filter -->
         <select
           v-model="selectedLeague"
@@ -108,8 +105,8 @@ onMounted(async () => {
           <RefreshCw :size="14" :class="loading ? 'animate-spin' : ''" />
           Muat Ulang
         </button>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <div v-if="error" class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
       {{ error }}

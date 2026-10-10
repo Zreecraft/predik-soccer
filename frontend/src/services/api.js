@@ -30,3 +30,23 @@ export const postUclWhatIf = (overrides) =>
   api.post('/ucl/whatif', { overrides }).then((r) => r.data)
 export const fetchModelStats = () => api.get('/model/stats').then((r) => r.data)
 export const fetchAnalytics = (team) => api.get(`/analytics/${encodeURIComponent(team)}`).then((r) => r.data)
+export const fetchLiveMatches = () => api.get('/live/matches').then((r) => r.data)
+export const fetchLiveStandings = (league) => api.get(`/live/standings/${league}`).then((r) => r.data)
+export const fetchLiveUcl = () => api.get('/live/ucl').then((r) => r.data)
+export const fetchMatchDetail = (matchId, refresh = false, teams = null) =>
+  api
+    .get(`/live/match/${matchId}/detail`, {
+      params: {
+        ...(refresh ? { refresh: true } : {}),
+        ...(teams?.home ? { home: teams.home } : {}),
+        ...(teams?.away ? { away: teams.away } : {}),
+        ...(teams?.league ? { league: teams.league } : {}),
+      },
+    })
+    .then((r) => r.data)
+export const fetchMatchDetailByTeams = (home, away, league, refresh = false) =>
+  api
+    .get('/live/match/detail', {
+      params: { home, away, ...(league ? { league } : {}), ...(refresh ? { refresh: true } : {}) },
+    })
+    .then((r) => r.data)

@@ -1,7 +1,7 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { RefreshCw, Zap, RotateCcw } from 'lucide-vue-next'
-import { extractError, fetchUcl, postUclWhatIf } from '@/services/api'
+import { extractError, fetchLiveUcl, fetchUcl, postUclWhatIf } from '@/services/api'
 import { useAsyncData } from '@/composables/useAsyncData'
 import PotGrid from '@/components/ucl/PotGrid.vue'
 import LeagueTable from '@/components/ucl/LeagueTable.vue'
@@ -10,6 +10,8 @@ import ChampionCard from '@/components/ucl/ChampionCard.vue'
 import SkeletonCard from '@/components/shared/SkeletonCard.vue'
 import UclDrawer from '@/components/ucl/UclDrawer.vue'
 import WhatIfFixtures from '@/components/ucl/WhatIfFixtures.vue'
+import PageHeader from '@/components/shared/PageHeader.vue'
+import MatchDetailModal from '@/components/shared/MatchDetailModal.vue'
 
 const tabs = [
   { id: 'all', label: 'Bagan & Semua Babak' },
@@ -102,24 +104,46 @@ function closeDrawer() {
   isDrawerOpen.value = false
 }
 
+// Live UCL matches
+const uclLive = ref([])
+const uclLiveSource = ref('mock')
+const openLiveMatch = ref(null)
+let uclLiveTimer = null
+
+const uclLiveSourceLabel = computed(
+  () => (uclLiveSource.value === 'api' ? 'football-data.org' : uclLiveSource.value === 'espn' ? 'ESPN' : 'demo')
+)
+
+async function refreshUclLive() {
+  try {
+    const d = await fetchLiveUcl()
+    uclLive.value = d.matches || []
+    uclLiveSource.value = d.source
+  } catch {
+    uclLive.value = []
+  }
+}
+
 const showBracket = computed(() => active.value === 'all' || active.value === 'bracket')
 const showFase = computed(() => active.value === 'all' || active.value === 'fase')
 
-onMounted(load)
+onMounted(() => {
+  load()
+  refreshUclLive()
+  uclLiveTimer = setInterval(refreshUclLive, 60000)
+})
+onBeforeUnmount(() => clearInterval(uclLiveTimer))
 </script>
 
 <template>
   <div class="space-y-5">
     <!-- Top Header -->
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <div class="label-caps text-sky-400/90">UEFA Champions League</div>
-        <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-50">Bagan & Simulasi UCL</h1>
-        <p class="mt-1 text-sm text-slate-400">
-          Klasemen 36 tim, babak Play-off, dan knockout bracket simetris dengan probabilitas pemenang.
-        </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
+    <PageHeader
+      eyebrow="UEFA Champions League"
+      title="Bagan & Simulasi UCL"
+      subtitle="Klasemen 36 tim, babak Play-off, dan knockout bracket simetris dengan probabilitas pemenang."
+    >
+      <template #actions>
         <button
           class="rounded-lg border px-3 py-2 text-sm font-semibold transition"
           :class="
@@ -138,6 +162,46 @@ onMounted(load)
           <RefreshCw :size="14" :class="loading ? 'animate-spin' : ''" />
           Simulasi Ulang
         </button>
+      </template>
+    </PageHeader>
+
+    <!-- Live UCL -->
+    <div class="panel overflow-hidden border-rose-500/30">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/40 px-4 py-3">
+        <div class="flex items-center gap-2 text-sm font-semibold text-slate-200">
+          <span class="flex items-center gap-1.5 rounded bg-rose-600 px-1.5 py-0.5 text-[10px] font-extrabold tracking-widest text-white">
+            <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+            LIVE
+          </span>
+          Laga Champions League
+        </div>
+        <span class="text-[10px] uppercase tracking-wider text-slate-500">
+          {{ uclLiveSourceLabel }} · auto 60s · klik laga untuk detail
+        </span>
+      </div>
+      <div v-if="uclLive.length" class="divide-y divide-slate-800/70">
+        <button
+          v-for="m in uclLive"
+          :key="m.id"
+          type="button"
+          class="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-slate-800/30"
+          title="Klik untuk lihat timeline, kartu & line-up"
+          @click="openLiveMatch = m"
+        >
+          <span class="num w-8 shrink-0 text-right text-xs font-bold text-rose-400">
+            {{ m.status === 'PAUSED' ? 'HT' : m.minute != null ? `${m.minute}'` : '—' }}
+          </span>
+          <img v-if="m.crest_home" :src="m.crest_home" :alt="m.home" class="h-6 w-6 shrink-0 object-contain" />
+          <span class="flex-1 truncate text-right text-sm font-medium text-slate-200">{{ m.home }}</span>
+          <span class="num shrink-0 rounded bg-slate-900 px-2 py-1 text-sm font-bold text-slate-50 ring-1 ring-rose-500/40">
+            {{ m.home_score ?? 0 }}<span class="mx-0.5 text-slate-600">-</span>{{ m.away_score ?? 0 }}
+          </span>
+          <span class="flex-1 truncate text-sm font-medium text-slate-200">{{ m.away }}</span>
+          <img v-if="m.crest_away" :src="m.crest_away" :alt="m.away" class="h-6 w-6 shrink-0 object-contain" />
+        </button>
+      </div>
+      <div v-else class="px-4 py-4 text-sm text-slate-500">
+        Tidak ada laga UCL yang sedang berlangsung — panel update otomatis tiap 60 detik.
       </div>
     </div>
 
@@ -239,5 +303,8 @@ onMounted(load)
       :match-data="selectedMatch"
       @close="closeDrawer"
     />
+
+    <!-- Detail laga UCL live -->
+    <MatchDetailModal :is-open="!!openLiveMatch" :match="openLiveMatch" @close="openLiveMatch = null" />
   </div>
 </template>

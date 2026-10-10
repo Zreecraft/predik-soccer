@@ -3,10 +3,11 @@ import { computed } from 'vue'
 import PlayerCutout from '@/components/shared/PlayerCutout.vue'
 import WinProbabilityBar from '@/components/shared/WinProbabilityBar.vue'
 import FormBadges from '@/components/shared/FormBadges.vue'
-import { Shield, MapPin, UserRound, Swords } from 'lucide-vue-next'
+import { Shield, MapPin, UserRound, Swords, CheckCircle2, XCircle, CircleAlert, Radio } from 'lucide-vue-next'
 
 const props = defineProps({
   data: { type: Object, required: true },
+  liveMatch: { type: Object, default: null },
 })
 
 const home = computed(() => props.data.home_team || {})
@@ -17,6 +18,49 @@ const analytics = computed(() => props.data.analytics || {})
 const meta = computed(() => props.data.meta || {})
 const tactical = computed(() => props.data.tactical || {})
 const gap = computed(() => props.data.strength_gap || {})
+const result = computed(() => props.data.result || {})
+
+// Gabungkan data live dari frontend + backend result
+const live = computed(() => {
+  if (props.liveMatch?.live) {
+    return {
+      home_score: props.liveMatch.home_score ?? 0,
+      away_score: props.liveMatch.away_score ?? 0,
+      minute: props.liveMatch.minute,
+      paused: props.liveMatch.status === 'PAUSED',
+    }
+  }
+  if (result.value.status === 'live') {
+    return {
+      home_score: result.value.actual_home ?? 0,
+      away_score: result.value.actual_away ?? 0,
+      minute: result.value.minute,
+      paused: false,
+    }
+  }
+  return null
+})
+
+const isFinished = computed(() => result.value.status === 'finished')
+const verdict = computed(() => {
+  if (!isFinished.value) return null
+  if (result.value.exact) {
+    return { label: 'Skor Tepat', icon: CheckCircle2, cls: 'border-emerald-500/50 bg-emerald-500/15 text-emerald-300' }
+  }
+  if (result.value.outcome_correct) {
+    return { label: 'Hasil Benar — Skor Meleset', icon: CircleAlert, cls: 'border-amber-500/50 bg-amber-500/15 text-amber-300' }
+  }
+  return { label: 'Prediksi Meleset', icon: XCircle, cls: 'border-rose-500/50 bg-rose-500/15 text-rose-300' }
+})
+const sourceLabel = computed(() => {
+  switch (result.value.source) {
+    case 'espn': return 'Data asli • ESPN'
+    case 'api': return 'Data asli • football-data.org'
+    case 'understat': return 'Data asli • Understat'
+    case 'mock': return 'Data simulasi (mock)'
+    default: return null
+  }
+})
 
 const fmtStr = (v) => (v != null ? Number(v).toFixed(1) : '—')
 const gapTone = computed(() => {
@@ -106,12 +150,69 @@ const gapLabel = computed(() => {
 
       <!-- Center score -->
       <div class="flex flex-col items-center justify-center gap-3 px-2 py-2 text-center">
-        <div class="num text-5xl font-bold tracking-tight text-slate-50 sm:text-6xl">
-          <span class="text-sky-400">{{ projection.home_score ?? '—' }}</span>
-          <span class="mx-2 text-slate-600">-</span>
-          <span class="text-rose-400">{{ projection.away_score ?? '—' }}</span>
-        </div>
-        <div class="label-caps">Ekspektasi Skor</div>
+        <!-- LIVE score -->
+        <template v-if="live">
+          <div class="flex items-center gap-2">
+            <span class="flex items-center gap-1.5 rounded bg-rose-600 px-2 py-0.5 text-[10px] font-extrabold tracking-widest text-white">
+              <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+              LIVE
+            </span>
+            <span class="num text-sm font-bold text-rose-400">
+              {{ live.paused ? 'HT' : `${live.minute ?? '?'}'` }}
+            </span>
+          </div>
+          <div class="num text-5xl font-bold tracking-tight text-slate-50 sm:text-6xl">
+            <span class="text-sky-400">{{ live.home_score ?? '?' }}</span>
+            <span class="mx-2 text-slate-600">-</span>
+            <span class="text-rose-400">{{ live.away_score ?? '?' }}</span>
+          </div>
+          <div class="label-caps text-rose-400">Skor Live</div>
+          <div class="text-[11px] text-slate-500">
+            Prediksi model: <span class="num text-slate-300">{{ projection.home_score }}-{{ projection.away_score }}</span>
+          </div>
+        </template>
+
+        <!-- FINISHED verdict -->
+        <template v-else-if="isFinished">
+          <div class="flex items-center gap-2">
+            <span class="rounded bg-slate-700 px-2 py-0.5 text-[10px] font-extrabold tracking-widest text-slate-300">FT</span>
+            <span class="flex items-center gap-1.5 rounded px-2 py-0.5 text-[10px] font-bold" :class="verdict.cls">
+              <component :is="verdict.icon" :size="12" />
+              {{ verdict.label }}
+            </span>
+          </div>
+          <div class="num text-5xl font-bold tracking-tight text-slate-50 sm:text-6xl">
+            <span class="text-sky-400">{{ result.actual_home }}</span>
+            <span class="mx-2 text-slate-600">-</span>
+            <span class="text-rose-400">{{ result.actual_away }}</span>
+          </div>
+          <div class="label-caps">Skor Akhir</div>
+          <div class="text-[11px] text-slate-500">
+            Prediksi model: <span class="num text-slate-300">{{ result.predicted_score }}</span>
+            <span class="mx-1 text-slate-600">→</span>
+            Aktual: <span class="num text-slate-300">{{ result.actual_score }}</span>
+          </div>
+          <div
+            v-if="sourceLabel"
+            class="rounded border px-2 py-0.5 text-[10px] font-medium"
+            :class="result.source === 'mock'
+              ? 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+              : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'"
+          >
+            {{ sourceLabel }}
+          </div>
+        </template>
+
+        <!-- Pre-match prediction (default) -->
+        <template v-else>
+          <div class="num text-5xl font-bold tracking-tight text-slate-50 sm:text-6xl">
+            <span class="text-sky-400">{{ projection.home_score ?? '—' }}</span>
+            <span class="mx-2 text-slate-600">-</span>
+            <span class="text-rose-400">{{ projection.away_score ?? '—' }}</span>
+          </div>
+          <div class="label-caps">Ekspektasi Skor</div>
+        </template>
+
         <div class="flex items-center gap-3 text-xs text-slate-400">
           <span class="num rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-1 text-sky-400">
             {{ analytics.home_xg ?? '—' }} xG
@@ -121,7 +222,7 @@ const gapLabel = computed(() => {
             {{ analytics.away_xg ?? '—' }} xG
           </span>
         </div>
-        <div v-if="analytics.first_half_goal_probability != null" class="text-[11px] text-slate-500">
+        <div v-if="analytics.first_half_goal_probability != null && !live && !isFinished" class="text-[11px] text-slate-500">
           Peluang gol babak I:
           <span class="num text-slate-300">{{ analytics.first_half_goal_probability }}%</span>
         </div>
