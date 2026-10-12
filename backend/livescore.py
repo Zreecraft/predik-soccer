@@ -21,7 +21,7 @@ import pandas as pd
 import requests
 
 from assets import get_key_player, get_team_logo
-from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
+from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES, filter_current_season
 from season_projection import _compute_actual_table
 from team_aliases import canonical_team, team_abbr
 
@@ -224,13 +224,13 @@ def _parse_espn_event(ev: dict, league: str) -> dict | None:
 def _fetch_espn() -> list[dict]:
     """ESPN public scoreboard (endpoint /all) — skor ASLI, tanpa API key.
 
-    Satu request per hari (H-2, H-1, H) dengan limit=1000, filter liga kita
+    Satu request per hari (H-2, H-1, H, H+1) dengan limit=1000, filter liga kita
     via id di uid event. Menangkap laga FINISHED, LIVE, dan TIMED terdekat.
     """
     today = datetime.now(timezone.utc)
     out: list[dict] = []
     seen: set[str] = set()
-    for offset in (-2, -1, 0):
+    for offset in (-2, -1, 0, 1):
         day = (today + timedelta(days=offset)).strftime("%Y%m%d")
         resp = requests.get(
             "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard",
@@ -410,7 +410,7 @@ def get_live_standings(league_code: str) -> dict:
     live = get_live_matches()
     try:
         hist = pd.read_csv(HISTORICAL_MATCHES)
-        league_hist = hist[hist["league"] == league_code]
+        league_hist = filter_current_season(hist[hist["league"] == league_code])
     except FileNotFoundError:
         league_hist = pd.DataFrame(columns=["home_team", "away_team", "home_goals", "away_goals"])
 

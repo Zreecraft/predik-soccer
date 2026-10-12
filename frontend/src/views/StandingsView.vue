@@ -6,6 +6,7 @@ import { fetchLeagues, fetchLiveStandings, fetchStandings } from '@/services/api
 import { LEAGUE_LABELS } from '@/utils/format'
 import { useAsyncData } from '@/composables/useAsyncData'
 import KpiCards from '@/components/standings/KpiCards.vue'
+import ProjectedPointsChart from '@/components/standings/ProjectedPointsChart.vue'
 import TrajectoryChart from '@/components/standings/TrajectoryChart.vue'
 import StandingsTable from '@/components/standings/StandingsTable.vue'
 import LiveStandingsTable from '@/components/standings/LiveStandingsTable.vue'
@@ -60,16 +61,29 @@ function exportCsv() {
     'projected_position',
     'team',
     'P',
+    'W',
+    'D',
+    'L',
+    'GF',
+    'GA',
+    'GD',
     'PTS',
+    'ppg',
+    'avg_xg_for',
+    'avg_xg_ga',
     'projected_points',
     'title_pct',
     'top4_pct',
     'relegation_pct',
+    'status',
   ]
-  const header = ['POS', 'TEAM', 'P', 'PTS', 'PROJECTED', 'TITLE%', 'TOP4%', 'RELEG%']
+  const header = [
+    'POS', 'TEAM', 'M', 'M', 'S', 'K', 'GM', 'GK', 'SG', 'POIN',
+    'PPG', 'XGF', 'XGA', 'PROJECTED', 'TITLE%', 'TOP4%', 'RELEG%', 'STATUS',
+  ]
   const lines = [header.join(',')]
   for (const r of data.value.standings) {
-    lines.push(cols.map((c) => r[c]).join(','))
+    lines.push(cols.map((c) => r[c] ?? '').join(','))
   }
   const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)
@@ -244,7 +258,9 @@ onBeforeUnmount(() => clearInterval(liveTimer))
         </div>
       </div>
 
-      <StandingsTable :rows="data.standings || []" />
+      <ProjectedPointsChart :rows="data.standings || []" :kpi="data.kpi || {}" />
+
+      <StandingsTable :rows="data.standings || []" :position-history="data.position_history || null" />
     </template>
   </div>
 </template>

@@ -80,6 +80,9 @@ TEAM_ALIASES = {
     "Sheff Utd": "Sheffield United",
     "Athletic Bilbao": "Athletic Club",
     "Atletico de Madrid": "Atletico Madrid",
+    "Hull City": "Hull",
+    "Mainz": "Mainz 05",
+    "Deportivo": "Deportivo La Coruna",
 }
 
 # Short abbreviation untuk ticker & UI (uppercase 2-4 char)

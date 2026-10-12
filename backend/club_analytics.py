@@ -5,8 +5,9 @@ import pandas as pd
 
 from assets import get_team_logo
 from club_data import ga_prior_from_rating, get_club_strength, xg_prior_from_rating
-from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES
+from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES, filter_current_season
 from team_analytics import clamp_match_xg, get_home_away_bias, get_team_form, get_team_power_index
+from season_tables import get_season_tables
 
 DEFAULT_PROFILE = {
     "coach": "Staff Analitik",
@@ -200,6 +201,64 @@ def _xg_trend(team: str, historical_df: pd.DataFrame, n: int = 10) -> list:
     return series
 
 
+def _season_history(team: str) -> list:
+    """Riwayat musiman klub 2020 -> sekarang: posisi akhir, poin, statistik per musim."""
+    tables = get_season_tables()
+    tl = team.lower()
+    entries = []
+    for (lg, season), stat in tables.items():
+        match = next((t for t in stat if t.lower() == tl), None)
+        if match is None:
+            continue
+        row = stat[match]
+        entries.append({
+            "season": season,
+            "label": f"{season}/{str(season + 1)[2:]}",
+            "league": lg,
+            "position": row["pos"],
+            "played": row["P"],
+            "points": row["PTS"],
+            "ppg": row["ppg"],
+            "w": row["W"], "d": row["D"], "l": row["L"],
+            "gf": row["GF"], "ga": row["GA"], "gd": row["GD"],
+            "xg_for_avg": row["xg_for_avg"],
+            "xg_ga_avg": row["xg_ga_avg"],
+            "relegated": bool(row["relegated"]),
+            "in_progress": bool(row["in_progress"]),
+        })
+    entries.sort(key=lambda e: e["season"])
+    return entries
+
+
+def _trend(history: list) -> dict:
+    """Arah tren terakhir klub: delta posisi (utama) vs musim sebelumnya.
+
+    Musim berjalan: delta poin tidak sebanding (parsial) → pakai delta PPG.
+    """
+    if len(history) < 2:
+        return {"direction": "stabil", "delta_position": 0, "delta_points": 0,
+                "delta_ppg": 0.0, "from": None, "to": None, "in_progress": False}
+    cur, prev = history[-1], history[-2]
+    dpos = prev["position"] - cur["position"]  # >0 = posisi membaik
+    dppg = round(cur["ppg"] - prev["ppg"], 2)
+    dp = None if cur["in_progress"] else cur["points"] - prev["points"]
+
+    secondary = dppg if cur["in_progress"] else dp
+    if dpos > 0:
+        direction = "naik"
+    elif dpos < 0:
+        direction = "turun"
+    elif secondary and secondary > 0:
+        direction = "naik"
+    elif secondary and secondary < 0:
+        direction = "turun"
+    else:
+        direction = "stabil"
+    return {"direction": direction, "delta_position": dpos, "delta_points": dp,
+            "delta_ppg": dppg, "from": prev["label"], "to": cur["label"],
+            "in_progress": cur["in_progress"]}
+
+
 def get_club_analytics(team: str) -> dict:
     historical_df = pd.read_csv(HISTORICAL_MATCHES)
     fixtures_df = pd.read_csv(UPCOMING_FIXTURES)
@@ -227,7 +286,7 @@ def get_club_analytics(team: str) -> dict:
     league_position = None
     league_name = league_code
     if league_code:
-        league_hist = historical_df[historical_df["league"] == league_code]
+        league_hist = filter_current_season(historical_df[historical_df["league"] == league_code])
         teams = set(league_hist["home_team"]).union(set(league_hist["away_team"]))
         table = {}
         for t in teams:
@@ -257,6 +316,7 @@ def get_club_analytics(team: str) -> dict:
     form = get_team_form(team, historical_df, n=5)
     xg_trend = _xg_trend(team, historical_df, n=10)
     territorial = _build_territorial_grid(team, profile, shots_df)
+    season_history = _season_history(team)
 
     # Jadwal mendatang + proyeksi
     team_fixtures = fixtures_df[
@@ -336,6 +396,8 @@ def get_club_analytics(team: str) -> dict:
         "power": power,
         "form": form,
         "xg_trend": xg_trend,
+        "season_history": season_history,
+        "trend": _trend(season_history),
         "shot_metrics": shot_metrics,
         "ppda": ppda,
         "territorial": territorial,

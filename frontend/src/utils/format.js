@@ -5,6 +5,67 @@ export const LEAGUE_LABELS = {
   Bundesliga: 'Bundesliga',
 }
 
+// Aksen warna per liga — kartu jadwal & pil laga tidak lagi abu-abu polos
+export const LEAGUE_ACCENTS = {
+  EPL: {
+    text: 'text-sky-400',
+    border: 'border-sky-500/40',
+    bg: 'bg-sky-500/10',
+    bar: 'bg-sky-500',
+    chip: 'border-sky-500/40 bg-sky-500/10 text-sky-400',
+  },
+  La_liga: {
+    text: 'text-amber-400',
+    border: 'border-amber-500/40',
+    bg: 'bg-amber-500/10',
+    bar: 'bg-amber-500',
+    chip: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
+  },
+  Serie_A: {
+    text: 'text-emerald-400',
+    border: 'border-emerald-500/40',
+    bg: 'bg-emerald-500/10',
+    bar: 'bg-emerald-500',
+    chip: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400',
+  },
+  Bundesliga: {
+    text: 'text-violet-400',
+    border: 'border-violet-500/40',
+    bg: 'bg-violet-500/10',
+    bar: 'bg-violet-500',
+    chip: 'border-violet-500/40 bg-violet-500/10 text-violet-400',
+  },
+}
+
+export function leagueAccent(league) {
+  return LEAGUE_ACCENTS[league] || LEAGUE_ACCENTS.EPL
+}
+
+// Kickoff UTC -> "Sen, 12 Okt 2026 • 20:00 WIB"
+export function formatWib(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(String(dateStr).replace(' ', 'T') + 'Z')
+  if (isNaN(d.getTime())) return ''
+  const wib = new Date(d.getTime() + 7 * 3600 * 1000)
+  const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${days[wib.getUTCDay()]}, ${wib.getUTCDate()} ${months[wib.getUTCMonth()]} ${wib.getUTCFullYear()} • ${pad(wib.getUTCHours())}:${pad(wib.getUTCMinutes())} WIB`
+}
+
+// Jam saja: "20:00 WIB"
+export function formatWibTime(dateStr) {
+  const full = formatWib(dateStr)
+  const m = full.match(/(\d{2}:\d{2}) WIB$/)
+  return m ? `${m[1]} WIB` : full
+}
+
+// Tanggal saja: "Sen, 12 Okt"
+export function formatWibDay(dateStr) {
+  const full = formatWib(dateStr)
+  return full.split(' • ')[0] || full
+}
+
 export function formBadgeClass(result) {
   if (result === 'W') return 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40'
   if (result === 'D') return 'bg-slate-500/15 text-slate-300 border-slate-500/40'

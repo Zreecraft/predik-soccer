@@ -18,6 +18,12 @@ export const fetchFixtures = (league, limit = 40) =>
   api.get(`/fixtures/${league}`, { params: { limit } }).then((r) => r.data)
 export const fetchTicker = (limit = 16) =>
   api.get('/ticker', { params: { limit } }).then((r) => r.data)
+export const fetchSchedule = ({ tab = 'live', league = null, q = null, limit = 80 } = {}) =>
+  api
+    .get('/schedule', {
+      params: { tab, ...(league ? { league } : {}), ...(q ? { q } : {}), limit },
+    })
+    .then((r) => r.data)
 export const fetchTeams = (league) => api.get('/teams', { params: { league } }).then((r) => r.data)
 export const fetchPredict = (home, away) =>
   api.get('/predict', { params: { home_team: home, away_team: away } }).then((r) => r.data)

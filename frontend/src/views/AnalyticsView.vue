@@ -1,11 +1,13 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { RefreshCw } from 'lucide-vue-next'
+import { Minus, RefreshCw, TrendingDown, TrendingUp } from 'lucide-vue-next'
 import { fetchAnalytics, fetchLeagues, fetchTeams } from '@/services/api'
 import { useAsyncData } from '@/composables/useAsyncData'
 import { LEAGUE_LABELS } from '@/utils/format'
 import ClubHeader from '@/components/analytics/ClubHeader.vue'
+import SeasonHistoryTable from '@/components/analytics/SeasonHistoryTable.vue'
+import SeasonTrendChart from '@/components/analytics/SeasonTrendChart.vue'
 import TerritorialHeatmap from '@/components/analytics/TerritorialHeatmap.vue'
 import TacticalBullets from '@/components/analytics/TacticalBullets.vue'
 import UpcomingFixturesTable from '@/components/analytics/UpcomingFixturesTable.vue'
@@ -18,11 +20,57 @@ const router = useRouter()
 
 const selectedLeague = ref(route.query.league || '')
 const selectedTeam = ref(route.query.team || 'Arsenal')
+const selectedSeason = ref(null)
 const leagues = ref([])
 const leagueTeams = ref([])
 const allTeams = ref([])
 
 const { data, loading, error, load } = useAsyncData(fetchAnalytics)
+
+const seasonHistory = computed(() => data.value?.season_history || [])
+const seasonOptions = computed(() => seasonHistory.value)
+const filteredSeasonHistory = computed(() => {
+  if (selectedSeason.value == null) return seasonHistory.value
+  return seasonHistory.value.filter((h) => h.season === selectedSeason.value)
+})
+
+const trend = computed(() => data.value?.trend || {})
+const trendTitle = computed(() => {
+  const t = trend.value
+  if (!t.from) return 'Belum cukup data'
+  if (t.direction === 'stabil') return 'Stabil'
+  const word = t.direction === 'naik' ? 'Naik' : 'Turun'
+  const n = Math.abs(t.delta_position || 0)
+  return n > 0 ? `${word} ${n} posisi` : word
+})
+const trendDetail = computed(() => {
+  const t = trend.value
+  if (!t.from) return 'Butuh minimal 2 musim data'
+  const parts = []
+  if (t.delta_position) parts.push(`${t.delta_position > 0 ? '+' : ''}${t.delta_position} posisi`)
+  if (t.in_progress) parts.push(`PPG ${t.delta_ppg >= 0 ? '+' : ''}${t.delta_ppg}`)
+  else if (t.delta_points != null) parts.push(`${t.delta_points >= 0 ? '+' : ''}${t.delta_points} poin`)
+  return `${parts.join(' · ')} vs ${t.from}`
+})
+const trendTone = computed(() => {
+  if (trend.value.direction === 'naik') return 'text-emerald-400'
+  if (trend.value.direction === 'turun') return 'text-rose-400'
+  return 'text-slate-400'
+})
+const trendToneBg = computed(() => {
+  if (trend.value.direction === 'naik') return 'bg-emerald-500/15 text-emerald-400'
+  if (trend.value.direction === 'turun') return 'bg-rose-500/15 text-rose-400'
+  return 'bg-slate-500/15 text-slate-400'
+})
+const trendIcon = computed(() => {
+  if (trend.value.direction === 'naik') return TrendingUp
+  if (trend.value.direction === 'turun') return TrendingDown
+  return Minus
+})
+const currentPosition = computed(() => {
+  const h = seasonHistory.value
+  return h.length ? h[h.length - 1].position : null
+})
 
 const filteredTeams = computed(() => {
   if (!selectedLeague.value) return allTeams.value
@@ -101,6 +149,15 @@ onMounted(async () => {
           <option v-for="t in filteredTeams" :key="t" :value="t">{{ t }}</option>
         </select>
 
+        <!-- 3. Season Filter (highlight chart + filter tabel musim) -->
+        <select
+          v-model="selectedSeason"
+          class="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
+        >
+          <option :value="null">Semua Musim</option>
+          <option v-for="h in seasonOptions" :key="h.season" :value="h.season">{{ h.label }}</option>
+        </select>
+
         <button class="btn-ghost" type="button" :disabled="loading" @click="reload">
           <RefreshCw :size="14" :class="loading ? 'animate-spin' : ''" />
           Muat Ulang
@@ -124,6 +181,44 @@ onMounted(async () => {
       <ClubHeader :data="data" />
 
       <TacticalBullets :bullets="data.tactical_bullets || []" />
+
+      <!-- Tren musiman: naik/turun per musim (2020 -> sekarang) -->
+      <div class="grid gap-4 lg:grid-cols-3">
+        <div class="panel p-5">
+          <div class="label-caps">Tren Musiman</div>
+          <div class="mt-3 flex items-start gap-3">
+            <div class="rounded-lg p-2" :class="trendToneBg">
+              <component :is="trendIcon" :size="20" />
+            </div>
+            <div class="min-w-0">
+              <div class="text-base font-semibold" :class="trendTone">{{ trendTitle }}</div>
+              <div class="mt-0.5 text-xs text-slate-500">{{ trendDetail }}</div>
+              <div v-if="trend.to" class="num mt-2 text-[11px] text-slate-600">
+                {{ trend.from }} → {{ trend.to }}
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-2 border-t border-slate-800 pt-4 text-center">
+            <div>
+              <div class="label-caps">Posisi Musim Ini</div>
+              <div class="num mt-1 text-xl font-bold text-slate-100">{{ currentPosition ?? '—' }}</div>
+            </div>
+            <div>
+              <div class="label-caps">Musim Tercatat</div>
+              <div class="num mt-1 text-xl font-bold text-slate-100">{{ seasonHistory.length }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="panel p-5 lg:col-span-2">
+          <div class="label-caps">Poin & Posisi per Musim</div>
+          <h3 class="mb-3 mt-1 text-base font-semibold text-slate-100">
+            Peningkatan / Penurunan Klub
+          </h3>
+          <SeasonTrendChart :history="seasonHistory" :selected-season="selectedSeason" />
+        </div>
+      </div>
+
+      <SeasonHistoryTable :history="filteredSeasonHistory" :selected-season="selectedSeason" />
 
       <div class="grid gap-4 lg:grid-cols-2">
         <TerritorialHeatmap :cells="data.territorial || []" :side="data.profile?.overload_side || 'Kanan'" />

@@ -4,7 +4,8 @@ import pandas as pd
 from functools import lru_cache
 
 from club_data import ga_prior_from_rating, get_club_strength, xg_prior_from_rating
-from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
+from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES, calendar_season, filter_current_season
+from season_tables import get_position_history, get_season_tables, relegated_last_label
 from team_analytics import clamp_match_xg, get_team_power_index, get_home_away_bias
 
 LEAGUE_META = {
@@ -79,7 +80,7 @@ def project_league(league_code: str, n_seasons: int = 350) -> dict:
     historical_df = pd.read_csv(HISTORICAL_MATCHES)
     fixtures_df = pd.read_csv(UPCOMING_FIXTURES)
 
-    league_history = historical_df[historical_df["league"] == league_code].copy()
+    league_history = filter_current_season(historical_df[historical_df["league"] == league_code]).copy()
     league_fixtures = fixtures_df[fixtures_df["league"] == league_code].copy()
     if league_history.empty and league_fixtures.empty:
         raise ValueError(f"Tidak ada data untuk liga '{league_code}'")
@@ -92,6 +93,17 @@ def project_league(league_code: str, n_seasons: int = 350) -> dict:
     actual = _compute_actual_table(league_history) if not league_history.empty else {
         t: {"P": 0, "PTS": 0, "W": 0, "D": 0, "L": 0, "GF": 0, "GA": 0, "GD": 0} for t in teams
     }
+
+    # Akumulasi xG per klub (musim berjalan) utk statistik proyeksi
+    xg_for = {t: 0.0 for t in actual}
+    xg_ga = {t: 0.0 for t in actual}
+    for _, row in league_history.iterrows():
+        h, a = row["home_team"], row["away_team"]
+        if h in xg_for and a in xg_for:
+            xg_for[h] += float(row["home_xg"])
+            xg_ga[h] += float(row["away_xg"])
+            xg_for[a] += float(row["away_xg"])
+            xg_ga[a] += float(row["home_xg"])
 
     # Cache xG power per tim (dihitung sekali, bukan per iterasi)
     power_cache = {}
@@ -241,6 +253,32 @@ def project_league(league_code: str, n_seasons: int = 350) -> dict:
     for i, r in enumerate(rows):
         r["projected_position"] = i + 1
 
+    # Statistik lengkap + konteks musiman (promosi / riwayat degradasi / status proyeksi)
+    tables = get_season_tables()
+    prev_stat = tables.get((league_code, calendar_season() - 1), {})
+    prev_teams = {t.lower() for t in prev_stat}
+    for r in rows:
+        t = r["team"]
+        P = r["P"]
+        r["ppg"] = round(r["PTS"] / P, 2) if P else 0.0
+        r["avg_xg_for"] = round(xg_for.get(t, 0.0) / P, 2) if P else None
+        r["avg_xg_ga"] = round(xg_ga.get(t, 0.0) / P, 2) if P else None
+        r["promoted"] = bool(prev_teams) and t.lower() not in prev_teams
+        r["relegated_last"] = (
+            relegated_last_label(league_code, t, calendar_season()) if r["promoted"] else None
+        )
+        pos = r["projected_position"]
+        if pos == 1:
+            r["status"] = "JUARA"
+        elif pos <= 4:
+            r["status"] = "UCL"
+        elif pos <= 6:
+            r["status"] = "UEL"
+        elif pos > n_teams - n_rel:
+            r["status"] = "DEGRADASI"
+        else:
+            r["status"] = "MID"
+
     meta = LEAGUE_META.get(league_code, {"name": league_code, "country": ""})
 
     return {
@@ -256,4 +294,5 @@ def project_league(league_code: str, n_seasons: int = 350) -> dict:
         },
         "trajectory": trajectory,
         "standings": rows,
+        "position_history": get_position_history(league_code),
     }

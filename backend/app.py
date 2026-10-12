@@ -1,4 +1,8 @@
 import json
+import re
+import threading
+import time
+import unicodedata
 
 import numpy as np
 import pandas as pd
@@ -8,12 +12,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from assets import get_key_player, get_team_logo
 from club_analytics import get_club_analytics, LEAGUE_NAMES
 from club_data import ga_prior_from_rating, get_club_profile, get_club_strength, xg_prior_from_rating
-from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES
+from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES, filter_current_season
 import livescore
 import match_detail
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
 from season_projection import project_league
-from team_aliases import team_abbr
+from team_aliases import team_abbr, team_key
 from team_analytics import clamp_match_xg, get_home_away_bias, get_team_form, get_team_power_index
 from ucl_simulator import simulate_ucl_tournament
 
@@ -369,6 +373,277 @@ def get_ticker(limit: int = 16):
     return {"items": items, "total": len(items)}
 
 
+# ==========================================
+# SCHEDULE: jadwal terpadu (live/hari ini, mendatang, hasil selesai)
+# ==========================================
+
+SCHEDULE_WINDOW_MIN = 130  # 90' + HT + injury time
+
+
+def _fuzzy_key(name) -> str:
+    """Kunci normalisasi nama tim untuk join antar sumber data (buang aksen)."""
+    s = unicodedata.normalize("NFD", str(name or ""))
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]", "", team_key(s).lower())
+
+
+def _schedule_actual_scores() -> dict:
+    """Skor asli per pasangan tim: historical Understat, lalu ESPN/api menimpa (lebih fresh)."""
+    actual: dict = {}
+    try:
+        hist = pd.read_csv(HISTORICAL_MATCHES)
+        for r in hist.itertuples():
+            actual[(_fuzzy_key(r.home_team), _fuzzy_key(r.away_team))] = (
+                int(r.home_goals), int(r.away_goals), "understat",
+            )
+    except (FileNotFoundError, Exception):
+        pass
+    try:
+        live = livescore.get_live_matches()
+        if live.get("source") in ("espn", "api"):
+            for m in live.get("matches", []):
+                if m.get("status") == "FINISHED" and m.get("home_score") is not None:
+                    actual[(_fuzzy_key(m.get("home")), _fuzzy_key(m.get("away")))] = (
+                        int(m["home_score"]), int(m["away_score"]), live["source"],
+                    )
+    except Exception:
+        pass
+    return actual
+
+
+def _schedule_predictions() -> dict:
+    """Prediksi terakhir (log id terbesar) per pasangan tim dari SQLite."""
+    out: dict = {}
+    try:
+        from database import get_db
+        conn = get_db()
+        rows = conn.execute(
+            "SELECT home_team, away_team, projected_home_goals, projected_away_goals, "
+            "prob_home, prob_draw, prob_away, status FROM prediction_logs ORDER BY id"
+        ).fetchall()
+        conn.close()
+        for r in rows:
+            out[(_fuzzy_key(r["home_team"]), _fuzzy_key(r["away_team"]))] = dict(r)
+    except Exception:
+        pass
+    return out
+
+
+def _schedule_item(row_id, league_code, date_str, home, away,
+                   status, minute, home_score, away_score, score_source,
+                   pred, actual) -> dict:
+    verdict = None
+    pred_out = None
+    if pred:
+        pred_out = {
+            "home": pred.get("projected_home_goals"),
+            "away": pred.get("projected_away_goals"),
+            "prob_home": pred.get("prob_home"),
+            "prob_draw": pred.get("prob_draw"),
+            "prob_away": pred.get("prob_away"),
+            "status": pred.get("status"),
+        }
+    if pred and actual:
+        ph, pa = int(pred.get("projected_home_goals") or 0), int(pred.get("projected_away_goals") or 0)
+        ah, aa = int(actual[0]), int(actual[1])
+        exact = ph == ah and pa == aa
+        outcome_ok = _outcome(ph, pa) == _outcome(ah, aa)
+        verdict = {
+            "exact": exact,
+            "outcome_correct": outcome_ok,
+            "label": "exact" if exact else ("outcome" if outcome_ok else "miss"),
+        }
+    return {
+        "id": str(row_id),
+        "league": league_code,
+        "league_name": LEAGUE_NAMES.get(league_code, league_code),
+        "date": date_str,
+        "home": home,
+        "away": away,
+        "home_logo": get_team_logo(home),
+        "away_logo": get_team_logo(away),
+        "status": status,
+        "minute": minute,
+        "home_score": home_score,
+        "away_score": away_score,
+        "score_source": score_source,
+        "prediction": pred_out,
+        "verdict": verdict,
+    }
+
+
+@app.get("/api/schedule")
+def get_schedule(tab: str = "live", league: str | None = None,
+                 q: str | None = None, limit: int = 80):
+    """Jadwal terpadu untuk picker laga.
+
+    tab: live (live + hari ini WIB) | upcoming (mendatang) | finished (hasil selesai).
+    Laga selesai TETAP disimpan untuk perbandingan prediksi vs aktual & pembelajaran model.
+    """
+    if tab not in ("upcoming", "live", "finished"):
+        raise HTTPException(status_code=400, detail="tab harus upcoming|live|finished")
+    limit = max(1, min(limit, 300))
+
+    try:
+        fx = pd.read_csv(UPCOMING_FIXTURES)
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="File upcoming_fixtures.csv belum ditemukan.")
+
+    now = pd.Timestamp.now(tz="UTC")
+    now_wib = now + pd.Timedelta(hours=7)
+    fx["dt"] = pd.to_datetime(fx["date"], errors="coerce", utc=True)
+    fx = fx.dropna(subset=["dt"])
+
+    actual_map = _schedule_actual_scores()
+    pred_map = _schedule_predictions()
+
+    # Status live asli dari livescore (hanya sumber asli yang dipercaya)
+    live_map: dict = {}
+    live_source = None
+    try:
+        live = livescore.get_live_matches()
+        live_source = live.get("source")
+        if live_source in ("espn", "api"):
+            for m in live.get("matches", []):
+                live_map[(_fuzzy_key(m.get("home")), _fuzzy_key(m.get("away")))] = m
+    except Exception:
+        pass
+
+    items: list[dict] = []
+    fixture_pairs: set = set()
+
+    for r in fx.itertuples():
+        if league and r.league != league:
+            continue
+        home, away = str(r.home_team), str(r.away_team)
+        if q:
+            nq = q.strip().lower()
+            if nq and nq not in home.lower() and nq not in away.lower():
+                continue
+
+        pair = (_fuzzy_key(home), _fuzzy_key(away))
+        fixture_pairs.add(pair)
+        dt = r.dt
+        lm = live_map.get(pair)
+
+        # Kickoff: ESPN lebih dipercaya bila punya data laga ini (tanggal CSV bisa meleset)
+        if lm is not None and lm.get("kickoff"):
+            try:
+                espn_dt = pd.to_datetime(lm["kickoff"], errors="raise", utc=True)
+                if not pd.isna(espn_dt):
+                    dt = espn_dt
+            except Exception:
+                pass
+
+        elapsed_min = (now - dt).total_seconds() / 60.0
+        minute = None
+        home_score = away_score = None
+        score_source = None
+
+        if lm is not None and lm.get("live"):
+            status = "live"
+            minute = lm.get("minute")
+            home_score = lm.get("home_score")
+            away_score = lm.get("away_score")
+            if home_score is not None:
+                score_source = live_source
+        elif lm is not None and lm.get("status") == "FINISHED":
+            status = "finished"
+            home_score = lm.get("home_score")
+            away_score = lm.get("away_score")
+            if home_score is not None:
+                score_source = live_source
+        elif elapsed_min < 0:
+            status = "upcoming"
+        elif elapsed_min <= SCHEDULE_WINDOW_MIN:
+            status = "live"
+            minute = min(90, max(1, int(elapsed_min)))
+        else:
+            status = "finished"
+
+        actual = None
+        if status == "finished":
+            actual = actual_map.get(pair)
+            if actual and home_score is None:
+                home_score, away_score = actual[0], actual[1]
+                score_source = actual[2]
+
+        pred = pred_map.get(pair)
+        items.append(_schedule_item(
+            r.match_id, r.league, dt.strftime("%Y-%m-%d %H:%M:%S"), home, away,
+            status, minute, home_score, away_score, score_source,
+            pred, actual,
+        ))
+
+    # Arsip hasil dari historical yang tidak ada di upcoming_fixtures (laga pra-10 Okt, musim berjalan saja)
+    try:
+        hist = filter_current_season(pd.read_csv(HISTORICAL_MATCHES))
+        for h in hist.itertuples():
+            if league and h.league != league:
+                continue
+            home, away = str(h.home_team), str(h.away_team)
+            if q:
+                nq = q.strip().lower()
+                if nq and nq not in home.lower() and nq not in away.lower():
+                    continue
+            pair = (_fuzzy_key(home), _fuzzy_key(away))
+            if pair in fixture_pairs:
+                continue
+            actual = (int(h.home_goals), int(h.away_goals), "understat")
+            items.append(_schedule_item(
+                h.match_id, h.league, str(h.datetime), home, away,
+                "finished", 90, actual[0], actual[1], "understat",
+                pred_map.get(pair), actual,
+            ))
+    except (FileNotFoundError, Exception):
+        pass
+
+    def _is_today(item) -> bool:
+        d = pd.to_datetime(item["date"], errors="coerce", utc=True)
+        return not pd.isna(d) and (d + pd.Timedelta(hours=7)).date() == now_wib.date()
+
+    def _in_tab(item, t) -> bool:
+        st = item["status"]
+        if t == "finished":
+            return st == "finished"
+        if t == "live":
+            return st == "live" or _is_today(item)
+        return st == "upcoming" and not _is_today(item)
+
+    counts = {
+        t: sum(1 for i in items if _in_tab(i, t))
+        for t in ("upcoming", "live", "finished")
+    }
+    selected = [i for i in items if _in_tab(i, tab)]
+
+    if tab == "finished":
+        selected.sort(key=lambda i: str(i["date"]), reverse=True)
+    elif tab == "live":
+        selected.sort(key=lambda i: (i["status"] != "live", str(i["date"])))
+    else:
+        selected.sort(key=lambda i: str(i["date"]))
+
+    if tab == "finished":
+        missing = sum(
+            1 for i in items
+            if i["status"] == "finished"
+            and i["home_score"] is not None and i["away_score"] is not None
+            and not i["prediction"]
+        )
+        if missing:
+            start_backfill_async()
+
+    total = len(selected)
+    return {
+        "tab": tab,
+        "counts": counts,
+        "total": total,
+        "items": selected[:limit],
+        "source": live_source,
+        "fetched_at": now.isoformat(timespec="seconds"),
+    }
+
+
 @app.get("/api/live/matches")
 def live_matches():
     """Skor live semua laga (polling server 55s, source: api|mock)."""
@@ -420,17 +695,8 @@ def live_match_detail_by_teams(home: str, away: str, league: str | None = None, 
         raise HTTPException(status_code=500, detail=f"Detail laga gagal diambil: {e}")
 
 
-@app.get("/api/predict")
-def predict_match(home_team: str, away_team: str):
-    try:
-        matches_df = pd.read_csv(HISTORICAL_MATCHES)
-    except FileNotFoundError:
-        raise HTTPException(status_code=500, detail="Data histori pertandingan belum ada.")
-
-    shots_df = _load_shots()
-
-    home_profile = get_club_profile(home_team)
-    away_profile = get_club_profile(away_team)
+def _compute_projection(home_team: str, away_team: str, matches_df: pd.DataFrame) -> dict:
+    """Inti prediksi: power index → blend xG → simulasi 10k → skor proyeksi + probabilitas."""
     home_strength = get_club_strength(home_team)
     away_strength = get_club_strength(away_team)
     strength_gap = round(home_strength["overall"] - away_strength["overall"], 1)
@@ -469,6 +735,50 @@ def predict_match(home_team: str, away_team: str):
         home_sim, away_sim, prob_home, prob_away, final_home_xg, final_away_xg,
         strength_gap=strength_gap,
     )
+
+    return {
+        "home_strength": home_strength,
+        "away_strength": away_strength,
+        "strength_gap": strength_gap,
+        "home_stats": home_stats,
+        "away_stats": away_stats,
+        "final_home_xg": final_home_xg,
+        "final_away_xg": final_away_xg,
+        "prob_home": prob_home,
+        "prob_draw": prob_draw,
+        "prob_away": prob_away,
+        "prob_ht": prob_ht,
+        "smart_h": smart_h,
+        "smart_a": smart_a,
+        "confidence": confidence,
+    }
+
+
+@app.get("/api/predict")
+def predict_match(home_team: str, away_team: str):
+    try:
+        matches_df = pd.read_csv(HISTORICAL_MATCHES)
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="Data histori pertandingan belum ada.")
+
+    shots_df = _load_shots()
+
+    home_profile = get_club_profile(home_team)
+    away_profile = get_club_profile(away_team)
+
+    p = _compute_projection(home_team, away_team, matches_df)
+    home_strength = p["home_strength"]
+    away_strength = p["away_strength"]
+    strength_gap = p["strength_gap"]
+    home_stats = p["home_stats"]
+    away_stats = p["away_stats"]
+    final_home_xg = p["final_home_xg"]
+    final_away_xg = p["final_away_xg"]
+    prob_home = p["prob_home"]
+    prob_draw = p["prob_draw"]
+    prob_away = p["prob_away"]
+    prob_ht = p["prob_ht"]
+    smart_h, smart_a, confidence = p["smart_h"], p["smart_a"], p["confidence"]
 
     home_form = get_team_form(home_team, matches_df, 5)
     away_form = get_team_form(away_team, matches_df, 5)
@@ -707,7 +1017,7 @@ def list_teams(league: str | None = None):
     except FileNotFoundError:
         raise HTTPException(status_code=500, detail="Data histori pertandingan belum ada.")
 
-    df = matches_df
+    df = filter_current_season(matches_df)
     if league:
         df = df[df["league"] == league]
     teams = sorted(set(df["home_team"]).union(set(df["away_team"])))
@@ -746,6 +1056,133 @@ def model_retrain():
     """Retrain XGBoost dari data tembakan terbaru (feedback loop)."""
     from model_retrainer import retrain_model
     return retrain_model()
+
+
+BACKFILL_STATE = {"running": False, "last": None}
+_BACKFILL_LOCK = threading.Lock()
+
+
+def backfill_finished_predictions(evaluate: bool = True) -> dict:
+    """Hindcast prediksi untuk laga SELESAI yang belum punya log.
+
+    Anti-bocor hasil: hanya memakai laga historis yang berakhir SEBELUM kickoff
+    pertandingan, dan mengecualikan pasangan tim itu sendiri. Hasil akhir langsung
+    ditulis (status PENDING + aktual) lalu dievaluasi sekali di akhir.
+    """
+    sched = get_schedule(tab="finished", limit=300)
+    items = sched["items"]
+    pred_map = _schedule_predictions()
+
+    hist = None
+    try:
+        hist = pd.read_csv(HISTORICAL_MATCHES)
+        hist["dt"] = pd.to_datetime(hist["datetime"], errors="coerce")
+        hist["pk"] = [
+            (_fuzzy_key(h), _fuzzy_key(a))
+            for h, a in zip(hist["home_team"], hist["away_team"])
+        ]
+    except (FileNotFoundError, Exception):
+        hist = None
+
+    from database import get_db
+
+    inserted = skipped_existing = skipped_no_actual = skipped_error = 0
+
+    for it in items:
+        pair = (_fuzzy_key(it["home"]), _fuzzy_key(it["away"]))
+        if pair in pred_map:
+            skipped_existing += 1
+            continue
+        if it["home_score"] is None or it["away_score"] is None:
+            skipped_no_actual += 1
+            continue
+
+        kickoff = pd.to_datetime(it["date"], errors="coerce")
+        if hist is None or pd.isna(kickoff):
+            skipped_error += 1
+            continue
+        filtered = hist[(hist["dt"] < kickoff) & (hist["pk"] != pair)]
+
+        try:
+            proj = _compute_projection(it["home"], it["away"], filtered)
+            conn = get_db()
+            conn.execute(
+                "INSERT INTO prediction_logs (home_team, away_team, projected_home_goals, "
+                "projected_away_goals, prob_home, prob_draw, prob_away, "
+                "actual_home_goals, actual_away_goals, status) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')",
+                (
+                    it["home"], it["away"],
+                    int(proj["smart_h"]), int(proj["smart_a"]),
+                    proj["prob_home"], proj["prob_draw"], proj["prob_away"],
+                    int(it["home_score"]), int(it["away_score"]),
+                ),
+            )
+            conn.commit()
+            conn.close()
+            pred_map[pair] = True
+            inserted += 1
+        except Exception:
+            skipped_error += 1
+
+    evaluation = None
+    if evaluate and inserted:
+        from model_retrainer import evaluate_pending_predictions
+        try:
+            evaluation = evaluate_pending_predictions()
+        except Exception as e:
+            evaluation = {"error": str(e)}
+
+    return {
+        "scanned": len(items),
+        "inserted": inserted,
+        "skipped_existing": skipped_existing,
+        "skipped_no_actual": skipped_no_actual,
+        "skipped_error": skipped_error,
+        "evaluation": evaluation,
+    }
+
+
+def start_backfill_async(evaluate: bool = True) -> bool:
+    """Jalankan backfill di thread latar. Return False bila masih berjalan."""
+    with _BACKFILL_LOCK:
+        if BACKFILL_STATE["running"]:
+            return False
+        BACKFILL_STATE["running"] = True
+
+    def _run():
+        try:
+            BACKFILL_STATE["last"] = backfill_finished_predictions(evaluate=evaluate)
+        except Exception as e:
+            BACKFILL_STATE["last"] = {"error": str(e)}
+        finally:
+            with _BACKFILL_LOCK:
+                BACKFILL_STATE["running"] = False
+
+    threading.Thread(target=_run, daemon=True).start()
+    return True
+
+
+@app.on_event("startup")
+def _startup_backfill():
+    start_backfill_async()
+
+
+@app.post("/api/model/backfill")
+def model_backfill():
+    """Backfill hindcast laga selesai yang belum punya prediksi + evaluasi sekali."""
+    with _BACKFILL_LOCK:
+        if BACKFILL_STATE["running"]:
+            return {"status": "running", "detail": "Backfill masih berjalan."}
+        BACKFILL_STATE["running"] = True
+    try:
+        stats = backfill_finished_predictions(evaluate=True)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Backfill gagal: {e}")
+    finally:
+        with _BACKFILL_LOCK:
+            BACKFILL_STATE["running"] = False
+    return {"status": "ok", **stats}
 
 
 if __name__ == "__main__":

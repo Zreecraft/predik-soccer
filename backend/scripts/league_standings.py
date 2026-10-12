@@ -14,7 +14,7 @@ if hasattr(sys.stdout, "reconfigure"):
 import pandas as pd
 import numpy as np
 
-from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES
+from data_paths import HISTORICAL_MATCHES, UPCOMING_FIXTURES, filter_current_season
 from club_data import ga_prior_from_rating, get_club_strength, xg_prior_from_rating
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
 from team_analytics import clamp_match_xg, get_home_away_bias, get_team_power_index
@@ -50,7 +50,7 @@ def run_standings_simulation():
 
     # Filter Fixtures & Historical berdasarkan Liga
     league_fixtures = fixtures_df[fixtures_df['league'] == league_code].copy()
-    league_history = historical_df[historical_df['league'] == league_code].copy() if 'league' in historical_df.columns else historical_df.copy()
+    league_history = filter_current_season(historical_df[historical_df['league'] == league_code]).copy() if 'league' in historical_df.columns else filter_current_season(historical_df.copy())
 
     # Ambil seluruh tim unik di liga tersebut
     teams = sorted(list(set(league_fixtures['home_team'].unique()).union(set(league_fixtures['away_team'].unique()))))

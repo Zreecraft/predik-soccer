@@ -1,11 +1,11 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { MonitorPlay, RefreshCw } from 'lucide-vue-next'
-import { fetchFixtures, fetchLeagues, fetchLiveMatches, fetchPredict, fetchShots, fetchTeams } from '@/services/api'
-import { LEAGUE_LABELS } from '@/utils/format'
+import { MonitorPlay, RefreshCw, Search } from 'lucide-vue-next'
+import { fetchFixtures, fetchLeagues, fetchLiveMatches, fetchPredict, fetchShots } from '@/services/api'
 import { useAsyncData } from '@/composables/useAsyncData'
 import MatchHeroCard from '@/components/predict/MatchHeroCard.vue'
+import MatchPickerModal from '@/components/predict/MatchPickerModal.vue'
 import TacticalCompareTable from '@/components/predict/TacticalCompareTable.vue'
 import DifferentialPanel from '@/components/predict/DifferentialPanel.vue'
 import ShotMap from '@/components/predict/ShotMap.vue'
@@ -16,7 +16,6 @@ const route = useRoute()
 const router = useRouter()
 
 const leagues = ref([])
-const teams = ref([])
 const fixtures = ref([])
 const league = ref(route.query.league || 'EPL')
 const homeTeam = ref(route.query.home || '')
@@ -93,11 +92,6 @@ const kickoffWib = computed(() => {
   return formatWib(f?.date)
 })
 
-async function loadTeams() {
-  const data = await fetchTeams(league.value)
-  teams.value = (data.teams || []).map((t) => t.name)
-}
-
 async function loadFixtures() {
   const data = await fetchFixtures(league.value, 40)
   fixtures.value = data.fixtures || []
@@ -108,9 +102,6 @@ function applyDefaults() {
     const f = fixtures.value[0]
     if (!homeTeam.value) homeTeam.value = f.home_team
     if (!awayTeam.value) awayTeam.value = f.away_team
-  } else if (teams.value.length >= 2) {
-    if (!homeTeam.value) homeTeam.value = teams.value[0]
-    if (!awayTeam.value) awayTeam.value = teams.value[1]
   }
 }
 
@@ -133,17 +124,23 @@ async function runPredict() {
   return pred
 }
 
-watch(league, async () => {
-  homeTeam.value = ''
-  awayTeam.value = ''
-  await Promise.all([loadTeams(), loadFixtures()])
-  applyDefaults()
+// Match Picker: pilih laga dari modal (termasuk hasil selesai), lalu langsung prediksi
+const showPicker = ref(false)
+
+async function onPickMatch(sel) {
+  showPicker.value = false
+  if (sel.league && sel.league !== league.value) {
+    league.value = sel.league
+    await loadFixtures()
+  }
+  homeTeam.value = sel.home
+  awayTeam.value = sel.away
   await runPredict()
-})
+}
 
 onMounted(async () => {
   leagues.value = await fetchLeagues()
-  await Promise.all([loadTeams(), loadFixtures()])
+  await loadFixtures()
   applyDefaults()
   await runPredict()
   await refreshLive()
@@ -167,57 +164,32 @@ onBeforeUnmount(() => clearInterval(liveTimer))
       </template>
     </PageHeader>
 
-    <!-- Selectors -->
-    <div class="panel grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
-      <label class="block">
-        <span class="label-caps">Liga</span>
-        <select
-          v-model="league"
-          class="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
-        >
-          <option v-for="l in leagues" :key="l.id" :value="l.id">{{ l.name }}</option>
-        </select>
-      </label>
-      <label class="block">
-        <span class="label-caps">Tim Kandang</span>
-        <select
-          v-model="homeTeam"
-          class="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
-        >
-          <option v-for="t in teams" :key="'h' + t" :value="t">{{ t }}</option>
-        </select>
-      </label>
-      <label class="block">
-        <span class="label-caps">Tim Tandang</span>
-        <select
-          v-model="awayTeam"
-          class="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
-        >
-          <option v-for="t in teams" :key="'a' + t" :value="t">{{ t }}</option>
-        </select>
-      </label>
-      <label class="block">
-        <span class="label-caps">Fixture Cepat</span>
-        <select
-          class="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
-          @change="
-            (e) => {
-              const [h, a] = e.target.value.split('||')
-              if (h && a) {
-                homeTeam = h
-                awayTeam = a
-                runPredict()
-              }
-            }
-          "
-        >
-          <option value="">Pilih fixture…</option>
-          <option v-for="f in fixtures" :key="f.match_id" :value="`${f.home_team}||${f.away_team}`">
-            {{ f.home_team }} vs {{ f.away_team }}
-          </option>
-        </select>
-      </label>
+    <!-- Cari Laga: satu-satunya cara memilih laga (popup) -->
+    <div class="panel p-4">
+      <button
+        type="button"
+        class="flex w-full items-center justify-between gap-3 rounded-xl border border-sky-500/40 bg-sky-500/10 px-5 py-4 text-base font-semibold text-sky-300 outline-none transition hover:border-sky-500/60 hover:bg-sky-500/15 focus:border-sky-500"
+        @click="showPicker = true"
+      >
+        <span class="flex min-w-0 items-center gap-3">
+          <Search :size="20" class="shrink-0" />
+          <span class="truncate">
+            {{ homeTeam && awayTeam ? `${homeTeam} vs ${awayTeam}` : 'Cari laga… (Live / Mendatang / Hasil Selesai)' }}
+          </span>
+        </span>
+        <span class="shrink-0 rounded border border-sky-500/50 bg-sky-500/15 px-2 py-1 text-[10px] font-extrabold tracking-widest text-sky-300">
+          POP-UP
+        </span>
+      </button>
     </div>
+
+    <MatchPickerModal
+      :is-open="showPicker"
+      :leagues="leagues"
+      :selected="{ home: homeTeam, away: awayTeam }"
+      @close="showPicker = false"
+      @select="onPickMatch"
+    />
 
     <div v-if="error" class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
       {{ error }}

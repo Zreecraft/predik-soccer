@@ -50,10 +50,18 @@ def sync_actuals_from_history() -> int:
         ]
         if match.empty:
             continue
-        latest = match.sort_values("datetime").iloc[-1]
+        # Anti-bocor: hanya hasil yang terjadi SETELAH prediksi dicatat
+        # (laga musim lalu / laga yang sudah selesai sebelum prediksi = bukan evaluasi valid)
+        ts = pd.to_datetime(row["timestamp"], errors="coerce")
+        if pd.isna(ts):
+            continue
+        match = match[match["datetime"] > ts]
+        if match.empty:
+            continue
+        first = match.sort_values("datetime").iloc[0]
         conn.execute(
             "UPDATE prediction_logs SET actual_home_goals=?, actual_away_goals=? WHERE id=?",
-            (int(latest["home_goals"]), int(latest["away_goals"]), row["id"]),
+            (int(first["home_goals"]), int(first["away_goals"]), row["id"]),
         )
         updated += 1
     conn.commit()
