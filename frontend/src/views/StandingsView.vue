@@ -7,6 +7,7 @@ import { LEAGUE_LABELS } from '@/utils/format'
 import { useAsyncData } from '@/composables/useAsyncData'
 import KpiCards from '@/components/standings/KpiCards.vue'
 import ProjectedPointsChart from '@/components/standings/ProjectedPointsChart.vue'
+import TeamTrajectoryGrid from '@/components/standings/TeamTrajectoryGrid.vue'
 import TrajectoryChart from '@/components/standings/TrajectoryChart.vue'
 import StandingsTable from '@/components/standings/StandingsTable.vue'
 import LiveStandingsTable from '@/components/standings/LiveStandingsTable.vue'
@@ -210,23 +211,27 @@ onBeforeUnmount(() => clearInterval(liveTimer))
     <template v-else-if="mode === 'projection' && data">
       <KpiCards :kpi="data.kpi || {}" />
 
-      <div class="grid gap-4 lg:grid-cols-5">
-        <div class="lg:col-span-2">
-          <TrajectoryChart :trajectory="data.trajectory || {}" />
+      <TrajectoryChart :trajectory="data.trajectory || {}" :rows="data.standings || []" />
+
+      <TeamTrajectoryGrid
+        :trajectory="data.trajectory || {}"
+        :rows="data.standings || []"
+        :position-history="data.position_history || null"
+      />
+
+      <div class="panel flex flex-col gap-5 p-5 lg:flex-row lg:items-center">
+        <div class="lg:w-2/5">
+          <div class="label-caps">Status Simulasi</div>
+          <h3 class="mt-1 text-base font-semibold text-slate-100">
+            {{ data.league_name || LEAGUE_LABELS[league] || league }}
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">
+            Model menjalankan <span class="num text-slate-200">{{ data.n_seasons }}</span> musim paralel
+            berdasarkan xG power index, home/away bias, dan hasil aktual musim ini.
+            Angka proyeksi adalah rerata statistik — bukan kepastian.
+          </p>
         </div>
-        <div class="panel flex flex-col justify-between p-5 lg:col-span-3">
-          <div>
-            <div class="label-caps">Status Simulasi</div>
-            <h3 class="mt-1 text-base font-semibold text-slate-100">
-              {{ data.league_name || LEAGUE_LABELS[league] || league }}
-            </h3>
-            <p class="mt-2 text-sm leading-relaxed text-slate-400">
-              Model menjalankan <span class="num text-slate-200">{{ data.n_seasons }}</span> musim paralel
-              berdasarkan xG power index, home/away bias, dan hasil aktual musim ini.
-              Angka proyeksi adalah rerata statistik — bukan kepastian.
-            </p>
-          </div>
-          <div class="mt-4 grid grid-cols-3 gap-3 text-center">
+        <div class="grid flex-1 grid-cols-3 gap-3 text-center">
             <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
               <div class="label-caps">Juara Teratas</div>
               <div class="mt-1 truncate text-sm font-semibold text-amber-400">
@@ -255,7 +260,6 @@ onBeforeUnmount(() => clearInterval(liveTimer))
               </div>
             </div>
           </div>
-        </div>
       </div>
 
       <ProjectedPointsChart :rows="data.standings || []" :kpi="data.kpi || {}" />

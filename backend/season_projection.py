@@ -178,14 +178,10 @@ def project_league(league_code: str, n_seasons: int = 350) -> dict:
             pass
         trajectory_samples.append({t: sim_path[t] for t in teams})
 
-    # Ambil path rata-rata untuk 3 besar berdasarkan proyeksi rata-rata poin
-    avg_pts = {t: float(np.mean(points_samples[t])) for t in teams}
-    top3 = sorted(teams, key=lambda t: -avg_pts[t])[:3]
-    # Resample trajectory ke 38 titik
+    # Resample trajectory ke 38 titik untuk SEMUA klub (bukan hanya top-3)
     trajectory = {}
-    for t in top3:
+    for t in teams:
         paths = [trajectory_samples[i][t] for i in range(min(len(trajectory_samples), 80))]
-        max_len = max(len(p) for p in paths) if paths else 1
         resampled = []
         for step in range(38):
             vals = []

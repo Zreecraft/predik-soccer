@@ -227,3 +227,17 @@ export function playerImageSrc(image) {
   const file = image.split('/').pop()
   return `${import.meta.env.BASE_URL}assets/players/${file}`
 }
+
+// Warna garis trajektori berdasarkan posisi proyeksi — konsisten
+// antara grafik besar (TrajectoryChart) dan small multiples (TeamTrajectoryGrid).
+const ZONE_TRAJECTORY_COLORS = {
+  UCL: '#38BDF8', // sky
+  UEL: '#A78BFA', // violet
+  REL: '#FB7185', // rose
+  MID: '#94A3B8', // slate
+}
+
+export function trajectoryColor(row = {}) {
+  if (row.projected_position === 1) return '#F59E0B' // amber — juara
+  return ZONE_TRAJECTORY_COLORS[row.zone] || ZONE_TRAJECTORY_COLORS.MID
+}
