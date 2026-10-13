@@ -28,10 +28,35 @@ UCL_DNA_TIERS = {
     "Stuttgart": 0.92, "Girona": 0.90, "Bologna": 0.90, "Brest": 0.88, "Slovan Bratislava": 0.85
 }
 
+# Cache xG per tim agar tidak memindai seluruh CSV (8.895 baris) setiap laga.
+# Hanya 36 tim x 2 (home/away) = 72 nilai unik, dihitung sekali per dataframe.
+_XG_CACHE: dict = {}
+_XG_CACHE_DF_ID: int | None = None
+
+
+def clear_xg_cache():
+    """Kosongkan cache xG (panggil bila CSV berubah / untuk test)."""
+    _XG_CACHE.clear()
+    global _XG_CACHE_DF_ID
+    _XG_CACHE_DF_ID = None
+
+
 def calculate_weighted_ucl_xg(team_name, is_home, matches_df):
     """
     Menghitung xG Gabungan: Performa Domestik (60%) + UCL DNA/Prestige Multiplier (40%)
+
+    Hasil di-cache per (tim, home/away) karena tidak berubah selama satu simulasi.
     """
+    global _XG_CACHE_DF_ID
+    df_id = id(matches_df)
+    if _XG_CACHE_DF_ID != df_id:
+        _XG_CACHE.clear()
+        _XG_CACHE_DF_ID = df_id
+
+    key = (team_name, bool(is_home))
+    if key in _XG_CACHE:
+        return _XG_CACHE[key]
+
     # 1. Performa Liga Domestik 20 Match Terakhir (prior rating klub)
     from club_data import get_club_strength, xg_prior_from_rating
 
@@ -41,7 +66,7 @@ def calculate_weighted_ucl_xg(team_name, is_home, matches_df):
         prior_xg=xg_prior_from_rating(strength["overall"]),
     )
     bias = get_home_away_bias(team_name, is_home=is_home, matches_df=matches_df)
-    
+
     base_xg = stats['avg_xg'] * bias
 
     # 2. Ambil Multiplier DNA UCL (Default 1.0 jika tidak terdaftar)
@@ -49,8 +74,10 @@ def calculate_weighted_ucl_xg(team_name, is_home, matches_df):
 
     # 3. Formulasi xG Akhir Berbobot (dibatasi wajar agar skor agregat tidak meledak)
     final_xg = (base_xg * 0.60) + (base_xg * dna_multiplier * 0.40)
-    
-    return clamp_match_xg(final_xg, low=0.4, high=3.0)
+
+    result = clamp_match_xg(final_xg, low=0.4, high=3.0)
+    _XG_CACHE[key] = result
+    return result
 
 def simulate_match_xg(home_team, away_team, matches_df):
     """Simulasi 1 Pertandingan dengan xG Berbobot"""
