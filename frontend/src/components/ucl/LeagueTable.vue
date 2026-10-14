@@ -4,15 +4,15 @@ defineProps({
 })
 
 const legend = [
-  { dot: 'bg-emerald-400', text: '1–8 · Lolos 16 Besar' },
-  { dot: 'bg-amber-400', text: '9–24 · Babak Play-off' },
-  { dot: 'bg-rose-400', text: '25–36 · Tereliminasi' },
+  { dot: 'bg-ok', text: '1–8 · Lolos 16 Besar' },
+  { dot: 'bg-draw', text: '9–24 · Babak Play-off' },
+  { dot: 'bg-bad', text: '25–36 · Tereliminasi' },
 ]
 
 // Divider zona di antara baris (key = index baris pertama zona berikutnya)
 const dividers = {
-  8: { label: 'Babak Play-off · posisi 9–24', cls: 'text-amber-400' },
-  24: { label: 'Tereliminasi · posisi 25–36', cls: 'text-rose-400' },
+  8: { label: 'Babak Play-off · posisi 9–24', cls: 'text-draw' },
+  24: { label: 'Tereliminasi · posisi 25–36', cls: 'text-bad' },
 }
 
 function zoneOf(pos) {
@@ -27,9 +27,9 @@ const zoneBorder = {
   out: 'border-l-rose-500/70',
 }
 const posCls = {
-  r16: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400',
-  po: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
-  out: 'border-rose-500/40 bg-rose-500/10 text-rose-400',
+  r16: 'border-ok/40 bg-ok/10 text-ok',
+  po: 'border-draw/40 bg-draw/10 text-draw',
+  out: 'border-bad/40 bg-bad/10 text-bad',
 }
 const chipCls = posCls
 const zoneLabel = { r16: '16 Besar', po: 'Play-off', out: 'Gugur' }
@@ -38,16 +38,16 @@ const zoneLabel = { r16: '16 Besar', po: 'Play-off', out: 'Gugur' }
 <template>
   <div class="panel overflow-hidden">
     <!-- Header -->
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 p-5">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line p-5">
       <div>
-        <div class="label-caps text-sky-400">Fase Liga · Klasemen</div>
-        <h3 class="mt-1 text-base font-semibold text-slate-100">Klasemen Akhir · 36 Tim</h3>
+        <div class="label-caps text-home">Fase Liga · Klasemen</div>
+        <h3 class="mt-1 text-base font-semibold text-ink">Klasemen Akhir · 36 Tim</h3>
       </div>
       <div class="flex flex-wrap gap-2">
         <span
           v-for="z in legend"
           :key="z.text"
-          class="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-950/60 px-2.5 py-1 text-[11px] text-slate-400"
+          class="inline-flex items-center gap-1.5 rounded-full border border-line bg-canvas/60 px-2.5 py-1 text-[11px] text-mute"
         >
           <span class="h-1.5 w-1.5 rounded-full" :class="z.dot" />
           {{ z.text }}
@@ -59,7 +59,7 @@ const zoneLabel = { r16: '16 Besar', po: 'Play-off', out: 'Gugur' }
     <div class="max-h-[620px] overflow-y-auto overflow-x-auto">
       <table class="w-full text-left text-xs">
         <thead class="league-thead">
-          <tr class="text-[10px] uppercase tracking-wider text-slate-500">
+          <tr class="text-[10px] uppercase tracking-wider text-mute">
             <th class="w-12 px-4 py-2.5 font-semibold">#</th>
             <th class="px-2 py-2.5 font-semibold">Tim</th>
             <th class="w-10 px-2 py-2.5 text-center font-semibold">P</th>
@@ -69,7 +69,7 @@ const zoneLabel = { r16: '16 Besar', po: 'Play-off', out: 'Gugur' }
             <th class="hidden w-10 px-2 py-2.5 text-center font-semibold md:table-cell">GM</th>
             <th class="hidden w-10 px-2 py-2.5 text-center font-semibold md:table-cell">GK</th>
             <th class="hidden w-12 px-2 py-2.5 text-center font-semibold md:table-cell">SG</th>
-            <th class="w-12 px-2 py-2.5 text-center font-semibold text-slate-300">PTS</th>
+            <th class="w-12 px-2 py-2.5 text-center font-semibold text-mute">PTS</th>
             <th class="w-24 px-4 py-2.5 text-right font-semibold">Status</th>
           </tr>
         </thead>
@@ -82,13 +82,13 @@ const zoneLabel = { r16: '16 Besar', po: 'Play-off', out: 'Gugur' }
                   <span class="text-[10px] font-bold uppercase tracking-[0.14em]">
                     {{ dividers[i].label }}
                   </span>
-                  <span class="h-px flex-1 bg-slate-800" />
+                  <span class="h-px flex-1 bg-card" />
                 </div>
               </td>
             </tr>
 
             <tr
-              class="border-t border-slate-800/60 transition hover:bg-slate-800/30"
+              class="border-t border-line/60 transition hover:bg-card/30"
             >
               <td class="border-l-2 px-4 py-2" :class="zoneBorder[zoneOf(r.position)]">
                 <span
@@ -108,25 +108,25 @@ const zoneLabel = { r16: '16 Besar', po: 'Play-off', out: 'Gugur' }
                   />
                   <span
                     class="truncate font-semibold"
-                    :class="r.position <= 8 ? 'text-slate-100' : 'text-slate-300'"
+                    :class="r.position <= 8 ? 'text-ink' : 'text-mute'"
                   >
                     {{ r.team }}
                   </span>
                 </div>
               </td>
-              <td class="num px-2 py-2 text-center text-slate-400">{{ r.P }}</td>
-              <td class="num hidden px-2 py-2 text-center text-slate-400 sm:table-cell">{{ r.W }}</td>
-              <td class="num hidden px-2 py-2 text-center text-slate-400 sm:table-cell">{{ r.D }}</td>
-              <td class="num hidden px-2 py-2 text-center text-slate-400 sm:table-cell">{{ r.L }}</td>
-              <td class="num hidden px-2 py-2 text-center text-slate-400 md:table-cell">{{ r.GF }}</td>
-              <td class="num hidden px-2 py-2 text-center text-slate-400 md:table-cell">{{ r.GA }}</td>
+              <td class="num px-2 py-2 text-center text-mute">{{ r.P }}</td>
+              <td class="num hidden px-2 py-2 text-center text-mute sm:table-cell">{{ r.W }}</td>
+              <td class="num hidden px-2 py-2 text-center text-mute sm:table-cell">{{ r.D }}</td>
+              <td class="num hidden px-2 py-2 text-center text-mute sm:table-cell">{{ r.L }}</td>
+              <td class="num hidden px-2 py-2 text-center text-mute md:table-cell">{{ r.GF }}</td>
+              <td class="num hidden px-2 py-2 text-center text-mute md:table-cell">{{ r.GA }}</td>
               <td
                 class="num hidden px-2 py-2 text-center font-semibold md:table-cell"
-                :class="r.GD > 0 ? 'text-emerald-400' : r.GD < 0 ? 'text-rose-400' : 'text-slate-400'"
+                :class="r.GD > 0 ? 'text-ok' : r.GD < 0 ? 'text-bad' : 'text-mute'"
               >
                 {{ r.GD > 0 ? '+' : '' }}{{ r.GD }}
               </td>
-              <td class="num px-2 py-2 text-center text-sm font-black text-slate-100">
+              <td class="num px-2 py-2 text-center text-sm font-black text-ink">
                 {{ r.PTS }}
               </td>
               <td class="px-4 py-2 text-right">
@@ -148,6 +148,6 @@ const zoneLabel = { r16: '16 Besar', po: 'Play-off', out: 'Gugur' }
   top: 0;
   z-index: 5;
   background: #0e1628;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 1px solid #27392f;
 }
 </style>

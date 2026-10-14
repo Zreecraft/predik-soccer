@@ -114,16 +114,16 @@ onBeforeUnmount(() => clearInterval(liveTimer))
       subtitle="Simulasi Monte Carlo sisa musim — ambang juara, UCL, degradasi, dan dispersi poin."
     >
       <template #actions>
-        <span v-if="mode === 'live'" class="chip border-rose-500/30 bg-rose-500/10 text-rose-400">
-          <span class="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400" />
+        <span v-if="mode === 'live'" class="chip border-bad/30 bg-bad/10 text-bad">
+          <span class="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-bad" />
           Klasemen Live · auto 60s
         </span>
         <template v-else>
           <span
             class="chip"
-            :class="loading ? 'border-amber-500/30 bg-amber-500/10 text-amber-400' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'"
+            :class="loading ? 'border-draw/30 bg-draw/10 text-draw' : 'border-ok/30 bg-ok/10 text-ok'"
           >
-            <span class="mr-1.5 inline-block h-1.5 w-1.5 rounded-full" :class="loading ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'" />
+            <span class="mr-1.5 inline-block h-1.5 w-1.5 rounded-full" :class="loading ? 'bg-draw animate-pulse' : 'bg-ok'" />
             {{ loading ? 'Engine Simulasi…' : 'Engine Siap' }}
           </span>
           <button class="btn-ghost" type="button" :disabled="loading" @click="reload">
@@ -140,11 +140,11 @@ onBeforeUnmount(() => clearInterval(liveTimer))
 
     <!-- Mode toggle: Proyeksi vs Live -->
     <div class="flex flex-wrap items-center gap-2">
-      <div class="flex rounded-lg border border-slate-700 bg-slate-900/50 p-1">
+      <div class="flex rounded-lg border border-line bg-card/50 p-1">
         <button
           type="button"
           class="rounded-md px-3 py-1.5 text-xs font-semibold transition"
-          :class="mode === 'projection' ? 'bg-sky-500/15 text-sky-400' : 'text-slate-400 hover:text-slate-200'"
+          :class="mode === 'projection' ? 'bg-home/15 text-home' : 'text-mute hover:text-ink'"
           @click="setMode('projection')"
         >
           Proyeksi Monte Carlo
@@ -152,14 +152,14 @@ onBeforeUnmount(() => clearInterval(liveTimer))
         <button
           type="button"
           class="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition"
-          :class="mode === 'live' ? 'bg-rose-500/20 text-rose-300' : 'text-slate-400 hover:text-slate-200'"
+          :class="mode === 'live' ? 'bg-bad/20 text-bad' : 'text-mute hover:text-ink'"
           @click="setMode('live')"
         >
           <Radio :size="13" />
           Klasemen Live
         </button>
       </div>
-      <span v-if="mode === 'live'" class="text-[11px] text-slate-500">
+      <span v-if="mode === 'live'" class="text-[11px] text-mute">
         Poin aktual dari hasil nyata + skor laga yang sedang berjalan
       </span>
     </div>
@@ -172,8 +172,8 @@ onBeforeUnmount(() => clearInterval(liveTimer))
         class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-wider transition"
         :class="
           league === l.id
-            ? 'border-sky-500/50 bg-sky-500/10 text-sky-400'
-            : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:border-slate-600 hover:text-slate-200'
+            ? 'border-home/50 bg-home/10 text-home'
+            : 'border-line bg-card/50 text-mute hover:border-line hover:text-ink'
         "
         @click="league = l.id"
       >
@@ -184,7 +184,7 @@ onBeforeUnmount(() => clearInterval(liveTimer))
     <!-- Klasemen Live -->
     <div
       v-if="mode === 'live' && liveError"
-      class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300"
+      class="rounded-lg border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad"
     >
       {{ liveError }}
     </div>
@@ -197,7 +197,7 @@ onBeforeUnmount(() => clearInterval(liveTimer))
       :source="liveData.source"
     />
 
-    <div v-else-if="mode === 'projection' && error" class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+    <div v-else-if="mode === 'projection' && error" class="rounded-lg border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
       {{ error }}
     </div>
 
@@ -222,40 +222,40 @@ onBeforeUnmount(() => clearInterval(liveTimer))
       <div class="panel flex flex-col gap-5 p-5 lg:flex-row lg:items-center">
         <div class="lg:w-2/5">
           <div class="label-caps">Status Simulasi</div>
-          <h3 class="mt-1 text-base font-semibold text-slate-100">
+          <h3 class="mt-1 text-base font-semibold text-ink">
             {{ data.league_name || LEAGUE_LABELS[league] || league }}
           </h3>
-          <p class="mt-2 text-sm leading-relaxed text-slate-400">
-            Model menjalankan <span class="num text-slate-200">{{ data.n_seasons }}</span> musim paralel
+          <p class="mt-2 text-sm leading-relaxed text-mute">
+            Model menjalankan <span class="num text-ink">{{ data.n_seasons }}</span> musim paralel
             berdasarkan xG power index, home/away bias, dan hasil aktual musim ini.
             Angka proyeksi adalah rerata statistik — bukan kepastian.
           </p>
         </div>
         <div class="grid flex-1 grid-cols-3 gap-3 text-center">
-            <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+            <div class="rounded-lg border border-line bg-canvas/40 p-3">
               <div class="label-caps">Juara Teratas</div>
-              <div class="mt-1 truncate text-sm font-semibold text-amber-400">
+              <div class="mt-1 truncate text-sm font-semibold text-draw">
                 {{ data.standings?.[0]?.team || '—' }}
               </div>
-              <div class="num mt-0.5 text-xs text-slate-400">
+              <div class="num mt-0.5 text-xs text-mute">
                 {{ data.standings?.[0]?.title_pct ?? 0 }}%
               </div>
             </div>
-            <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+            <div class="rounded-lg border border-line bg-canvas/40 p-3">
               <div class="label-caps">Zona UCL Teratas</div>
-              <div class="mt-1 truncate text-sm font-semibold text-sky-400">
+              <div class="mt-1 truncate text-sm font-semibold text-home">
                 {{ data.standings?.[0]?.team || '—' }}
               </div>
-              <div class="num mt-0.5 text-xs text-slate-400">
+              <div class="num mt-0.5 text-xs text-mute">
                 {{ data.standings?.[0]?.projected_points ?? 0 }} pts
               </div>
             </div>
-            <div class="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+            <div class="rounded-lg border border-line bg-canvas/40 p-3">
               <div class="label-caps">Risiko Tertinggi</div>
-              <div class="mt-1 truncate text-sm font-semibold text-rose-400">
+              <div class="mt-1 truncate text-sm font-semibold text-bad">
                 {{ [...(data.standings || [])].sort((a, b) => b.relegation_pct - a.relegation_pct)[0]?.team || '—' }}
               </div>
-              <div class="num mt-0.5 text-xs text-slate-400">
+              <div class="num mt-0.5 text-xs text-mute">
                 {{ [...(data.standings || [])].sort((a, b) => b.relegation_pct - a.relegation_pct)[0]?.relegation_pct ?? 0 }}%
               </div>
             </div>

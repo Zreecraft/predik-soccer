@@ -58,13 +58,13 @@ const sizeClass = {
     </template>
     <div
       v-else
-      class="flex h-full w-full items-center justify-center rounded-full border border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-900"
+      class="flex h-full w-full items-center justify-center rounded-full border border-line/80 bg-gradient-to-b from-card to-card"
     >
       <div
         class="absolute inset-0"
         style="background: radial-gradient(circle, rgba(148, 163, 184, 0.18) 0%, transparent 70%)"
       />
-      <span class="relative num text-lg font-bold text-slate-300">{{ teamInitial(name) }}</span>
+      <span class="relative num text-lg font-bold text-mute">{{ teamInitial(name) }}</span>
     </div>
   </div>
 </template>

@@ -15,11 +15,11 @@ function valueAt(r, c) {
 }
 
 function colorFor(v) {
-  if (v >= 70) return '#38BDF8'
-  if (v >= 50) return '#0EA5E9'
-  if (v >= 35) return '#0284C7'
-  if (v >= 20) return '#0C4A6E'
-  return '#1E293B'
+  if (v >= 70) return '#6aa0ff'
+  if (v >= 50) return '#4a78d6'
+  if (v >= 35) return '#3a5fa8'
+  if (v >= 20) return '#24406e'
+  return '#16241d'
 }
 
 function opacityFor(v) {
@@ -43,12 +43,12 @@ const grid = computed(() => {
     <div class="mb-3 flex items-start justify-between">
       <div>
         <div class="label-caps">Kendali Teritorial</div>
-        <h3 class="mt-1 text-base font-semibold text-slate-100">Matriks Densitas Half-Space</h3>
+        <h3 class="mt-1 text-base font-semibold text-ink">Matriks Densitas Half-Space</h3>
       </div>
-      <span class="chip border-sky-500/30 bg-sky-500/10 text-sky-400">Overload {{ side }}</span>
+      <span class="chip border-home/30 bg-home/10 text-home">Overload {{ side }}</span>
     </div>
 
-    <div class="relative overflow-hidden rounded-xl border border-emerald-900/40 bg-[#0B1F1A] p-2">
+    <div class="relative overflow-hidden rounded-xl border border-ok/40 bg-[#0B1F1A] p-2">
       <div class="grid gap-1" :style="{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }">
         <div
           v-for="cell in grid"
@@ -62,15 +62,15 @@ const grid = computed(() => {
           :title="`Zona ${cell.r + 1}-${cell.c + 1}: ${cell.v}`"
         />
       </div>
-      <div class="mt-2 flex items-center justify-between px-1 text-[10px] text-slate-500">
+      <div class="mt-2 flex items-center justify-between px-1 text-[10px] text-mute">
         <span>Build-up / Lini Belakang</span>
         <span>Sepertiga Akhir · Serangan</span>
       </div>
     </div>
 
-    <div class="mt-3 flex items-center gap-2 text-[11px] text-slate-500">
+    <div class="mt-3 flex items-center gap-2 text-[11px] text-mute">
       <span>Rendah</span>
-      <div class="h-2 flex-1 rounded-full" style="background: linear-gradient(90deg, #1E293B, #0C4A6E, #0284C7, #0EA5E9, #38BDF8)" />
+      <div class="h-2 flex-1 rounded-full" style="background: linear-gradient(90deg, #16241d, #24406e, #3a5fa8, #4a78d6, #6aa0ff)" />
       <span>Tinggi</span>
     </div>
   </div>

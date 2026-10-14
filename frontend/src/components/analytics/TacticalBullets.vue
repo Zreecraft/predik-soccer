@@ -12,9 +12,9 @@ const icons = {
 }
 
 const toneMap = {
-  sky: 'border-sky-500/25 text-sky-400',
-  amber: 'border-amber-500/25 text-amber-400',
-  emerald: 'border-emerald-500/25 text-emerald-400',
+  sky: 'border-home/25 text-home',
+  amber: 'border-draw/25 text-draw',
+  emerald: 'border-ok/25 text-ok',
 }
 </script>
 
@@ -30,12 +30,12 @@ const toneMap = {
         <component
           :is="icons[b.key] || Boxes"
           :size="15"
-          :class="toneMap[b.tone]?.split(' ')[1] || 'text-sky-400'"
+          :class="toneMap[b.tone]?.split(' ')[1] || 'text-home'"
         />
         <div class="label-caps">{{ b.title }}</div>
       </div>
-      <div class="num mt-3 text-2xl font-bold text-slate-50">{{ b.value }}</div>
-      <p class="mt-2 text-xs leading-relaxed text-slate-400">{{ b.detail }}</p>
+      <div class="num mt-3 text-2xl font-bold text-ink">{{ b.value }}</div>
+      <p class="mt-2 text-xs leading-relaxed text-mute">{{ b.detail }}</p>
     </div>
   </div>
 </template>

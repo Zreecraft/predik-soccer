@@ -37,8 +37,8 @@ const chartData = computed(() => ({
     {
       label: 'Poin',
       data: props.history.map((h) => h.points),
-      borderColor: '#38BDF8',
-      backgroundColor: '#38BDF8',
+      borderColor: '#6aa0ff',
+      backgroundColor: '#6aa0ff',
       tension: 0.3,
       borderWidth: 2,
       pointRadius: pointRadius.value,
@@ -49,8 +49,8 @@ const chartData = computed(() => ({
     {
       label: 'Posisi',
       data: props.history.map((h) => h.position),
-      borderColor: '#F59E0B',
-      backgroundColor: '#F59E0B',
+      borderColor: '#5d6f65',
+      backgroundColor: '#5d6f65',
       tension: 0.3,
       borderWidth: 2,
       borderDash: [6, 4],
@@ -71,17 +71,17 @@ const chartOptions = computed(() => ({
   plugins: {
     legend: {
       labels: {
-        color: '#94A3B8',
+        color: '#93a79b',
         boxWidth: 12,
         font: { family: 'JetBrains Mono', size: 10 },
       },
     },
     tooltip: {
       backgroundColor: '#111827',
-      borderColor: '#1E293B',
+      borderColor: '#16241d',
       borderWidth: 1,
       titleColor: '#F8FAFC',
-      bodyColor: '#94A3B8',
+      bodyColor: '#93a79b',
       callbacks: {
         label(ctx) {
           if (ctx.dataset.label === 'Posisi') return ` Posisi ke-${ctx.parsed.y}`
@@ -96,8 +96,8 @@ const chartOptions = computed(() => ({
     y: {
       position: 'left',
       beginAtZero: true,
-      title: { display: true, text: 'Poin', color: '#64748B', font: { size: 10 } },
-      ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 9 } },
+      title: { display: true, text: 'Poin', color: '#728578', font: { size: 10 } },
+      ticks: { color: '#728578', font: { family: 'JetBrains Mono', size: 9 } },
       grid: { color: 'rgba(30,41,59,0.6)' },
     },
     y1: {
@@ -108,14 +108,14 @@ const chartOptions = computed(() => ({
       title: {
         display: true,
         text: 'Posisi (makin atas = makin baik)',
-        color: '#64748B',
+        color: '#728578',
         font: { size: 10 },
       },
-      ticks: { color: '#64748B', stepSize: 1, font: { family: 'JetBrains Mono', size: 9 } },
+      ticks: { color: '#728578', stepSize: 1, font: { family: 'JetBrains Mono', size: 9 } },
       grid: { display: false },
     },
     x: {
-      ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 9 } },
+      ticks: { color: '#728578', font: { family: 'JetBrains Mono', size: 9 } },
       grid: { color: 'rgba(30,41,59,0.4)' },
     },
   },
@@ -125,7 +125,7 @@ const chartOptions = computed(() => ({
 <template>
   <div class="h-[300px] w-full">
     <Line v-if="history.length" :data="chartData" :options="chartOptions" />
-    <div v-else class="flex h-full items-center justify-center text-sm text-slate-500">
+    <div v-else class="flex h-full items-center justify-center text-sm text-mute">
       Belum ada data musiman (butuh data historis 2020+)
     </div>
   </div>

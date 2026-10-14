@@ -13,14 +13,14 @@ function formatDate(dateStr) {
 
 <template>
   <div class="panel overflow-hidden">
-    <div class="border-b border-slate-800 px-5 py-4">
+    <div class="border-b border-line px-5 py-4">
       <div class="label-caps">Form History</div>
-      <h3 class="mt-1 text-base font-semibold text-slate-100">Hasil 5 Pertandingan Terakhir</h3>
+      <h3 class="mt-1 text-base font-semibold text-ink">Hasil 5 Pertandingan Terakhir</h3>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full min-w-[640px] text-sm">
         <thead>
-          <tr class="border-b border-slate-800 bg-slate-950/40 text-left">
+          <tr class="border-b border-line bg-canvas/40 text-left">
             <th class="label-caps px-4 py-2.5">Tanggal</th>
             <th class="label-caps px-4 py-2.5">Lawan</th>
             <th class="label-caps px-4 py-2.5">Lokasi</th>
@@ -33,23 +33,23 @@ function formatDate(dateStr) {
           <tr
             v-for="(m, i) in history"
             :key="i"
-            class="border-b border-slate-800/70 transition hover:bg-slate-800/25"
+            class="border-b border-line/70 transition hover:bg-card/25"
           >
-            <td class="num px-4 py-3 text-xs text-slate-400">{{ formatDate(m.date) }}</td>
-            <td class="px-4 py-3 font-medium text-slate-100">{{ m.opponent }}</td>
+            <td class="num px-4 py-3 text-xs text-mute">{{ formatDate(m.date) }}</td>
+            <td class="px-4 py-3 font-medium text-ink">{{ m.opponent }}</td>
             <td class="px-4 py-3">
               <span
                 class="chip"
-                :class="m.is_home ? 'border-sky-500/30 bg-sky-500/10 text-sky-400' : 'border-slate-600 bg-slate-800/40 text-slate-300'"
+                :class="m.is_home ? 'border-home/30 bg-home/10 text-home' : 'border-line bg-card/40 text-mute'"
               >
                 {{ m.is_home ? 'HOME' : 'AWAY' }}
               </span>
             </td>
-            <td class="num px-4 py-3 text-right font-bold text-slate-100">{{ m.score }}</td>
+            <td class="num px-4 py-3 text-right font-bold text-ink">{{ m.score }}</td>
             <td class="num px-4 py-3 text-right text-xs">
-              <span class="text-sky-400">{{ m.xg_for ?? '—' }}</span>
-              <span class="mx-1 text-slate-600">/</span>
-              <span class="text-rose-400">{{ m.xg_against ?? '—' }}</span>
+              <span class="text-home">{{ m.xg_for ?? '—' }}</span>
+              <span class="mx-1 text-mute">/</span>
+              <span class="text-bad">{{ m.xg_against ?? '—' }}</span>
             </td>
             <td class="px-4 py-3 text-right">
               <span
@@ -62,7 +62,7 @@ function formatDate(dateStr) {
           </tr>
         </tbody>
       </table>
-      <div v-if="!history.length" class="px-5 py-6 text-sm text-slate-500">
+      <div v-if="!history.length" class="px-5 py-6 text-sm text-mute">
         Belum ada riwayat pertandingan.
       </div>
     </div>

@@ -24,8 +24,8 @@ const chartData = computed(() => ({
     {
       label: 'Poin Aktual',
       data: props.rows.map((r) => r.PTS),
-      borderColor: '#94A3B8',
-      backgroundColor: '#94A3B8',
+      borderColor: '#93a79b',
+      backgroundColor: '#93a79b',
       borderWidth: 1.5,
       tension: 0.25,
       pointRadius: 3,
@@ -34,8 +34,8 @@ const chartData = computed(() => ({
     {
       label: 'Proyeksi Poin',
       data: props.rows.map((r) => r.projected_points),
-      borderColor: '#38BDF8',
-      backgroundColor: '#38BDF8',
+      borderColor: '#6aa0ff',
+      backgroundColor: '#6aa0ff',
       borderWidth: 2.5,
       tension: 0.25,
       pointRadius: 3,
@@ -44,8 +44,8 @@ const chartData = computed(() => ({
     {
       label: 'Ambang Degradasi',
       data: props.rows.map(() => props.kpi.relegation_line ?? null),
-      borderColor: '#F43F5E',
-      backgroundColor: '#F43F5E',
+      borderColor: '#ff8a73',
+      backgroundColor: '#ff8a73',
       borderWidth: 1.5,
       borderDash: [7, 5],
       pointRadius: 0,
@@ -54,8 +54,8 @@ const chartData = computed(() => ({
     {
       label: 'Ambang UCL',
       data: props.rows.map(() => props.kpi.ucl_threshold ?? null),
-      borderColor: '#34D399',
-      backgroundColor: '#34D399',
+      borderColor: '#52c58a',
+      backgroundColor: '#52c58a',
       borderWidth: 1.5,
       borderDash: [7, 5],
       pointRadius: 0,
@@ -72,17 +72,17 @@ const chartOptions = computed(() => ({
     legend: {
       position: 'bottom',
       labels: {
-        color: '#94A3B8',
+        color: '#93a79b',
         boxWidth: 12,
         font: { family: 'JetBrains Mono', size: 10 },
       },
     },
     tooltip: {
       backgroundColor: '#111827',
-      borderColor: '#1E293B',
+      borderColor: '#16241d',
       borderWidth: 1,
       titleColor: '#F8FAFC',
-      bodyColor: '#94A3B8',
+      bodyColor: '#93a79b',
       callbacks: {
         footer(items) {
           const row = props.rows[items[0]?.dataIndex]
@@ -98,13 +98,13 @@ const chartOptions = computed(() => ({
   scales: {
     y: {
       beginAtZero: true,
-      title: { display: true, text: 'Poin', color: '#64748B', font: { size: 10 } },
-      ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 9 } },
+      title: { display: true, text: 'Poin', color: '#728578', font: { size: 10 } },
+      ticks: { color: '#728578', font: { family: 'JetBrains Mono', size: 9 } },
       grid: { color: 'rgba(30,41,59,0.6)' },
     },
     x: {
       ticks: {
-        color: '#64748B',
+        color: '#728578',
         autoSkip: false,
         maxRotation: 60,
         minRotation: 45,
@@ -119,12 +119,12 @@ const chartOptions = computed(() => ({
 <template>
   <div class="panel p-5">
     <div class="label-caps">Semua Klub</div>
-    <h3 class="mb-3 mt-1 text-base font-semibold text-slate-100">
+    <h3 class="mb-3 mt-1 text-base font-semibold text-ink">
       Poin Aktual vs Proyeksi — Grafik Garis
     </h3>
     <div class="h-[320px] w-full">
       <Line v-if="rows.length" :data="chartData" :options="chartOptions" />
-      <div v-else class="flex h-full items-center justify-center text-sm text-slate-500">
+      <div v-else class="flex h-full items-center justify-center text-sm text-mute">
         Data proyeksi belum tersedia
       </div>
     </div>

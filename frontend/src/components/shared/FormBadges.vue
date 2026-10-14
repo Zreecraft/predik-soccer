@@ -20,7 +20,7 @@ defineProps({
       >
         {{ f.result }}
       </span>
-      <span v-if="!form.length" class="text-xs text-slate-500">Belum ada data</span>
+      <span v-if="!form.length" class="text-xs text-mute">Belum ada data</span>
     </div>
   </div>
 </template>

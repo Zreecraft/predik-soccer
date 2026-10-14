@@ -27,6 +27,14 @@ ELO_NEUTRAL_OVERALL = 65.0  # overall di Elo netral
 ELO_SCALE = 0.08           # poin overall per poin Elo
 ELO_OVERALL_CLIP = (40.0, 95.0)
 
+# ==== Self-learning loop (Fase 5) — satu saklar: False = prob mentah tanpa kalibrasi ====
+USE_PROB_CALIBRATION = True   # koreksi probabilitas 3-kelas dari log EVALUATED
+AUTO_LEARN = True             # auto-eval periodik + auto-retrain terjadwal
+AUTO_EVAL_INTERVAL_H = 6      # evaluasi prediksi + refit kalibrasi tiap N jam
+AUTO_RETRAIN_INTERVAL_H = 24  # retrain XGBoost tiap N jam
+CALIB_MIN_SAMPLES_FIT = 60    # minimal log EVALUATED sebelum kalibrasi dipasang
+CALIB_MIN_SAMPLES_BIAS = 200  # minimal log sebelum boleh fit bias per-kelas
+
 
 def calendar_season() -> int:
     """Tahun mulai musim sepakbola Eropa berjalan (Agustus-Mei)."""

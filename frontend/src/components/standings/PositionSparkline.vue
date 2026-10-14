@@ -26,10 +26,10 @@ const chart = computed(() => {
 })
 
 const color = computed(() => {
-  if (!chart.value) return '#475569'
-  if (chart.value.lastV < chart.value.firstV) return '#34D399'
-  if (chart.value.lastV > chart.value.firstV) return '#FB7185'
-  return '#38BDF8'
+  if (!chart.value) return '#5d6f65'
+  if (chart.value.lastV < chart.value.firstV) return '#52c58a'
+  if (chart.value.lastV > chart.value.firstV) return '#ff8a73'
+  return '#6aa0ff'
 })
 
 const title = computed(() => `Riwayat posisi akhir: ${props.values.join(' → ')}`)
@@ -47,5 +47,5 @@ const title = computed(() => `Riwayat posisi akhir: ${props.values.join(' → ')
     />
     <circle :cx="chart.last.x" :cy="chart.last.y" r="2.2" :fill="color" />
   </svg>
-  <span v-else class="text-[10px] text-slate-600" :title="title">—</span>
+  <span v-else class="text-[10px] text-mute" :title="title">—</span>
 </template>

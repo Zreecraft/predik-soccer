@@ -39,8 +39,37 @@ def init_db():
             n_samples INTEGER
         )
     """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS calibration_factors (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            method TEXT NOT NULL,
+            temp REAL,
+            bias_home REAL,
+            bias_draw REAL,
+            bias_away REAL,
+            n_samples INTEGER,
+            brier_before REAL,
+            brier_after REAL,
+            active INTEGER DEFAULT 1
+        )
+    """)
     conn.commit()
     conn.close()
+
+
+def get_active_calibration() -> dict | None:
+    """Faktor kalibrasi aktif terakhir (atau None bila belum ada / belum cukup data)."""
+    conn = get_db()
+    try:
+        row = conn.execute(
+            "SELECT * FROM calibration_factors WHERE active=1 ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        return None
+    return dict(row)
 
 
 init_db()

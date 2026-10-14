@@ -9,11 +9,148 @@ if hasattr(sys.stdout, "reconfigure"):
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "scripts"))
 
-from database import get_db
+from database import get_db, get_active_calibration
 from train_xg_model import train_xgboost_model as train_model
-from data_paths import HISTORICAL_MATCHES
+from data_paths import (
+    HISTORICAL_MATCHES,
+    USE_PROB_CALIBRATION,
+    CALIB_MIN_SAMPLES_FIT,
+    CALIB_MIN_SAMPLES_BIAS,
+)
 
 MODEL_PATH = Path(__file__).resolve().parent / "data" / "xg_model.pkl"
+
+# ---- Cache faktor kalibrasi (hindari query DB tiap prediksi) ----
+_CALIB_CACHE = {"ts": 0.0, "data": None}
+_CALIB_TTL_SEC = 300.0
+
+
+def _calibration() -> dict | None:
+    """Faktor kalibrasi aktif (cache 5 menit). None bila dimatikan / belum ada / belum cukup data."""
+    if not USE_PROB_CALIBRATION:
+        return None
+    import time as _t
+
+    now = _t.time()
+    if now - _CALIB_CACHE["ts"] < _CALIB_TTL_SEC:
+        return _CALIB_CACHE["data"]
+    row = get_active_calibration()
+    data = None
+    if row and (row.get("n_samples") or 0) >= CALIB_MIN_SAMPLES_FIT:
+        data = {
+            "temp": float(row.get("temp") or 1.0),
+            "bias": np.array(
+                [row.get("bias_home") or 0.0, row.get("bias_draw") or 0.0, row.get("bias_away") or 0.0],
+                dtype=float,
+            ),
+        }
+    _CALIB_CACHE["ts"] = now
+    _CALIB_CACHE["data"] = data
+    return data
+
+
+def apply_probability_calibration(probs) -> list:
+    """Koreksi probabilitas 3-kelas (pakai faktor aktif bila ada).
+
+    probs: [home, draw, away] dalam skala apa pun (rasio atau persen) —
+    dikalibrasi lalu diskalakan ulang ke total yang sama.
+    """
+    cal = _calibration()
+    if cal is None:
+        return [float(x) for x in probs]
+    p = np.asarray(probs, dtype=float)
+    total = float(p.sum())
+    if total <= 0 or not np.isfinite(total):
+        return [float(x) for x in probs]
+    p = np.clip(p / total, 1e-9, 1.0)
+    logits = np.log(p) / max(cal["temp"], 1e-3) + cal["bias"]
+    e = np.exp(logits - logits.max())
+    out = e / e.sum()
+    return (out * total).tolist()
+
+
+def _softmax_rows(logits: np.ndarray) -> np.ndarray:
+    e = np.exp(logits - logits.max(axis=1, keepdims=True))
+    return e / e.sum(axis=1, keepdims=True)
+
+
+def _log_loss(P: np.ndarray, y: np.ndarray) -> float:
+    idx = np.arange(len(y))
+    return float(-np.log(np.clip(P[idx, y], 1e-12, 1.0)).mean())
+
+
+def _brier(P: np.ndarray, y: np.ndarray) -> float:
+    onehot = np.zeros_like(P)
+    onehot[np.arange(len(y)), y] = 1.0
+    return float(np.sum((P - onehot) ** 2, axis=1).mean())
+
+
+def fit_probability_calibration() -> dict:
+    """Fit temperature + prior-bias per kelas dari log EVALUATED; aktifkan faktor baru.
+
+    Mengoreksi prediksi BERIKUTNYA: probabilitas model diluruskan agar
+    kecenderungannya (over/under-confident, bias kandang) cocok dengan riil.
+    """
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT prob_home, prob_draw, prob_away, actual_home_goals, actual_away_goals "
+        "FROM prediction_logs WHERE status='EVALUATED' "
+        "AND actual_home_goals IS NOT NULL AND actual_away_goals IS NOT NULL"
+    ).fetchall()
+    conn.close()
+
+    n = len(rows)
+    if n < CALIB_MIN_SAMPLES_FIT:
+        return {"fitted": False, "n_samples": n,
+                "reason": f"butuh >={CALIB_MIN_SAMPLES_FIT} log EVALUATED (ada {n})"}
+
+    P = np.array([[r["prob_home"], r["prob_draw"], r["prob_away"]] for r in rows], dtype=float)
+    P = P / np.clip(P.sum(axis=1, keepdims=True), 1e-9, None)
+    y = np.array([_outcome_class(r["actual_home_goals"], r["actual_away_goals"]) for r in rows])
+
+    # 1) Temperature scaling — grid search minimalkan log-loss
+    logp = np.log(np.clip(P, 1e-9, 1.0))
+    best_t, best_ll = 1.0, _log_loss(P, y)
+    for t in np.arange(0.2, 3.01, 0.05):
+        ll = _log_loss(_softmax_rows(logp / t), y)
+        if ll < best_ll - 1e-6:
+            best_ll, best_t = ll, float(t)
+
+    # 2) Prior-bias per kelas (hanya bila cukup data) — koreksi frekuensi empiris
+    bias = np.zeros(3)
+    method = "temperature"
+    if n >= CALIB_MIN_SAMPLES_BIAS:
+        P_t = _softmax_rows(logp / best_t)
+        emp = np.bincount(y, minlength=3) / n
+        mod = P_t.mean(axis=0)
+        bias = np.log(np.clip(emp, 1e-6, None)) - np.log(np.clip(mod, 1e-6, None))
+        method = "temperature+prior"
+
+    P_cal = _softmax_rows(logp / best_t + bias)
+    brier_before, brier_after = _brier(P, y), _brier(P_cal, y)
+    acc_before = float((P.argmax(1) == y).mean())
+    acc_after = float((P_cal.argmax(1) == y).mean())
+
+    conn = get_db()
+    conn.execute("UPDATE calibration_factors SET active=0 WHERE active=1")
+    conn.execute(
+        "INSERT INTO calibration_factors "
+        "(method, temp, bias_home, bias_draw, bias_away, n_samples, brier_before, brier_after, active) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)",
+        (method, best_t, float(bias[0]), float(bias[1]), float(bias[2]),
+         n, round(brier_before, 4), round(brier_after, 4)),
+    )
+    conn.commit()
+    conn.close()
+    _CALIB_CACHE["ts"] = 0.0  # reset cache
+
+    return {
+        "fitted": True, "method": method, "n_samples": n,
+        "temperature": round(best_t, 3),
+        "bias": [round(float(b), 4) for b in bias],
+        "brier_before": round(brier_before, 4), "brier_after": round(brier_after, 4),
+        "accuracy_before": round(acc_before * 100, 1), "accuracy_after": round(acc_after * 100, 1),
+    }
 
 
 def _outcome_class(hg: int, ag: int) -> int:
@@ -136,6 +273,7 @@ def get_model_stats() -> dict:
         "SELECT * FROM model_metrics ORDER BY timestamp DESC LIMIT 5"
     ).fetchall()
     conn.close()
+    cal = get_active_calibration()
     return {
         "total_predictions": total,
         "pending": pending,
@@ -143,6 +281,7 @@ def get_model_stats() -> dict:
         "recent_metrics": [dict(m) for m in metrics],
         "model_file": str(MODEL_PATH),
         "model_exists": MODEL_PATH.exists(),
+        "calibration": dict(cal) if cal else None,
     }
 
 

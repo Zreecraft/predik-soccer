@@ -8,32 +8,32 @@ export const LEAGUE_LABELS = {
 // Aksen warna per liga — kartu jadwal & pil laga tidak lagi abu-abu polos
 export const LEAGUE_ACCENTS = {
   EPL: {
-    text: 'text-sky-400',
-    border: 'border-sky-500/40',
-    bg: 'bg-sky-500/10',
-    bar: 'bg-sky-500',
-    chip: 'border-sky-500/40 bg-sky-500/10 text-sky-400',
+    text: 'text-home',
+    border: 'border-home/40',
+    bg: 'bg-home/10',
+    bar: 'bg-home',
+    chip: 'border-home/40 bg-home/10 text-home',
   },
   La_liga: {
-    text: 'text-amber-400',
-    border: 'border-amber-500/40',
-    bg: 'bg-amber-500/10',
-    bar: 'bg-amber-500',
-    chip: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
+    text: 'text-draw',
+    border: 'border-draw/40',
+    bg: 'bg-draw/10',
+    bar: 'bg-draw',
+    chip: 'border-draw/40 bg-draw/10 text-draw',
   },
   Serie_A: {
-    text: 'text-emerald-400',
-    border: 'border-emerald-500/40',
-    bg: 'bg-emerald-500/10',
-    bar: 'bg-emerald-500',
-    chip: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400',
+    text: 'text-ok',
+    border: 'border-ok/40',
+    bg: 'bg-ok/10',
+    bar: 'bg-ok',
+    chip: 'border-ok/40 bg-ok/10 text-ok',
   },
   Bundesliga: {
-    text: 'text-violet-400',
-    border: 'border-violet-500/40',
-    bg: 'bg-violet-500/10',
-    bar: 'bg-violet-500',
-    chip: 'border-violet-500/40 bg-violet-500/10 text-violet-400',
+    text: 'text-away',
+    border: 'border-away/40',
+    bg: 'bg-away/10',
+    bar: 'bg-away',
+    chip: 'border-away/40 bg-away/10 text-away',
   },
 }
 
@@ -67,9 +67,9 @@ export function formatWibDay(dateStr) {
 }
 
 export function formBadgeClass(result) {
-  if (result === 'W') return 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40'
-  if (result === 'D') return 'bg-slate-500/15 text-slate-300 border-slate-500/40'
-  return 'bg-rose-500/15 text-rose-400 border-rose-500/40'
+  if (result === 'W') return 'bg-ok/15 text-ok border-ok/40'
+  if (result === 'D') return 'bg-mute/15 text-mute border-line/40'
+  return 'bg-bad/15 text-bad border-bad/40'
 }
 
 export function teamInitial(name = '') {
@@ -231,13 +231,13 @@ export function playerImageSrc(image) {
 // Warna garis trajektori berdasarkan posisi proyeksi — konsisten
 // antara grafik besar (TrajectoryChart) dan small multiples (TeamTrajectoryGrid).
 const ZONE_TRAJECTORY_COLORS = {
-  UCL: '#38BDF8', // sky
-  UEL: '#A78BFA', // violet
-  REL: '#FB7185', // rose
-  MID: '#94A3B8', // slate
+  UCL: '#6aa0ff', // home
+  UEL: '#52c58a', // ok
+  REL: '#ff8a73', // bad
+  MID: '#93a79b', // mute
 }
 
 export function trajectoryColor(row = {}) {
-  if (row.projected_position === 1) return '#F59E0B' // amber — juara
+  if (row.projected_position === 1) return '#5d6f65' // amber — juara
   return ZONE_TRAJECTORY_COLORS[row.zone] || ZONE_TRAJECTORY_COLORS.MID
 }

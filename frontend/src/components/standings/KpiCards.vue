@@ -44,15 +44,15 @@ const cards = computed(() => [
       <div
         class="num mt-2 text-2xl font-bold"
         :class="{
-          'text-amber-400': c.tone === 'amber',
-          'text-sky-400': c.tone === 'sky',
-          'text-rose-400': c.tone === 'rose',
-          'text-emerald-400': c.tone === 'emerald',
+          'text-draw': c.tone === 'amber',
+          'text-home': c.tone === 'sky',
+          'text-bad': c.tone === 'rose',
+          'text-ok': c.tone === 'emerald',
         }"
       >
         {{ c.value }}
       </div>
-      <div class="mt-1 text-xs text-slate-400">{{ c.sub }}</div>
+      <div class="mt-1 text-xs text-mute">{{ c.sub }}</div>
     </div>
   </div>
 </template>

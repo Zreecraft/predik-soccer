@@ -50,18 +50,18 @@ function handleSelectMatch(match) {
 </script>
 
 <template>
-  <div class="relative w-full overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/60 p-4 sm:p-6">
+  <div class="relative w-full overflow-hidden rounded-2xl border border-line bg-canvas/60 p-4 sm:p-6">
     <!-- Header Title -->
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
       <div>
-        <div class="label-caps text-sky-400">Diagram Babak Gugur</div>
-        <h3 class="text-lg font-bold text-slate-100">Bagan Turnamen Visual UCL (Simetris)</h3>
-        <p class="mt-1 text-xs text-slate-500">
+        <div class="label-caps text-home">Diagram Babak Gugur</div>
+        <h3 class="text-lg font-bold text-ink">Bagan Turnamen Visual UCL (Simetris)</h3>
+        <p class="mt-1 text-xs text-mute">
           Play-off → 16 Besar → Perempat Final → Grand Final · ketuk kartu untuk drawer telemetri
         </p>
       </div>
-      <div class="flex items-center gap-2 text-xs text-slate-400">
-        <span class="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+      <div class="flex items-center gap-2 text-xs text-mute">
+        <span class="inline-block h-2 w-2 rounded-full bg-ok animate-pulse" />
         <span>Simulasi Monte Carlo</span>
       </div>
     </div>
@@ -73,13 +73,13 @@ function handleSelectMatch(match) {
       <div class="mx-auto min-w-[1400px] max-w-[1600px] select-none">
         <!-- Headers -->
         <div class="mb-3 grid grid-cols-[1fr_1fr_1fr_1.35fr_1fr_1fr_1fr] gap-5 text-center">
-          <div class="label-caps text-amber-400/90">Play-off</div>
-          <div class="label-caps text-slate-400">16 Besar</div>
-          <div class="label-caps text-slate-400">Perempat Final</div>
-          <div class="label-caps text-amber-400">Grand Final</div>
-          <div class="label-caps text-slate-400">Perempat Final</div>
-          <div class="label-caps text-slate-400">16 Besar</div>
-          <div class="label-caps text-amber-400/90">Play-off</div>
+          <div class="label-caps text-draw/90">Play-off</div>
+          <div class="label-caps text-mute">16 Besar</div>
+          <div class="label-caps text-mute">Perempat Final</div>
+          <div class="label-caps text-draw">Grand Final</div>
+          <div class="label-caps text-mute">Perempat Final</div>
+          <div class="label-caps text-mute">16 Besar</div>
+          <div class="label-caps text-draw/90">Play-off</div>
         </div>
 
         <!-- 7-Column Body -->
@@ -127,12 +127,12 @@ function handleSelectMatch(match) {
 
             <!-- Champion Card -->
             <div
-              class="champ-card relative mx-auto mt-4 w-[calc(100%-32px)] max-w-[250px] rounded-2xl border border-amber-500/40 bg-gradient-to-b from-[#1c1508] via-[#0f172a] to-[#0b1220] p-4 text-center shadow-xl shadow-amber-500/10"
+              class="champ-card relative mx-auto mt-4 w-[calc(100%-32px)] max-w-[250px] rounded-2xl border border-draw/40 bg-gradient-to-b from-[#1d2a20] via-[#152019] to-[#0f1a15] p-4 text-center shadow-xl shadow-draw/10"
             >
-              <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-500/15 text-amber-400">
+              <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-draw/40 bg-draw/15 text-draw">
                 <Trophy :size="24" />
               </div>
-              <div class="mt-2 text-[10px] font-black uppercase tracking-[0.22em] text-amber-400">
+              <div class="mt-2 text-[10px] font-black uppercase tracking-[0.22em] text-draw">
                 UCL Champion
               </div>
               <div class="mt-2 flex items-center justify-center gap-2">
@@ -142,21 +142,21 @@ function handleSelectMatch(match) {
                   :alt="champion.team"
                   class="h-7 w-7 shrink-0 object-contain"
                 />
-                <span class="truncate text-base font-black text-slate-50">
+                <span class="truncate text-base font-black text-ink">
                   {{ champion.team || finalMatch?.winner || '—' }}
                 </span>
               </div>
-              <div class="mt-2 inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1">
-                <span class="num text-xs font-black text-amber-300">
+              <div class="mt-2 inline-flex items-center gap-1.5 rounded-full border border-draw/40 bg-draw/10 px-3 py-1">
+                <span class="num text-xs font-black text-draw">
                   {{ champProb != null ? champProb + '%' : '—' }}
                 </span>
-                <span class="text-[9px] font-bold uppercase tracking-wider text-amber-500/80">
+                <span class="text-[9px] font-bold uppercase tracking-wider text-draw/80">
                   Peluang juara
                 </span>
               </div>
               <div
                 v-if="champion.star_player?.player_name"
-                class="mt-2.5 flex items-center gap-2 border-t border-slate-800 pt-2.5"
+                class="mt-2.5 flex items-center gap-2 border-t border-line pt-2.5"
               >
                 <PlayerCutout
                   :image="champion.star_player?.image"
@@ -164,10 +164,10 @@ function handleSelectMatch(match) {
                   size="sm"
                 />
                 <div class="min-w-0 text-left">
-                  <div class="truncate text-[11px] font-bold text-slate-200">
+                  <div class="truncate text-[11px] font-bold text-ink">
                     {{ champion.star_player?.player_name }}
                   </div>
-                  <div class="num text-[10px] text-amber-400">
+                  <div class="num text-[10px] text-draw">
                     {{ champion.star_player?.position }}
                   </div>
                 </div>
@@ -220,7 +220,7 @@ function handleSelectMatch(match) {
     <!-- MOBILE FALLBACK: VERTICAL TABBED LIST (< 1024px)          -->
     <!-- ========================================================= -->
     <div class="lg:hidden space-y-4">
-      <div class="flex flex-wrap gap-1.5 border-b border-slate-800 pb-3">
+      <div class="flex flex-wrap gap-1.5 border-b border-line pb-3">
         <button
           v-for="tab in [
             { id: 'po', label: 'Play-off' },
@@ -234,8 +234,8 @@ function handleSelectMatch(match) {
           class="rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition"
           :class="
             activeTab === tab.id
-              ? 'bg-sky-500/25 text-sky-400 border border-sky-500/40'
-              : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200'
+              ? 'bg-home/25 text-home border border-home/40'
+              : 'bg-card text-mute border border-line hover:text-ink'
           "
           @click="activeTab = tab.id"
         >
@@ -253,25 +253,25 @@ function handleSelectMatch(match) {
             [finalMatch].filter(Boolean)
           )"
           :key="m.match_id || m.label"
-          class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/90 p-3.5 transition hover:border-sky-500 active:scale-[0.99]"
+          class="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-line bg-card/90 p-3.5 transition hover:border-home active:scale-[0.99]"
           @click="handleSelectMatch(m)"
         >
           <div class="flex min-w-0 flex-1 items-center gap-2.5">
             <img v-if="m.logo_home" :src="m.logo_home" class="h-8 w-8 shrink-0 object-contain" :alt="m.team_home" />
-            <span class="truncate text-sm font-semibold" :class="m.winner === m.team_home ? 'text-emerald-400 font-bold' : 'text-slate-200'">
+            <span class="truncate text-sm font-semibold" :class="m.winner === m.team_home ? 'text-ok font-bold' : 'text-ink'">
               {{ m.team_home }}
             </span>
           </div>
-          <div class="num shrink-0 rounded-md border border-slate-800 bg-slate-950 px-3 py-1.5 text-sm font-bold text-slate-100">
+          <div class="num shrink-0 rounded-md border border-line bg-canvas px-3 py-1.5 text-sm font-bold text-ink">
             {{ m.agg_home ?? '-' }} - {{ m.agg_away ?? '-' }}
           </div>
           <div class="flex min-w-0 flex-1 flex-row-reverse items-center gap-2.5">
             <img v-if="m.logo_away" :src="m.logo_away" class="h-8 w-8 shrink-0 object-contain" :alt="m.team_away" />
-            <span class="truncate text-right text-sm font-semibold" :class="m.winner === m.team_away ? 'text-emerald-400 font-bold' : 'text-slate-200'">
+            <span class="truncate text-right text-sm font-semibold" :class="m.winner === m.team_away ? 'text-ok font-bold' : 'text-ink'">
               {{ m.team_away }}
             </span>
           </div>
-          <ChevronRight :size="18" class="shrink-0 text-slate-600" />
+          <ChevronRight :size="18" class="shrink-0 text-mute" />
         </div>
       </div>
     </div>
@@ -300,7 +300,7 @@ function handleSelectMatch(match) {
   top: 50%;
   width: 20px;
   height: 2px;
-  background: #334155;
+  background: #34493d;
 }
 
 /* ================= KOLOM 2: R16 KIRI (bracket keluar ke kanan) ================= */
@@ -314,8 +314,8 @@ function handleSelectMatch(match) {
   right: 0;
   width: 16px;
   height: 50%;
-  border-right: 2px solid #334155;
-  border-top: 2px solid #334155;
+  border-right: 2px solid #34493d;
+  border-top: 2px solid #34493d;
   border-top-right-radius: 10px;
 }
 .col-r16-left .branch:nth-child(even)::after {
@@ -325,8 +325,8 @@ function handleSelectMatch(match) {
   right: 0;
   width: 16px;
   height: 50%;
-  border-right: 2px solid #334155;
-  border-bottom: 2px solid #334155;
+  border-right: 2px solid #34493d;
+  border-bottom: 2px solid #34493d;
   border-bottom-right-radius: 10px;
 }
 
@@ -339,7 +339,7 @@ function handleSelectMatch(match) {
   top: 50%;
   width: 48px;
   height: 2px;
-  background: #334155;
+  background: #34493d;
 }
 /* keluar ke rail center (kanan) */
 .col-qf-left .branch::after {
@@ -349,7 +349,7 @@ function handleSelectMatch(match) {
   top: 50%;
   width: 26px;
   height: 2px;
-  background: #334155;
+  background: #34493d;
 }
 
 /* ================= KOLOM 4: GRAND FINAL & CHAMPION ================= */
@@ -358,7 +358,7 @@ function handleSelectMatch(match) {
   top: 25%;
   height: 50%;
   width: 2px;
-  background: #334155;
+  background: #34493d;
 }
 .conn-rail--l {
   left: 0;
@@ -375,7 +375,7 @@ function handleSelectMatch(match) {
   bottom: calc(50% + 30px);
   width: 2px;
   transform: translateX(-50%);
-  background: #334155;
+  background: #34493d;
 }
 
 /* ================= KOLOM 5: QF KANAN ================= */
@@ -387,7 +387,7 @@ function handleSelectMatch(match) {
   top: 50%;
   width: 48px;
   height: 2px;
-  background: #334155;
+  background: #34493d;
 }
 /* keluar ke rail center (kiri) */
 .col-qf-right .branch::after {
@@ -397,7 +397,7 @@ function handleSelectMatch(match) {
   top: 50%;
   width: 26px;
   height: 2px;
-  background: #334155;
+  background: #34493d;
 }
 
 /* ================= KOLOM 6: R16 KANAN (bracket keluar ke kiri) ================= */
@@ -411,8 +411,8 @@ function handleSelectMatch(match) {
   left: 0;
   width: 16px;
   height: 50%;
-  border-left: 2px solid #334155;
-  border-top: 2px solid #334155;
+  border-left: 2px solid #34493d;
+  border-top: 2px solid #34493d;
   border-top-left-radius: 10px;
 }
 .col-r16-right .branch:nth-child(even)::after {
@@ -422,8 +422,8 @@ function handleSelectMatch(match) {
   left: 0;
   width: 16px;
   height: 50%;
-  border-left: 2px solid #334155;
-  border-bottom: 2px solid #334155;
+  border-left: 2px solid #34493d;
+  border-bottom: 2px solid #34493d;
   border-bottom-left-radius: 10px;
 }
 
@@ -435,6 +435,6 @@ function handleSelectMatch(match) {
   top: 50%;
   width: 20px;
   height: 2px;
-  background: #334155;
+  background: #34493d;
 }
 </style>

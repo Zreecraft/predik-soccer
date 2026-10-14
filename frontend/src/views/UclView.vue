@@ -148,8 +148,8 @@ onBeforeUnmount(() => clearInterval(uclLiveTimer))
           class="rounded-lg border px-3 py-2 text-sm font-semibold transition"
           :class="
             whatIf
-              ? 'border-amber-500/60 bg-amber-500/15 text-amber-300 shadow-lg shadow-amber-500/10'
-              : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:border-amber-500/50 hover:text-amber-300'
+              ? 'border-draw/60 bg-draw/15 text-draw shadow-lg shadow-draw/10'
+              : 'border-line bg-card/50 text-mute hover:border-draw/50 hover:text-draw'
           "
           type="button"
           title="Ubah skor laga secara manual → seluruh bagan & peluang dihitung ulang"
@@ -166,41 +166,41 @@ onBeforeUnmount(() => clearInterval(uclLiveTimer))
     </PageHeader>
 
     <!-- Live UCL -->
-    <div class="panel overflow-hidden border-rose-500/30">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/40 px-4 py-3">
-        <div class="flex items-center gap-2 text-sm font-semibold text-slate-200">
-          <span class="flex items-center gap-1.5 rounded bg-rose-600 px-1.5 py-0.5 text-[10px] font-extrabold tracking-widest text-white">
-            <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+    <div class="panel overflow-hidden border-bad/30">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-canvas/40 px-4 py-3">
+        <div class="flex items-center gap-2 text-sm font-semibold text-ink">
+          <span class="flex items-center gap-1.5 rounded bg-bad px-1.5 py-0.5 text-[10px] font-extrabold tracking-widest text-ink">
+            <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-canvas" />
             LIVE
           </span>
           Laga Champions League
         </div>
-        <span class="text-[10px] uppercase tracking-wider text-slate-500">
+        <span class="text-[10px] uppercase tracking-wider text-mute">
           {{ uclLiveSourceLabel }} · auto 60s · klik laga untuk detail
         </span>
       </div>
-      <div v-if="uclLive.length" class="divide-y divide-slate-800/70">
+      <div v-if="uclLive.length" class="divide-y divide-line/70">
         <button
           v-for="m in uclLive"
           :key="m.id"
           type="button"
-          class="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-slate-800/30"
+          class="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-card/30"
           title="Klik untuk lihat timeline, kartu & line-up"
           @click="openLiveMatch = m"
         >
-          <span class="num w-8 shrink-0 text-right text-xs font-bold text-rose-400">
+          <span class="num w-8 shrink-0 text-right text-xs font-bold text-bad">
             {{ m.status === 'PAUSED' ? 'HT' : m.minute != null ? `${m.minute}'` : '—' }}
           </span>
           <img v-if="m.crest_home" :src="m.crest_home" :alt="m.home" class="h-6 w-6 shrink-0 object-contain" />
-          <span class="flex-1 truncate text-right text-sm font-medium text-slate-200">{{ m.home }}</span>
-          <span class="num shrink-0 rounded bg-slate-900 px-2 py-1 text-sm font-bold text-slate-50 ring-1 ring-rose-500/40">
-            {{ m.home_score ?? 0 }}<span class="mx-0.5 text-slate-600">-</span>{{ m.away_score ?? 0 }}
+          <span class="flex-1 truncate text-right text-sm font-medium text-ink">{{ m.home }}</span>
+          <span class="num shrink-0 rounded bg-card px-2 py-1 text-sm font-bold text-ink ring-1 ring-bad/40">
+            {{ m.home_score ?? 0 }}<span class="mx-0.5 text-mute">-</span>{{ m.away_score ?? 0 }}
           </span>
-          <span class="flex-1 truncate text-sm font-medium text-slate-200">{{ m.away }}</span>
+          <span class="flex-1 truncate text-sm font-medium text-ink">{{ m.away }}</span>
           <img v-if="m.crest_away" :src="m.crest_away" :alt="m.away" class="h-6 w-6 shrink-0 object-contain" />
         </button>
       </div>
-      <div v-else class="px-4 py-4 text-sm text-slate-500">
+      <div v-else class="px-4 py-4 text-sm text-mute">
         Tidak ada laga UCL yang sedang berlangsung — panel update otomatis tiap 60 detik.
       </div>
     </div>
@@ -214,8 +214,8 @@ onBeforeUnmount(() => clearInterval(uclLiveTimer))
         class="rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-wider transition"
         :class="
           active === t.id
-            ? 'border-sky-500/50 bg-sky-500/10 text-sky-400'
-            : 'border-slate-700 bg-slate-900/50 text-slate-400 hover:border-slate-600 hover:text-slate-200'
+            ? 'border-home/50 bg-home/10 text-home'
+            : 'border-line bg-card/50 text-mute hover:border-line hover:text-ink'
         "
         @click="active = t.id"
       >
@@ -226,19 +226,19 @@ onBeforeUnmount(() => clearInterval(uclLiveTimer))
     <!-- What-If status bar -->
     <div
       v-if="whatIf"
-      class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-[#1c1508]/70 px-4 py-3"
+      class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-draw/40 bg-[#1c1508]/70 px-4 py-3"
     >
-      <div class="flex items-center gap-2.5 text-sm text-amber-200">
-        <span class="inline-block h-2 w-2 shrink-0 animate-pulse rounded-full bg-amber-400" />
+      <div class="flex items-center gap-2.5 text-sm text-draw">
+        <span class="inline-block h-2 w-2 shrink-0 animate-pulse rounded-full bg-draw" />
         <span>
           <strong class="font-bold">Mode What-If aktif</strong>
           — {{ overrideCount }} override · edit skor pada kartu bagan (agregat) atau daftar Fase Liga.
         </span>
       </div>
       <div class="flex items-center gap-2">
-        <span v-if="recomputing" class="num text-xs text-amber-400">Menghitung ulang…</span>
+        <span v-if="recomputing" class="num text-xs text-draw">Menghitung ulang…</span>
         <button
-          class="rounded-lg border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-slate-500 hover:text-slate-100"
+          class="rounded-lg border border-line bg-card/60 px-3 py-1.5 text-xs font-semibold text-mute transition hover:border-line hover:text-ink"
           type="button"
           @click="resetWhatIf"
         >
@@ -249,7 +249,7 @@ onBeforeUnmount(() => clearInterval(uclLiveTimer))
     </div>
 
     <!-- Error message -->
-    <div v-if="error" class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+    <div v-if="error" class="rounded-lg border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
       {{ error }}
     </div>
 

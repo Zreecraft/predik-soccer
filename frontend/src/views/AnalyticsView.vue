@@ -53,14 +53,14 @@ const trendDetail = computed(() => {
   return `${parts.join(' · ')} vs ${t.from}`
 })
 const trendTone = computed(() => {
-  if (trend.value.direction === 'naik') return 'text-emerald-400'
-  if (trend.value.direction === 'turun') return 'text-rose-400'
-  return 'text-slate-400'
+  if (trend.value.direction === 'naik') return 'text-ok'
+  if (trend.value.direction === 'turun') return 'text-bad'
+  return 'text-mute'
 })
 const trendToneBg = computed(() => {
-  if (trend.value.direction === 'naik') return 'bg-emerald-500/15 text-emerald-400'
-  if (trend.value.direction === 'turun') return 'bg-rose-500/15 text-rose-400'
-  return 'bg-slate-500/15 text-slate-400'
+  if (trend.value.direction === 'naik') return 'bg-ok/15 text-ok'
+  if (trend.value.direction === 'turun') return 'bg-bad/15 text-bad'
+  return 'bg-mute/15 text-mute'
 })
 const trendIcon = computed(() => {
   if (trend.value.direction === 'naik') return TrendingUp
@@ -134,7 +134,7 @@ onMounted(async () => {
         <!-- 1. Tier 1: League Filter -->
         <select
           v-model="selectedLeague"
-          class="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
+          class="rounded-lg border border-line bg-canvas/70 px-3 py-2 text-sm text-ink outline-none focus:border-home/60"
           @change="onLeagueChange"
         >
           <option value="">Semua Liga</option>
@@ -144,7 +144,7 @@ onMounted(async () => {
         <!-- 2. Tier 2: Team Filter -->
         <select
           v-model="selectedTeam"
-          class="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
+          class="rounded-lg border border-line bg-canvas/70 px-3 py-2 text-sm text-ink outline-none focus:border-home/60"
         >
           <option v-for="t in filteredTeams" :key="t" :value="t">{{ t }}</option>
         </select>
@@ -152,7 +152,7 @@ onMounted(async () => {
         <!-- 3. Season Filter (highlight chart + filter tabel musim) -->
         <select
           v-model="selectedSeason"
-          class="rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-500/60"
+          class="rounded-lg border border-line bg-canvas/70 px-3 py-2 text-sm text-ink outline-none focus:border-home/60"
         >
           <option :value="null">Semua Musim</option>
           <option v-for="h in seasonOptions" :key="h.season" :value="h.season">{{ h.label }}</option>
@@ -165,7 +165,7 @@ onMounted(async () => {
       </template>
     </PageHeader>
 
-    <div v-if="error" class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+    <div v-if="error" class="rounded-lg border border-bad/30 bg-bad/10 px-4 py-3 text-sm text-bad">
       {{ error }}
     </div>
 
@@ -192,26 +192,26 @@ onMounted(async () => {
             </div>
             <div class="min-w-0">
               <div class="text-base font-semibold" :class="trendTone">{{ trendTitle }}</div>
-              <div class="mt-0.5 text-xs text-slate-500">{{ trendDetail }}</div>
-              <div v-if="trend.to" class="num mt-2 text-[11px] text-slate-600">
+              <div class="mt-0.5 text-xs text-mute">{{ trendDetail }}</div>
+              <div v-if="trend.to" class="num mt-2 text-[11px] text-mute">
                 {{ trend.from }} → {{ trend.to }}
               </div>
             </div>
           </div>
-          <div class="mt-4 grid grid-cols-2 gap-2 border-t border-slate-800 pt-4 text-center">
+          <div class="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-4 text-center">
             <div>
               <div class="label-caps">Posisi Musim Ini</div>
-              <div class="num mt-1 text-xl font-bold text-slate-100">{{ currentPosition ?? '—' }}</div>
+              <div class="num mt-1 text-xl font-bold text-ink">{{ currentPosition ?? '—' }}</div>
             </div>
             <div>
               <div class="label-caps">Musim Tercatat</div>
-              <div class="num mt-1 text-xl font-bold text-slate-100">{{ seasonHistory.length }}</div>
+              <div class="num mt-1 text-xl font-bold text-ink">{{ seasonHistory.length }}</div>
             </div>
           </div>
         </div>
         <div class="panel p-5 lg:col-span-2">
           <div class="label-caps">Poin & Posisi per Musim</div>
-          <h3 class="mb-3 mt-1 text-base font-semibold text-slate-100">
+          <h3 class="mb-3 mt-1 text-base font-semibold text-ink">
             Peningkatan / Penurunan Klub
           </h3>
           <SeasonTrendChart :history="seasonHistory" :selected-season="selectedSeason" />
@@ -225,24 +225,24 @@ onMounted(async () => {
 
         <div class="panel p-5">
           <div class="label-caps">Tren xG & Hasil</div>
-          <h3 class="mb-3 mt-1 text-base font-semibold text-slate-100">10 Laga Terakhir</h3>
+          <h3 class="mb-3 mt-1 text-base font-semibold text-ink">10 Laga Terakhir</h3>
           <div class="space-y-2">
             <div
               v-for="(row, i) in data.xg_trend || []"
               :key="i"
-              class="flex items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2"
+              class="flex items-center justify-between gap-3 rounded-lg border border-line bg-canvas/40 px-3 py-2"
             >
               <div class="min-w-0">
-                <div class="truncate text-xs font-medium text-slate-200">{{ row.opponent }}</div>
-                <div class="num text-[10px] text-slate-500">{{ row.date }}</div>
+                <div class="truncate text-xs font-medium text-ink">{{ row.opponent }}</div>
+                <div class="num text-[10px] text-mute">{{ row.date }}</div>
               </div>
               <div class="num shrink-0 text-right text-xs">
-                <span class="text-sky-400">{{ row.xg_for }}</span>
-                <span class="mx-1 text-slate-600">xG</span>
-                <span class="text-rose-400">{{ row.xg_against }}</span>
+                <span class="text-home">{{ row.xg_for }}</span>
+                <span class="mx-1 text-mute">xG</span>
+                <span class="text-bad">{{ row.xg_against }}</span>
               </div>
             </div>
-            <div v-if="!(data.xg_trend || []).length" class="text-sm text-slate-500">
+            <div v-if="!(data.xg_trend || []).length" class="text-sm text-mute">
               Belum ada data tren xG.
             </div>
           </div>
@@ -251,13 +251,13 @@ onMounted(async () => {
             <FormHistoryTable :history="data.form || []" />
           </div>
 
-          <div class="mt-5 rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+          <div class="mt-5 rounded-lg border border-line bg-canvas/40 p-3">
             <div class="label-caps">Ringkasan Shot Metrics</div>
-            <div class="num mt-2 grid grid-cols-2 gap-2 text-xs text-slate-300 sm:grid-cols-4">
-              <div>Shots: <span class="text-slate-100">{{ data.shot_metrics?.shots ?? 0 }}</span></div>
-              <div>Goals: <span class="text-emerald-400">{{ data.shot_metrics?.goals ?? 0 }}</span></div>
-              <div>xG: <span class="text-sky-400">{{ data.shot_metrics?.xg_total ?? data.shot_metrics?.xg ?? 0 }}</span></div>
-              <div>Conv: <span class="text-amber-400">{{ data.shot_metrics?.conversion_pct ?? 0 }}%</span></div>
+            <div class="num mt-2 grid grid-cols-2 gap-2 text-xs text-mute sm:grid-cols-4">
+              <div>Shots: <span class="text-ink">{{ data.shot_metrics?.shots ?? 0 }}</span></div>
+              <div>Goals: <span class="text-ok">{{ data.shot_metrics?.goals ?? 0 }}</span></div>
+              <div>xG: <span class="text-home">{{ data.shot_metrics?.xg_total ?? data.shot_metrics?.xg ?? 0 }}</span></div>
+              <div>Conv: <span class="text-draw">{{ data.shot_metrics?.conversion_pct ?? 0 }}%</span></div>
             </div>
           </div>
         </div>

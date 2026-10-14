@@ -36,7 +36,7 @@ const colorOf = computed(() => {
 const chartData = computed(() => ({
   labels: Array.from({ length: 38 }, (_, i) => `P${i + 1}`),
   datasets: teams.value.map((name) => {
-    const c = colorOf.value[name] || '#94A3B8'
+    const c = colorOf.value[name] || '#93a79b'
     return {
       label: abbrTeam(name),
       fullName: name,
@@ -59,7 +59,7 @@ const chartOptions = computed(() => ({
     legend: {
       position: 'bottom',
       labels: {
-        color: '#94A3B8',
+        color: '#93a79b',
         usePointStyle: true,
         pointStyle: 'line',
         boxWidth: 14,
@@ -70,10 +70,10 @@ const chartOptions = computed(() => ({
     },
     tooltip: {
       backgroundColor: '#111827',
-      borderColor: '#1E293B',
+      borderColor: '#16241d',
       borderWidth: 1,
       titleColor: '#F8FAFC',
-      bodyColor: '#94A3B8',
+      bodyColor: '#93a79b',
       callbacks: {
         title(items) {
           return items[0]?.dataset?.fullName || items[0]?.dataset?.label || ''
@@ -84,14 +84,14 @@ const chartOptions = computed(() => ({
   scales: {
     x: {
       ticks: {
-        color: '#64748B',
+        color: '#728578',
         maxTicksLimit: 10,
         font: { family: 'JetBrains Mono', size: 9 },
       },
       grid: { color: 'rgba(30,41,59,0.6)' },
     },
     y: {
-      ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 9 } },
+      ticks: { color: '#728578', font: { family: 'JetBrains Mono', size: 9 } },
       grid: { color: 'rgba(30,41,59,0.6)' },
     },
   },
@@ -101,15 +101,15 @@ const chartOptions = computed(() => ({
 <template>
   <div class="panel h-full p-5">
     <div class="label-caps">Trajektori Poin</div>
-    <h3 class="mb-1 mt-1 text-base font-semibold text-slate-100">
+    <h3 class="mb-1 mt-1 text-base font-semibold text-ink">
       Jalur Poin Semua Klub · Proyeksi hingga Pekan 38
     </h3>
-    <p class="mb-3 text-xs text-slate-500">
+    <p class="mb-3 text-xs text-mute">
       Klik nama klub di legend untuk menampilkan/menyembunyikan garisnya.
     </p>
     <div class="h-[360px] w-full">
       <Line v-if="teams.length" :data="chartData" :options="chartOptions" />
-      <div v-else class="flex h-full items-center justify-center text-sm text-slate-500">
+      <div v-else class="flex h-full items-center justify-center text-sm text-mute">
         Data trajektori belum tersedia
       </div>
     </div>

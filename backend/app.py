@@ -12,7 +12,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from assets import get_key_player, get_team_logo
 from club_analytics import get_club_analytics, LEAGUE_NAMES
 from club_data import ga_prior_from_rating, get_club_profile, get_club_strength, xg_prior_from_rating
-from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES, filter_current_season
+from data_paths import (
+    HISTORICAL_MATCHES,
+    REAL_SHOTS_DATA,
+    UPCOMING_FIXTURES,
+    filter_current_season,
+    AUTO_LEARN,
+    AUTO_EVAL_INTERVAL_H,
+    AUTO_RETRAIN_INTERVAL_H,
+)
 import livescore
 import match_detail
 from run_prediction import calculate_smart_projected_score, simulate_10k_matches_minute_by_minute
@@ -769,6 +777,17 @@ def _compute_projection(home_team: str, away_team: str, matches_df: pd.DataFrame
     prob_draw = round((np.sum(home_sim == away_sim) / 10000) * 100, 1)
     prob_away = round((np.sum(away_sim > home_sim) / 10000) * 100, 1)
 
+    # Kalibrasi 3-kelas dari log pembelajaran (Fase 5). Raw dipertahankan untuk
+    # log prediction_logs (fit kalibrasi selalu pada prob mentah -> riil).
+    raw_prob_home, raw_prob_draw, raw_prob_away = prob_home, prob_draw, prob_away
+    try:
+        from model_retrainer import apply_probability_calibration
+
+        cal = apply_probability_calibration([prob_home, prob_draw, prob_away])
+        prob_home, prob_draw, prob_away = (round(float(x), 1) for x in cal)
+    except Exception:
+        pass  # kalibrasi gagal -> pakai prob mentah
+
     smart_h, smart_a, confidence = calculate_smart_projected_score(
         home_sim, away_sim, prob_home, prob_away, final_home_xg, final_away_xg,
         strength_gap=strength_gap,
@@ -785,6 +804,9 @@ def _compute_projection(home_team: str, away_team: str, matches_df: pd.DataFrame
         "prob_home": prob_home,
         "prob_draw": prob_draw,
         "prob_away": prob_away,
+        "raw_prob_home": raw_prob_home,
+        "raw_prob_draw": raw_prob_draw,
+        "raw_prob_away": raw_prob_away,
         "prob_ht": prob_ht,
         "smart_h": smart_h,
         "smart_a": smart_a,
@@ -821,14 +843,20 @@ def predict_match(home_team: str, away_team: str):
     home_form = get_team_form(home_team, matches_df, 5)
     away_form = get_team_form(away_team, matches_df, 5)
 
-    # Self-learning: catat prediksi ke SQLite (evaluasi Brier/Log-Loss nanti)
+    # Self-learning: catat prediksi ke SQLite. Pakai prob MENTAH (bukan terkalibrasi)
+    # agar fit kalibrasi selalu memetakan prob mentah -> riil (tidak double-correct).
     try:
         from database import get_db
         _db = get_db()
         _db.execute(
             "INSERT INTO prediction_logs (home_team, away_team, projected_home_goals, "
             "projected_away_goals, prob_home, prob_draw, prob_away) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (home_team, away_team, int(smart_h), int(smart_a), prob_home, prob_draw, prob_away),
+            (
+                home_team, away_team, int(smart_h), int(smart_a),
+                p.get("raw_prob_home", prob_home),
+                p.get("raw_prob_draw", prob_draw),
+                p.get("raw_prob_away", prob_away),
+            ),
         )
         _db.commit()
         _db.close()
@@ -1160,7 +1188,9 @@ def backfill_finished_predictions(evaluate: bool = True) -> dict:
                 (
                     it["home"], it["away"],
                     int(proj["smart_h"]), int(proj["smart_a"]),
-                    proj["prob_home"], proj["prob_draw"], proj["prob_away"],
+                    proj.get("raw_prob_home", proj["prob_home"]),
+                    proj.get("raw_prob_draw", proj["prob_draw"]),
+                    proj.get("raw_prob_away", proj["prob_away"]),
                     int(it["home_score"]), int(it["away_score"]),
                 ),
             )
@@ -1212,6 +1242,81 @@ def start_backfill_async(evaluate: bool = True) -> bool:
 @app.on_event("startup")
 def _startup_backfill():
     start_backfill_async()
+    if AUTO_LEARN:
+        _start_auto_learn()
+
+
+# ==== Self-learning loop (Fase 5): auto-eval periodik + auto-retrain terjadwal ====
+_AUTO_LEARN_STATE = {"last_eval": None, "last_retrain": None, "last_eval_result": None,
+                     "last_retrain_result": None, "running": False}
+
+
+def _auto_learn_cycle():
+    """Eval prediksi selesai -> refit kalibrasi -> (tiap N jam) retrain XGBoost."""
+    from model_retrainer import evaluate_pending_predictions, fit_probability_calibration, retrain_model
+
+    with threading.Lock():
+        if _AUTO_LEARN_STATE["running"]:
+            return
+        _AUTO_LEARN_STATE["running"] = True
+    try:
+        # 1) Evaluasi prediksi pending (PENDING -> EVALUATED) + sinkron hasil riil
+        try:
+            _AUTO_LEARN_STATE["last_eval_result"] = evaluate_pending_predictions()
+        except Exception as e:
+            _AUTO_LEARN_STATE["last_eval_result"] = {"error": str(e)}
+        _AUTO_LEARN_STATE["last_eval"] = time.strftime("%Y-%m-%d %H:%M:%S")
+
+        # 2) Refit kalibrasi probabilitas dari log EVALUATED
+        try:
+            fit_probability_calibration()
+        except Exception:
+            pass
+
+        # 3) Retrain XGBoost terjadwal
+        last_retrain = _AUTO_LEARN_STATE["last_retrain"]
+        due = (
+            last_retrain is None
+            or (time.time() - last_retrain) >= AUTO_RETRAIN_INTERVAL_H * 3600
+        )
+        if due:
+            _AUTO_LEARN_STATE["last_retrain_result"] = retrain_model()
+            _AUTO_LEARN_STATE["last_retrain"] = time.time()
+    finally:
+        with threading.Lock():
+            _AUTO_LEARN_STATE["running"] = False
+
+
+def _auto_learn_loop():
+    # Cycle pertama: beri jeda agar backfill startup tidak berebut CPU
+    time.sleep(120)
+    while True:
+        try:
+            _auto_learn_cycle()
+        except Exception:
+            pass
+        time.sleep(AUTO_EVAL_INTERVAL_H * 3600)
+
+
+def _start_auto_learn():
+    threading.Thread(target=_auto_learn_loop, daemon=True).start()
+
+
+@app.get("/api/model/autolearn")
+def model_autolearn():
+    """Status self-learning loop (eval & retrain terakhir)."""
+    import datetime as _dt
+
+    lr = _AUTO_LEARN_STATE["last_retrain"]
+    return {
+        **{k: v for k, v in _AUTO_LEARN_STATE.items() if k != "last_retrain"},
+        "last_retrain": (
+            _dt.datetime.fromtimestamp(lr).strftime("%Y-%m-%d %H:%M:%S") if lr else None
+        ),
+        "eval_interval_hours": AUTO_EVAL_INTERVAL_H,
+        "retrain_interval_hours": AUTO_RETRAIN_INTERVAL_H,
+        "auto_learn_enabled": AUTO_LEARN,
+    }
 
 
 @app.post("/api/model/backfill")

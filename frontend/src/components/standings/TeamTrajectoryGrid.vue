@@ -76,15 +76,15 @@ function tooltipFor(team) {
 
 function deltaLabel(team) {
   const c = buildChart(team)
-  if (!c) return { text: '—', cls: 'text-slate-500' }
+  if (!c) return { text: '—', cls: 'text-mute' }
   if (source.value === 'projection') {
-    return { text: `${c.lastV} pts`, cls: 'text-slate-300' }
+    return { text: `${c.lastV} pts`, cls: 'text-mute' }
   }
   // Riwayat: posisi lebih kecil = lebih baik
   const diff = c.firstV - c.lastV
-  if (diff > 0) return { text: `▲ +${diff}`, cls: 'text-emerald-400' }
-  if (diff < 0) return { text: `▼ ${diff}`, cls: 'text-rose-400' }
-  return { text: '—', cls: 'text-slate-500' }
+  if (diff > 0) return { text: `▲ +${diff}`, cls: 'text-ok' }
+  if (diff < 0) return { text: `▼ ${diff}`, cls: 'text-bad' }
+  return { text: '—', cls: 'text-mute' }
 }
 </script>
 
@@ -93,15 +93,15 @@ function deltaLabel(team) {
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
         <div class="label-caps">Grafik Per Klub</div>
-        <h3 class="mt-1 text-base font-semibold text-slate-100">Jalur Setiap Klub</h3>
+        <h3 class="mt-1 text-base font-semibold text-ink">Jalur Setiap Klub</h3>
       </div>
-      <div class="flex rounded-lg border border-slate-700 bg-slate-900/50 p-1">
+      <div class="flex rounded-lg border border-line bg-card/50 p-1">
         <button
           v-for="opt in VIEW_OPTIONS"
           :key="opt.id"
           type="button"
           class="rounded-md px-3 py-1.5 text-xs font-semibold transition"
-          :class="source === opt.id ? 'bg-sky-500/15 text-sky-400' : 'text-slate-400 hover:text-slate-200'"
+          :class="source === opt.id ? 'bg-home/15 text-home' : 'text-mute hover:text-ink'"
           @click="source = opt.id"
         >
           {{ opt.label }}
@@ -111,7 +111,7 @@ function deltaLabel(team) {
 
     <div
       v-if="source === 'history' && !historySeasons.length"
-      class="mt-4 rounded-lg border border-slate-800 bg-slate-950/40 px-4 py-3 text-sm text-slate-500"
+      class="mt-4 rounded-lg border border-line bg-canvas/40 px-4 py-3 text-sm text-mute"
     >
       Riwayat posisi musiman belum tersedia untuk liga ini.
     </div>
@@ -120,7 +120,7 @@ function deltaLabel(team) {
       <div
         v-for="club in clubs"
         :key="club.team"
-        class="rounded-lg border border-slate-800 bg-slate-950/40 p-3"
+        class="rounded-lg border border-line bg-canvas/40 p-3"
       >
         <div class="flex items-center gap-2">
           <img
@@ -131,8 +131,8 @@ function deltaLabel(team) {
             loading="lazy"
           >
           <div class="min-w-0 flex-1">
-            <div class="truncate text-xs font-semibold text-slate-200">{{ club.team }}</div>
-            <div class="num text-[10px] text-slate-500">
+            <div class="truncate text-xs font-semibold text-ink">{{ club.team }}</div>
+            <div class="num text-[10px] text-mute">
               <template v-if="source === 'projection'">
                 Proyeksi #{{ club.projected_position }}
               </template>
@@ -169,7 +169,7 @@ function deltaLabel(team) {
             :fill="colorFor(club.team)"
           />
         </svg>
-        <div v-else class="mt-2 flex h-11 items-center justify-center text-[10px] text-slate-600">
+        <div v-else class="mt-2 flex h-11 items-center justify-center text-[10px] text-mute">
           Data belum cukup untuk grafik
         </div>
       </div>

@@ -39,12 +39,12 @@ onBeforeUnmount(() => clearInterval(timer))
 </script>
 
 <template>
-  <div v-if="matches.length" class="border-t border-rose-500/25 bg-rose-950/25">
+  <div v-if="matches.length" class="border-t border-bad/25 bg-bad/25">
     <div class="mx-auto flex h-8 max-w-[1400px] items-center gap-3 overflow-hidden px-4 sm:px-6">
       <span
-        class="flex shrink-0 items-center gap-1.5 rounded bg-rose-600 px-1.5 py-0.5 text-[10px] font-extrabold tracking-widest text-white"
+        class="flex shrink-0 items-center gap-1.5 rounded bg-bad px-1.5 py-0.5 text-[10px] font-extrabold tracking-widest text-ink"
       >
-        <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+        <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-canvas" />
         LIVE
       </span>
       <div class="min-w-0 flex-1 overflow-hidden">
@@ -53,23 +53,23 @@ onBeforeUnmount(() => clearInterval(timer))
             v-for="m in matches"
             :key="m.id"
             :to="target(m)"
-            class="flex shrink-0 items-center gap-2 whitespace-nowrap text-[11px] text-slate-300 transition hover:text-white"
+            class="flex shrink-0 items-center gap-2 whitespace-nowrap text-[11px] text-mute transition hover:text-ink"
             title="Klik untuk lihat detail laga"
             @click.prevent="openMatch = m"
           >
             <span class="font-semibold">{{ m.home_short }}</span>
             <span
-              class="num rounded bg-slate-900/90 px-1.5 py-0.5 font-bold text-slate-50 ring-1 ring-rose-500/40"
+              class="num rounded bg-card/90 px-1.5 py-0.5 font-bold text-ink ring-1 ring-bad/40"
             >
-              {{ m.home_score ?? 0 }}<span class="mx-0.5 text-slate-600">-</span>{{ m.away_score ?? 0 }}
+              {{ m.home_score ?? 0 }}<span class="mx-0.5 text-mute">-</span>{{ m.away_score ?? 0 }}
             </span>
             <span class="font-semibold">{{ m.away_short }}</span>
-            <span class="num font-bold text-rose-400">{{ minuteText(m) }}</span>
-            <span class="text-slate-600">{{ m.competition_name }}</span>
+            <span class="num font-bold text-bad">{{ minuteText(m) }}</span>
+            <span class="text-mute">{{ m.competition_name }}</span>
           </RouterLink>
         </div>
       </div>
-      <span class="hidden shrink-0 text-[10px] text-slate-500 sm:block">
+      <span class="hidden shrink-0 text-[10px] text-mute sm:block">
         {{ sourceLabel }} · auto 60s
       </span>
     </div>

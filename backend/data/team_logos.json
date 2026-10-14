@@ -478,5 +478,229 @@
     "Red Star Belgrade": {
         "league": "Serbian_SuperLiga",
         "logo_url": "https://thumb.wikimedia.org/wikipedia/en/thumb/c/c2/Red_Star_Belgrade_crest.svg/250px-Red_Star_Belgrade_crest.svg.png"
+    },
+    "Ajaccio": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/0ikdv61709214400.png"
+    },
+    "Almeria": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/yswsww1473503818.png"
+    },
+    "Angers": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ix6q4w1678808069.png"
+    },
+    "Arminia Bielefeld": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xrrwpx1447591964.png"
+    },
+    "Auxerre": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/lzdtbf1658753355.png"
+    },
+    "Benevento": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/rvwtpt1426870819.png"
+    },
+    "Bochum": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/kag3jy1599821108.png"
+    },
+    "Bordeaux": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/u45vc51627132724.png"
+    },
+    "Cadiz": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/e2phzp1639408503.png"
+    },
+    "Clermont Foot": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/4os8c01788968260.png"
+    },
+    "Crotone": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/u7d49h1677257238.png"
+    },
+    "Darmstadt": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/5f3dyd1608236981.png"
+    },
+    "Dijon": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/viin5f1547898121.png"
+    },
+    "Eibar": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/hccive1680933599.png"
+    },
+    "Empoli": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/c1ie6b1622561483.png"
+    },
+    "FC Heidenheim": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/lbj7g01608236988.png"
+    },
+    "Granada": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/f9iss11677472689.png"
+    },
+    "Holstein Kiel": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/1fpmgs1514394524.png"
+    },
+    "Las Palmas": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/mmhyb11616443601.png"
+    },
+    "Le Havre": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/aikowk1546475003.png"
+    },
+    "Le Mans": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/wjhziv1700145026.png"
+    },
+    "Leganes": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/tm0adr1616443898.png"
+    },
+    "Lorient": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/sxsttw1473504748.png"
+    },
+    "Luton": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/v977eh1681319466.png"
+    },
+    "Lyon": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/blk9771656932845.png"
+    },
+    "Mallorca": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ssptsx1473503730.png"
+    },
+    "Marseille": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/c6bazh1779212287.png"
+    },
+    "Metz": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/1iuew61688452857.png"
+    },
+    "Montpellier": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/8wn9x31750879448.png"
+    },
+    "Nantes": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/mla9x61678808018.png"
+    },
+    "Nice": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/msy7ly1621593859.png"
+    },
+    "Nimes": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/we8uya1754634785.png"
+    },
+    "Paris FC": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/yuvtsy1447594254.png"
+    },
+    "Real Oviedo": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/yuwqus1447590681.png"
+    },
+    "Real Valladolid": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/bnhu8b1719983736.png"
+    },
+    "Rennes": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ypturx1473504818.png"
+    },
+    "SD Huesca": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/tuxusx1447590509.png"
+    },
+    "Saint-Etienne": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/m4ej831656423694.png"
+    },
+    "Salernitana": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/nmi7mk1603170517.png"
+    },
+    "Sampdoria": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/pr6co21655592769.png"
+    },
+    "Spezia": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/3wgebp1749146364.png"
+    },
+    "St. Pauli": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/5qupxa1608237013.png"
+    },
+    "Strasbourg": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/b8k77w1766625501.png"
+    },
+    "Toulouse": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/17eqox1688449282.png"
+    },
+    "Troyes": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/sl5kzg1766617559.png"
+    },
+    "Watford": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/rsuswy1448813519.png"
+    },
+    "West Bromwich Albion": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/rsvuxw1448813527.png"
+    },
+    "Wolfsburg": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/ci9trv1778399557.png"
+    },
+    "Greuther Fuerth": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/87n1901608237004.png"
+    },
+    "Hertha Berlin": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/8okmtm1621593943.png"
+    },
+    "Leicester": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xtxwtu1448813356.png"
+    },
+    "Norwich": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/pabczm1679951464.png"
+    },
+    "Reims": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/xcrw1b1592925946.png"
+    },
+    "Verona": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/p6camf1593457737.png"
+    },
+    "West Ham": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/yutyxs1467459956.png"
+    },
+    "Wolverhampton": {
+        "league": "Unknown",
+        "logo_url": "https://r2.thesportsdb.com/images/media/team/badge/u9qr031621593327.png"
     }
 }

@@ -18,30 +18,30 @@ function zoneOf(t) {
 
 const zone = {
   r16: {
-    pos: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400',
-    chip: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400',
-    name: 'text-slate-100',
+    pos: 'border-ok/40 bg-ok/10 text-ok',
+    chip: 'border-ok/40 bg-ok/10 text-ok',
+    name: 'text-ink',
     label: '16 Besar',
     tip: 'Lolos langsung ke 16 Besar',
   },
   poS: {
-    pos: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
-    chip: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
-    name: 'text-slate-200',
+    pos: 'border-draw/40 bg-draw/10 text-draw',
+    chip: 'border-draw/40 bg-draw/10 text-draw',
+    name: 'text-ink',
     label: 'Play-off',
     tip: 'Play-off (Seeded)',
   },
   poU: {
-    pos: 'border-amber-500/40 bg-amber-500/10 text-amber-400',
-    chip: 'border-amber-500/30 bg-transparent text-amber-400/90',
-    name: 'text-slate-300',
+    pos: 'border-draw/40 bg-draw/10 text-draw',
+    chip: 'border-draw/30 bg-transparent text-draw/90',
+    name: 'text-mute',
     label: 'Play-off',
     tip: 'Play-off (Unseeded)',
   },
   out: {
-    pos: 'border-rose-500/40 bg-rose-500/10 text-rose-400',
-    chip: 'border-rose-500/40 bg-rose-500/10 text-rose-400',
-    name: 'text-slate-400',
+    pos: 'border-bad/40 bg-bad/10 text-bad',
+    chip: 'border-bad/40 bg-bad/10 text-bad',
+    name: 'text-mute',
     label: 'Gugur',
     tip: 'Tereliminasi dari fase liga',
   },
@@ -51,12 +51,12 @@ const zone = {
 <template>
   <div class="panel overflow-hidden">
     <!-- Header -->
-    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 p-5 pb-4">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line p-5 pb-4">
       <div>
-        <div class="label-caps text-sky-400">Fase Liga · Undian</div>
-        <h3 class="mt-1 text-base font-semibold text-slate-100">Alokasi Pot · 36 Tim</h3>
+        <div class="label-caps text-home">Fase Liga · Undian</div>
+        <h3 class="mt-1 text-base font-semibold text-ink">Alokasi Pot · 36 Tim</h3>
       </div>
-      <div class="num text-[11px] text-slate-500">4 pot × 9 tim</div>
+      <div class="num text-[11px] text-mute">4 pot × 9 tim</div>
     </div>
 
     <!-- Grid Pot -->
@@ -64,25 +64,25 @@ const zone = {
       <div
         v-for="pot in potOrder"
         :key="pot"
-        class="overflow-hidden rounded-lg border border-slate-800 bg-slate-950/30"
+        class="overflow-hidden rounded-lg border border-line bg-canvas/30"
       >
         <!-- Bar judul pot -->
-        <div class="flex items-center justify-between border-b border-slate-800 bg-slate-900/70 px-3 py-2">
+        <div class="flex items-center justify-between border-b border-line bg-card/70 px-3 py-2">
           <div class="flex items-center gap-2">
-            <span class="h-4 w-1 rounded-full bg-sky-500/70" />
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-200">{{ pot }}</span>
+            <span class="h-4 w-1 rounded-full bg-home/70" />
+            <span class="text-xs font-bold uppercase tracking-wider text-ink">{{ pot }}</span>
           </div>
-          <span class="num text-[10px] text-slate-500">
+          <span class="num text-[10px] text-mute">
             {{ rangeLabel(pots[pot] || []) }} · {{ (pots[pot] || []).length }} tim
           </span>
         </div>
 
         <!-- Baris tim -->
-        <ul class="divide-y divide-slate-800/70">
+        <ul class="divide-y divide-line/70">
           <li
             v-for="t in pots[pot] || []"
             :key="t.team"
-            class="flex items-center gap-2.5 px-3 py-2 transition hover:bg-slate-800/40"
+            class="flex items-center gap-2.5 px-3 py-2 transition hover:bg-card/40"
             :title="`${t.team} · ${t.PTS} pts · xG ${t.avg_xg} — ${zone[zoneOf(t)].tip}`"
           >
             <span
@@ -103,8 +103,8 @@ const zone = {
             >
               {{ t.team }}
             </span>
-            <span class="num shrink-0 text-[11px] font-bold text-slate-200">
-              {{ t.PTS }}<span class="font-normal text-slate-600"> pts</span>
+            <span class="num shrink-0 text-[11px] font-bold text-ink">
+              {{ t.PTS }}<span class="font-normal text-mute"> pts</span>
             </span>
             <span
               class="chip shrink-0 text-[10px]"

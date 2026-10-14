@@ -51,19 +51,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 border-b border-slate-800 bg-canvas/95 backdrop-blur">
+  <header class="sticky top-0 z-50 border-b border-line bg-canvas/95 backdrop-blur">
     <div class="mx-auto flex h-14 max-w-[1400px] items-center justify-between gap-4 px-4 sm:px-6">
       <RouterLink to="/predict" class="group flex items-center gap-3">
         <img
           src="/logo.svg"
           alt=""
-          class="h-9 w-9 rounded-xl border border-slate-700/70 bg-slate-950/60 p-1 transition group-hover:border-sky-500/50"
+          class="h-9 w-9 rounded-xl border border-line/70 bg-canvas/60 p-1 transition group-hover:border-home/50"
           width="36"
           height="36"
         />
         <span class="flex flex-col leading-none">
-          <span class="text-sm font-extrabold tracking-[0.18em] text-slate-50">ANALYTICA FC</span>
-          <span class="mt-0.5 text-[10px] font-semibold tracking-[0.22em] text-sky-400/90">TELEMETRI</span>
+          <span class="text-sm font-extrabold tracking-[0.18em] text-ink">ANALYTICA FC</span>
+          <span class="mt-0.5 text-[10px] font-semibold tracking-[0.22em] text-home/90">TELEMETRI</span>
         </span>
       </RouterLink>
 
@@ -75,8 +75,8 @@ onMounted(async () => {
           class="rounded-lg px-3 py-2 text-sm font-medium transition"
           :class="
             route.path.startsWith(link.to)
-              ? 'bg-slate-800/80 text-slate-50'
-              : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+              ? 'bg-card/80 text-ink'
+              : 'text-mute hover:bg-card/40 hover:text-ink'
           "
         >
           {{ link.label }}
@@ -94,15 +94,15 @@ onMounted(async () => {
     </div>
 
     <!-- Mobile nav -->
-    <nav v-if="mobileOpen" class="border-t border-slate-800 bg-slate-950/95 px-4 py-3 lg:hidden">
+    <nav v-if="mobileOpen" class="border-t border-line bg-canvas/95 px-4 py-3 lg:hidden">
       <RouterLink
         v-for="link in links"
         :key="link.to"
         :to="link.to"
-        class="mb-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-300 hover:bg-slate-800"
+        class="mb-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-mute hover:bg-card"
         @click="mobileOpen = false"
       >
-        <component :is="link.icon" :size="15" class="text-slate-500" />
+        <component :is="link.icon" :size="15" class="text-mute" />
         {{ link.label }}
       </RouterLink>
     </nav>
@@ -111,9 +111,9 @@ onMounted(async () => {
     <LiveTicker />
 
     <!-- Fixture ticker -->
-    <div class="border-t border-slate-800/80 bg-slate-950/60">
+    <div class="border-t border-line/80 bg-canvas/60">
       <div class="relative mx-auto flex h-9 max-w-[1400px] items-center overflow-hidden px-4 sm:px-6">
-        <span class="label-caps relative z-10 mr-3 shrink-0 bg-slate-950/60 pr-1 text-sky-400/90">Pekan</span>
+        <span class="label-caps relative z-10 mr-3 shrink-0 bg-canvas/60 pr-1 text-home/90">Pekan</span>
         <div v-if="tickerLoading" class="skeleton h-4 flex-1" />
         <div v-else-if="tickerItems.length" class="min-w-0 flex-1 overflow-hidden">
           <div class="ticker-track gap-6 pr-8">
@@ -122,15 +122,15 @@ onMounted(async () => {
               :key="i"
               class="flex shrink-0 items-center gap-2 whitespace-nowrap text-[11px]"
             >
-              <span class="num font-semibold text-slate-200">{{ item.home_short || abbrTeam(item.home) }}</span>
-              <span class="text-slate-600">×</span>
-              <span class="num font-semibold text-slate-200">{{ item.away_short || abbrTeam(item.away) }}</span>
-              <span class="hidden sm:inline text-slate-600">|</span>
-              <span class="num text-slate-500">{{ formatDate(item.date) }}</span>
+              <span class="num font-semibold text-ink">{{ item.home_short || abbrTeam(item.home) }}</span>
+              <span class="text-mute">×</span>
+              <span class="num font-semibold text-ink">{{ item.away_short || abbrTeam(item.away) }}</span>
+              <span class="hidden sm:inline text-mute">|</span>
+              <span class="num text-mute">{{ formatDate(item.date) }}</span>
             </div>
           </div>
         </div>
-        <div v-else class="text-xs text-slate-500">Jadwal pekan ini tidak tersedia</div>
+        <div v-else class="text-xs text-mute">Jadwal pekan ini tidak tersedia</div>
       </div>
     </div>
   </header>

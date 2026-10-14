@@ -78,11 +78,11 @@ onBeforeUnmount(() => clearInterval(timer))
         </button>
         <div>
           <div class="eyebrow flex items-center gap-2">
-            <span class="text-emerald-500/50">//</span> MATCH CENTRE
+            <span class="text-ok/50">//</span> MATCH CENTRE
           </div>
-          <h1 class="mt-1 text-xl font-extrabold tracking-tight text-slate-50 sm:text-2xl">
+          <h1 class="mt-1 text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
             Detail Laga
-            <span class="ml-2 rounded border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0.5 align-middle text-[10px] font-extrabold tracking-widest text-emerald-400">
+            <span class="ml-2 rounded border border-ok/40 bg-ok/10 px-1.5 py-0.5 align-middle text-[10px] font-extrabold tracking-widest text-ok">
               DATA ASLI
             </span>
           </h1>
@@ -96,9 +96,9 @@ onBeforeUnmount(() => clearInterval(timer))
 
     <!-- Tanpa parameter -->
     <div v-if="!matchId && !(home && away)" class="panel px-6 py-12 text-center">
-      <Search :size="28" class="mx-auto text-slate-600" />
-      <p class="mx-auto mt-3 max-w-sm text-sm text-slate-400">
-        Belum ada laga dipilih. Klik laga di ticker <span class="text-rose-400">LIVE</span> di atas,
+      <Search :size="28" class="mx-auto text-mute" />
+      <p class="mx-auto mt-3 max-w-sm text-sm text-mute">
+        Belum ada laga dipilih. Klik laga di ticker <span class="text-bad">LIVE</span> di atas,
         atau buka dari halaman prediksi.
       </p>
       <button class="btn-ghost mx-auto mt-4" type="button" @click="router.push('/predict')">
@@ -117,11 +117,11 @@ onBeforeUnmount(() => clearInterval(timer))
       <section
         v-if="detail?.available"
         class="panel overflow-hidden"
-        :class="isLive ? 'border-rose-500/30' : ''"
+        :class="isLive ? 'border-bad/30' : ''"
       >
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 bg-slate-950/40 px-4 py-2">
-          <span class="label-caps text-slate-500">{{ detail.competition_name || 'Laga' }}</span>
-          <span v-if="sourceLabel" class="chip border-emerald-500/40 bg-emerald-500/10 text-emerald-400">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-canvas/40 px-4 py-2">
+          <span class="label-caps text-mute">{{ detail.competition_name || 'Laga' }}</span>
+          <span v-if="sourceLabel" class="chip border-ok/40 bg-ok/10 text-ok">
             Sumber: {{ sourceLabel }} — data pertandingan asli
           </span>
         </div>
@@ -130,14 +130,14 @@ onBeforeUnmount(() => clearInterval(timer))
           <!-- Home -->
           <div class="flex min-w-0 items-center justify-end gap-3 text-right">
             <div class="min-w-0">
-              <div class="truncate text-base font-bold text-slate-50 sm:text-xl">{{ detail.home }}</div>
-              <div class="num text-[11px] text-slate-500">{{ detail.home_short }}</div>
+              <div class="truncate text-base font-bold text-ink sm:text-xl">{{ detail.home }}</div>
+              <div class="num text-[11px] text-mute">{{ detail.home_short }}</div>
             </div>
             <img
               v-if="detail.crest_home"
               :src="detail.crest_home"
               :alt="detail.home"
-              class="h-12 w-12 shrink-0 rounded-xl border border-slate-700/60 bg-slate-950/60 object-contain p-1 sm:h-14 sm:w-14"
+              class="h-12 w-12 shrink-0 rounded-xl border border-line/60 bg-canvas/60 object-contain p-1 sm:h-14 sm:w-14"
             />
           </div>
 
@@ -146,28 +146,28 @@ onBeforeUnmount(() => clearInterval(timer))
             <div class="flex items-center gap-2">
               <span
                 v-if="isLive"
-                class="flex items-center gap-1.5 rounded bg-rose-600 px-2 py-0.5 text-[10px] font-extrabold tracking-widest text-white"
+                class="flex items-center gap-1.5 rounded bg-bad px-2 py-0.5 text-[10px] font-extrabold tracking-widest text-ink"
               >
-                <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                <span class="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-canvas" />
                 LIVE
               </span>
               <span
                 v-else-if="detail.status === 'FINISHED'"
-                class="rounded bg-slate-700 px-2 py-0.5 text-[10px] font-extrabold tracking-widest text-slate-300"
+                class="rounded bg-line px-2 py-0.5 text-[10px] font-extrabold tracking-widest text-mute"
               >
                 FT
               </span>
-              <span v-else class="label-caps text-slate-500">PRAPERTANDINGAN</span>
-              <span v-if="isLive || detail.status === 'FINISHED'" class="num text-xs font-bold text-slate-400">
+              <span v-else class="label-caps text-mute">PRAPERTANDINGAN</span>
+              <span v-if="isLive || detail.status === 'FINISHED'" class="num text-xs font-bold text-mute">
                 {{ statusLabel }}
               </span>
             </div>
-            <div class="num text-4xl font-bold tracking-tight text-slate-50 sm:text-5xl">
-              <span class="text-sky-400">{{ detail.home_score ?? '–' }}</span>
-              <span class="mx-2 text-slate-600">-</span>
-              <span class="text-rose-400">{{ detail.away_score ?? '–' }}</span>
+            <div class="num text-4xl font-bold tracking-tight text-ink sm:text-5xl">
+              <span class="text-home">{{ detail.home_score ?? '–' }}</span>
+              <span class="mx-2 text-mute">-</span>
+              <span class="text-bad">{{ detail.away_score ?? '–' }}</span>
             </div>
-            <div v-if="detail.status === 'TIMED'" class="text-[11px] text-slate-500">
+            <div v-if="detail.status === 'TIMED'" class="text-[11px] text-mute">
               Skor muncul setelah pertandingan dimulai.
             </div>
           </div>
@@ -178,11 +178,11 @@ onBeforeUnmount(() => clearInterval(timer))
               v-if="detail.crest_away"
               :src="detail.crest_away"
               :alt="detail.away"
-              class="h-12 w-12 shrink-0 rounded-xl border border-slate-700/60 bg-slate-950/60 object-contain p-1 sm:h-14 sm:w-14"
+              class="h-12 w-12 shrink-0 rounded-xl border border-line/60 bg-canvas/60 object-contain p-1 sm:h-14 sm:w-14"
             />
             <div class="min-w-0">
-              <div class="truncate text-base font-bold text-slate-50 sm:text-xl">{{ detail.away }}</div>
-              <div class="num text-[11px] text-slate-500">{{ detail.away_short }}</div>
+              <div class="truncate text-base font-bold text-ink sm:text-xl">{{ detail.away }}</div>
+              <div class="num text-[11px] text-mute">{{ detail.away_short }}</div>
             </div>
           </div>
         </div>
@@ -190,7 +190,7 @@ onBeforeUnmount(() => clearInterval(timer))
         <!-- Pencetak gol -->
         <div
           v-if="detail.scorers && (detail.scorers.home?.length || detail.scorers.away?.length)"
-          class="border-t border-slate-800 px-4 py-3 sm:px-8"
+          class="border-t border-line px-4 py-3 sm:px-8"
         >
           <div class="grid gap-3 sm:grid-cols-2">
             <div v-for="side in ['home', 'away']" :key="side" class="space-y-1">
@@ -198,17 +198,17 @@ onBeforeUnmount(() => clearInterval(timer))
                 v-for="(g, i) in detail.scorers[side] || []"
                 :key="i"
                 class="flex items-center gap-2 text-xs"
-                :class="side === 'home' ? 'justify-end text-sky-300 sm:text-right' : 'text-rose-300'"
+                :class="side === 'home' ? 'justify-end text-home sm:text-right' : 'text-bad'"
               >
                 <template v-if="side === 'home'">
-                  <span class="truncate text-slate-300">{{ g.player }}</span>
-                  <span v-if="g.own_goal" class="text-[10px] text-slate-500">(b.diri)</span>
+                  <span class="truncate text-mute">{{ g.player }}</span>
+                  <span v-if="g.own_goal" class="text-[10px] text-mute">(b.diri)</span>
                   <span class="num w-8 font-bold opacity-80">{{ g.minute }}</span>
                 </template>
                 <template v-else>
                   <span class="num w-8 font-bold opacity-80">{{ g.minute }}</span>
-                  <span class="truncate text-slate-300">{{ g.player }}</span>
-                  <span v-if="g.own_goal" class="text-[10px] text-slate-500">(b.diri)</span>
+                  <span class="truncate text-mute">{{ g.player }}</span>
+                  <span v-if="g.own_goal" class="text-[10px] text-mute">(b.diri)</span>
                 </template>
               </div>
             </div>
@@ -218,8 +218,8 @@ onBeforeUnmount(() => clearInterval(timer))
 
       <!-- Tidak tersedia -->
       <div v-else class="panel px-6 py-10 text-center">
-        <div class="label-caps text-slate-500">Data tidak tersedia</div>
-        <p class="mx-auto mt-2 max-w-md text-sm text-slate-400">
+        <div class="label-caps text-mute">Data tidak tersedia</div>
+        <p class="mx-auto mt-2 max-w-md text-sm text-mute">
           <template v-if="detail?.reason === 'mock'">
             Laga ini berasal dari mode simulasi — halaman ini hanya menampilkan data pertandingan asli.
           </template>

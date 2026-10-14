@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { RefreshCw, Search } from 'lucide-vue-next'
-import { fetchFixtures, fetchLeagues, fetchLiveMatches, fetchPredict, fetchShots } from '@/services/api'
+import { fetchFixtures, fetchLeagues, fetchLiveMatches, fetchPredict, fetchSchedule, fetchShots } from '@/services/api'
 import { useAsyncData } from '@/composables/useAsyncData'
 import MatchHeroCard from '@/components/predict/MatchHeroCard.vue'
 import MatchPickerModal from '@/components/predict/MatchPickerModal.vue'
@@ -104,6 +104,32 @@ function applyDefaults() {
   }
 }
 
+// Match pembuka saat halaman baru dibuka: laga MENDATANG dengan kickoff terdekat
+// (lintas liga, bukan selalu fixtures[0] EPL yang bisa sudah lewat).
+async function pickNearestKickoff() {
+  if (homeTeam.value && awayTeam.value) return false
+  try {
+    const [live, upcoming] = await Promise.all([
+      fetchSchedule({ tab: 'live', limit: 200 }),
+      fetchSchedule({ tab: 'upcoming', limit: 200 }),
+    ])
+    const candidates = [...(live.items || []), ...(upcoming.items || [])]
+      .filter((i) => i.status === 'upcoming')
+      .sort((a, b) => String(a.date).localeCompare(String(b.date)))
+    const next = candidates[0]
+    if (next) {
+      league.value = next.league || league.value
+      if (!homeTeam.value) homeTeam.value = next.home
+      if (!awayTeam.value) awayTeam.value = next.away
+      await loadFixtures() // muat ulang fixtures liga terpilih (lookup kickoff)
+      return true
+    }
+  } catch {
+    /* jatuh ke fallback fixtures di bawah */
+  }
+  return false
+}
+
 async function runPredict() {
   if (!homeTeam.value || !awayTeam.value) return
   router.replace({
@@ -140,7 +166,8 @@ async function onPickMatch(sel) {
 onMounted(async () => {
   leagues.value = await fetchLeagues()
   await loadFixtures()
-  applyDefaults()
+  const picked = await pickNearestKickoff()
+  if (!picked) applyDefaults()
   await runPredict()
   await refreshLive()
   liveTimer = setInterval(refreshLive, 60000)

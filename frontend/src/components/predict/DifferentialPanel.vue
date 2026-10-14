@@ -39,9 +39,9 @@ const bullets = computed(() => {
 </script>
 
 <template>
-  <div class="mt-4 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+  <div class="mt-4 rounded-xl border border-line bg-canvas/40 p-4">
     <div class="label-caps mb-2">Rangkuman Diferensial Taktis</div>
-    <p class="text-sm leading-relaxed text-slate-300">
+    <p class="text-sm leading-relaxed text-mute">
       {{ summary || 'Belum cukup data untuk merangkum diferensial taktis.' }}
     </p>
 
@@ -49,22 +49,22 @@ const bullets = computed(() => {
       <div
         v-for="b in bullets"
         :key="b.title"
-        class="rounded-lg border border-slate-800 bg-slate-900/50 p-3"
+        class="rounded-lg border border-line bg-card/50 p-3"
       >
         <div class="flex items-center gap-2">
           <component
             :is="b.icon"
             :size="14"
             :class="{
-              'text-sky-400': b.tone === 'sky',
-              'text-emerald-400': b.tone === 'emerald',
-              'text-amber-400': b.tone === 'amber',
+              'text-home': b.tone === 'sky',
+              'text-ok': b.tone === 'emerald',
+              'text-draw': b.tone === 'amber',
             }"
           />
-          <div class="text-xs font-medium text-slate-400">{{ b.title }}</div>
+          <div class="text-xs font-medium text-mute">{{ b.title }}</div>
         </div>
-        <div class="num mt-2 text-lg font-bold text-slate-100">{{ b.value }}</div>
-        <p class="mt-1 text-[11px] leading-snug text-slate-500">{{ b.detail }}</p>
+        <div class="num mt-2 text-lg font-bold text-ink">{{ b.value }}</div>
+        <p class="mt-1 text-[11px] leading-snug text-mute">{{ b.detail }}</p>
       </div>
     </div>
   </div>

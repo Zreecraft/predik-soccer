@@ -99,7 +99,7 @@ function onScoreChange(side, e) {
   width: 100%;
   cursor: pointer;
   overflow: hidden;
-  border: 1px solid #1e293b;
+  border: 1px solid #27392f;
   border-radius: 10px;
   background: linear-gradient(180deg, #111827 0%, #0b1220 100%);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
@@ -107,7 +107,7 @@ function onScoreChange(side, e) {
 }
 .mcard:hover {
   transform: translateY(-2px);
-  border-color: #38bdf8;
+  border-color: #6aa0ff;
   box-shadow: 0 10px 24px rgba(56, 189, 248, 0.14), 0 6px 16px rgba(0, 0, 0, 0.45);
 }
 .mcard:active {
@@ -125,7 +125,7 @@ function onScoreChange(side, e) {
   background: linear-gradient(180deg, #191307 0%, #0b1220 100%);
 }
 .mcard--final:hover {
-  border-color: #fbbf24;
+  border-color: #5d6f65;
   box-shadow: 0 10px 26px rgba(245, 158, 11, 0.18), 0 6px 16px rgba(0, 0, 0, 0.45);
 }
 
@@ -139,13 +139,13 @@ function onScoreChange(side, e) {
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #728578;
   background: rgba(2, 6, 23, 0.6);
   border-bottom: 1px solid rgba(30, 41, 59, 0.9);
 }
 .mcard__tag--final {
   font-size: 9.5px;
-  color: #fbbf24;
+  color: #5d6f65;
   background: rgba(245, 158, 11, 0.12);
   border-bottom-color: rgba(245, 158, 11, 0.3);
 }
@@ -163,7 +163,7 @@ function onScoreChange(side, e) {
 }
 .mcard__row.is-win {
   background: rgba(16, 185, 129, 0.12);
-  box-shadow: inset 3px 0 0 #10b981;
+  box-shadow: inset 3px 0 0 #52c58a;
 }
 
 .mcard__logo {
@@ -177,7 +177,7 @@ function onScoreChange(side, e) {
   min-width: 0;
   font-size: 12.5px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #93a79b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -198,11 +198,11 @@ function onScoreChange(side, e) {
   font-weight: 700;
   color: #e2e8f0;
   background: #020617;
-  border: 1px solid #1e293b;
+  border: 1px solid #27392f;
   border-radius: 6px;
 }
 .mcard__row.is-win .mcard__score {
-  color: #34d399;
+  color: #52c58a;
   background: rgba(16, 185, 129, 0.1);
   border-color: rgba(16, 185, 129, 0.5);
 }
@@ -223,7 +223,7 @@ function onScoreChange(side, e) {
 }
 .mcard__score--input:focus {
   outline: none;
-  border-color: #38bdf8;
+  border-color: #6aa0ff;
   box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
 }
 .mcard__score--input:disabled {
@@ -232,21 +232,21 @@ function onScoreChange(side, e) {
 }
 .mcard__flag {
   flex-shrink: 0;
-  color: #34d399;
+  color: #52c58a;
 }
 
 /* Bar probabilitas lolos (Monte Carlo) */
 .mcard__prob {
   display: flex;
   height: 4px;
-  background: #1e293b;
+  background: #27392f;
 }
 .mcard__prob-home {
-  background: #0ea5e9;
+  background: #4a78d6;
   transition: width 0.5s ease;
 }
 .mcard__prob-away {
-  background: #f43f5e;
+  background: #ff8a73;
   opacity: 0.75;
   transition: width 0.5s ease;
 }
