@@ -399,14 +399,25 @@ def _fuzzy_key(name) -> str:
 
 
 def _schedule_actual_scores() -> dict:
-    """Skor asli per pasangan tim: historical Understat, lalu ESPN/api menimpa (lebih fresh)."""
-    actual: dict = {}
+    """Skor asli per pasangan tim → list entri bertanggal [(dt, hg, ag, source)].
+
+    Dipakai _resolve_schedule_actual() yang memilih entri paling dekat dengan
+    kickoff laga — penting karena satu pasangan bisa main banyak kali lintas musim.
+    """
+    out: dict = {}
+
+    def _push(pair, dt, hg, ag, src):
+        try:
+            ts = pd.to_datetime(dt, errors="coerce", utc=True)
+        except Exception:
+            ts = pd.NaT
+        out.setdefault(pair, []).append((ts, int(hg), int(ag), src))
+
     try:
         hist = pd.read_csv(HISTORICAL_MATCHES)
         for r in hist.itertuples():
-            actual[(_fuzzy_key(r.home_team), _fuzzy_key(r.away_team))] = (
-                int(r.home_goals), int(r.away_goals), "understat",
-            )
+            _push((_fuzzy_key(r.home_team), _fuzzy_key(r.away_team)),
+                  r.datetime, r.home_goals, r.away_goals, "understat")
     except (FileNotFoundError, Exception):
         pass
     try:
@@ -414,30 +425,113 @@ def _schedule_actual_scores() -> dict:
         if live.get("source") in ("espn", "api"):
             for m in live.get("matches", []):
                 if m.get("status") == "FINISHED" and m.get("home_score") is not None:
-                    actual[(_fuzzy_key(m.get("home")), _fuzzy_key(m.get("away")))] = (
-                        int(m["home_score"]), int(m["away_score"]), live["source"],
-                    )
+                    _push((_fuzzy_key(m.get("home")), _fuzzy_key(m.get("away"))),
+                          m.get("kickoff"), m["home_score"], m["away_score"], live["source"])
     except Exception:
         pass
-    return actual
+    for v in out.values():
+        v.sort(key=lambda e: (pd.isna(e[0]), e[0]))
+    return out
+
+
+def _resolve_schedule_actual(actual_map: dict, pair, kickoff_dt, tol_hours: float = 96.0):
+    """Pilih skor asli untuk SATU laga: entri dengan tanggal paling dekat kickoff.
+
+    - tol_hours (default 4 hari): di luar ambang ini dianggap bukan laga yang sama
+      (mis. historical lintas musim) → None, jangan tampilkan skor asli yang salah.
+    - Sumber asli (ESPN/api) menang bila berbagi tanggal yang sama dengan understat.
+    - kickoff tidak valid → pakai entri terakhir (understat terbaru).
+    """
+    entries = actual_map.get(pair)
+    if not entries:
+        return None
+
+    def _fallback():
+        ts, hg, ag, src = entries[-1]
+        return None if pd.isna(ts) else (hg, ag, src)
+
+    if kickoff_dt is None or pd.isna(kickoff_dt):
+        return _fallback()
+    kd = pd.to_datetime(kickoff_dt, errors="coerce", utc=True)
+    if pd.isna(kd):
+        return _fallback()
+
+    best = None  # (prioritas_sumber, selisih_detik, (hg, ag, src))
+    for ts, hg, ag, src in entries:
+        if pd.isna(ts):
+            continue
+        diff = abs((ts - kd).total_seconds())
+        if diff > tol_hours * 3600:
+            continue
+        prio = 0 if src in ("espn", "api") else 1  # data asli lebih dipercaya
+        cand = (prio, diff, (hg, ag, src))
+        if best is None or cand < best:
+            best = cand
+    return best[2] if best else None
 
 
 def _schedule_predictions() -> dict:
-    """Prediksi terakhir (log id terbesar) per pasangan tim dari SQLite."""
+    """Prediksi per pasangan tim → list entri bertanggal [(ts_log, pred_dict)] terurut.
+
+    Dipakai _resolve_schedule_prediction() yang memilih prediksi paling dekat dengan
+    kickoff laga ini (bukan sekadar "id terbesar menang", yang bisa salah ambil
+    prediksi laga berikutnya antar tim yang sama).
+    """
     out: dict = {}
     try:
         from database import get_db
         conn = get_db()
         rows = conn.execute(
             "SELECT home_team, away_team, projected_home_goals, projected_away_goals, "
-            "prob_home, prob_draw, prob_away, status FROM prediction_logs ORDER BY id"
+            "prob_home, prob_draw, prob_away, status, timestamp "
+            "FROM prediction_logs ORDER BY id"
         ).fetchall()
         conn.close()
         for r in rows:
-            out[(_fuzzy_key(r["home_team"]), _fuzzy_key(r["away_team"]))] = dict(r)
+            d = dict(r)
+            ts_raw = d.pop("timestamp", None)
+            try:
+                ts = pd.to_datetime(ts_raw, errors="coerce", utc=True)
+            except Exception:
+                ts = pd.NaT
+            out.setdefault((_fuzzy_key(r["home_team"]), _fuzzy_key(r["away_team"])), []) \
+                .append((ts, d))
     except Exception:
         pass
+    for v in out.values():
+        v.sort(key=lambda e: (pd.isna(e[0]), e[0]))
     return out
+
+
+def _resolve_schedule_prediction(pred_map: dict, pair, kickoff_dt):
+    """Pilih prediksi untuk SATU laga: yang timestamp-nya paling dekat & sebelum kickoff.
+
+    - Utamakan prediksi yang di-log sebelum/near kickoff (log prediksi = saat model
+      dipanggil, umumnya sebelum laga). Fallback: yang paling dekat secara absolut.
+    """
+    entries = pred_map.get(pair)
+    if not entries:
+        return None
+
+    if kickoff_dt is None or pd.isna(kickoff_dt):
+        return entries[-1][1]
+    kd = pd.to_datetime(kickoff_dt, errors="coerce", utc=True)
+    if pd.isna(kd):
+        return entries[-1][1]
+
+    best_before = None  # (selisih_detik, pred) untuk ts <= kickoff
+    best_any = None     # (selisih_detik, pred) untuk ts apa pun
+    for ts, pred in entries:
+        if pd.isna(ts):
+            continue
+        diff = abs((ts - kd).total_seconds())
+        if best_any is None or diff < best_any[0]:
+            best_any = (diff, pred)
+        if ts <= kd and (best_before is None or diff < best_before[0]):
+            best_before = (diff, pred)
+    if best_before:
+        return best_before[1]
+    return best_any[1] if best_any else None
 
 
 def _schedule_item(row_id, league_code, date_str, home, away,
@@ -559,6 +653,7 @@ def get_schedule(tab: str = "live", league: str | None = None,
             if home_score is not None:
                 score_source = live_source
         elif lm is not None and lm.get("status") == "FINISHED":
+            # Skor live FINISHED hanya dipakai bila kickoff-nya laga yang sama (tanggal cocok)
             status = "finished"
             home_score = lm.get("home_score")
             away_score = lm.get("away_score")
@@ -574,12 +669,18 @@ def get_schedule(tab: str = "live", league: str | None = None,
 
         actual = None
         if status == "finished":
-            actual = actual_map.get(pair)
-            if actual and home_score is None:
+            # Lookup bertanggal: pilih skor asli terdekat dengan kickoff laga ini
+            actual = _resolve_schedule_actual(actual_map, pair, dt)
+            if actual:
                 home_score, away_score = actual[0], actual[1]
                 score_source = actual[2]
+            elif home_score is None:
+                # Tidak ada skor asli yang cocok tanggal → jangan tampilkan skor
+                # (lebih baik kosong daripada skor laga lain yang menyesatkan)
+                home_score = away_score = None
+                score_source = None
 
-        pred = pred_map.get(pair)
+        pred = _resolve_schedule_prediction(pred_map, pair, dt)
         items.append(_schedule_item(
             r.match_id, r.league, dt.strftime("%Y-%m-%d %H:%M:%S"), home, away,
             status, minute, home_score, away_score, score_source,
@@ -604,7 +705,7 @@ def get_schedule(tab: str = "live", league: str | None = None,
             items.append(_schedule_item(
                 h.match_id, h.league, str(h.datetime), home, away,
                 "finished", 90, actual[0], actual[1], "understat",
-                pred_map.get(pair), actual,
+                _resolve_schedule_prediction(pred_map, pair, h.datetime), actual,
             ))
     except (FileNotFoundError, Exception):
         pass
@@ -1147,6 +1248,28 @@ def backfill_finished_predictions(evaluate: bool = True) -> dict:
     items = sched["items"]
     pred_map = _schedule_predictions()
 
+    def _has_pred_for(pair, kickoff_str):
+        """True bila sudah ada prediksi yang di-log untuk laga ini (kickoff cocok ±6 jam).
+
+        Sebelumnya memakai `pair in pred_map` sehingga prediksi laga LAIN antar tim
+        yang sama (banyak kali bertemu lintas musim) membuat laga ini ter-skip.
+        """
+        entries = pred_map.get(pair)
+        if not entries:
+            return False
+        try:
+            ko = pd.to_datetime(kickoff_str, errors="coerce", utc=True)
+        except Exception:
+            ko = pd.NaT
+        if pd.isna(ko):
+            return True  # tanpa tanggal → anggap sudah ada (jangan duplikat)
+        for ts, _pred in entries:
+            if pd.isna(ts):
+                continue
+            if abs((ts - ko).total_seconds()) <= 6 * 3600:
+                return True
+        return False
+
     hist = None
     try:
         hist = pd.read_csv(HISTORICAL_MATCHES)
@@ -1164,7 +1287,7 @@ def backfill_finished_predictions(evaluate: bool = True) -> dict:
 
     for it in items:
         pair = (_fuzzy_key(it["home"]), _fuzzy_key(it["away"]))
-        if pair in pred_map:
+        if _has_pred_for(pair, it["date"]):
             skipped_existing += 1
             continue
         if it["home_score"] is None or it["away_score"] is None:
@@ -1196,7 +1319,13 @@ def backfill_finished_predictions(evaluate: bool = True) -> dict:
             )
             conn.commit()
             conn.close()
-            pred_map[pair] = True
+            # Tandai sudah ada prediksi untuk laga ini (pakai kickoff agar
+            # _has_pred_for() mendeteksinya di iterasi berikutnya).
+            try:
+                _ts = pd.to_datetime(it["date"], errors="coerce", utc=True)
+            except Exception:
+                _ts = pd.NaT
+            pred_map.setdefault(pair, []).append((_ts, {"inserted": True}))
             inserted += 1
         except Exception:
             skipped_error += 1
