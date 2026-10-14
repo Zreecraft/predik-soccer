@@ -534,6 +534,34 @@ def _resolve_schedule_prediction(pred_map: dict, pair, kickoff_dt):
     return best_any[1] if best_any else None
 
 
+def _resolve_actual_espn(home: str, away: str, league: str | None):
+    """Skor asli laga SELESAI via ESPN scoreboard — resolver yg SAMA dgn Match Centre.
+
+    Dipakai sebagai fallback saat historical/livescore tidak punya skor laga ini
+    (laga 1-3 hari terakhir biasanya belum masuk historical_matches.csv, dan
+    key nama pasangan bisa beda sumber). Karena memakai match_detail._resolve_by_name,
+    hasilnya dijamin identik dengan halaman Match Centre.
+
+    Mengembalikan (hg, ag, 'espn') dalam urutan kandang/tandang fixture, atau None.
+    """
+    try:
+        ev = match_detail._resolve_by_name(home, away, league)
+    except Exception:
+        return None
+    if not ev or ev.get("status") != "FINISHED":
+        return None
+    hs, as_ = ev.get("home_score"), ev.get("away_score")
+    if hs is None or as_ is None:
+        return None
+    if ev.get("swapped"):
+        # ESPN menampilkan tim terbalik vs fixture → samakan urutan dgn Match Centre
+        hs, as_ = as_, hs
+    try:
+        return (int(hs), int(as_), "espn")
+    except (TypeError, ValueError):
+        return None
+
+
 def _schedule_item(row_id, league_code, date_str, home, away,
                    status, minute, home_score, away_score, score_source,
                    pred, actual) -> dict:
@@ -674,11 +702,20 @@ def get_schedule(tab: str = "live", league: str | None = None,
             if actual:
                 home_score, away_score = actual[0], actual[1]
                 score_source = actual[2]
-            elif home_score is None:
-                # Tidak ada skor asli yang cocok tanggal → jangan tampilkan skor
-                # (lebih baik kosong daripada skor laga lain yang menyesatkan)
-                home_score = away_score = None
-                score_source = None
+            else:
+                # Fallback: resolver ESPN yang SAMA dengan Match Centre — untuk laga
+                # yang belum masuk historical (1-3 hari terakhir) atau nama tim beda
+                # antar sumber. Menjaga popup & Match Centre menampilkan skor identik.
+                espn = _resolve_actual_espn(home, away, r.league)
+                if espn:
+                    actual = espn
+                    home_score, away_score = espn[0], espn[1]
+                    score_source = espn[2]
+                else:
+                    # Tidak ada skor asli yang cocok → jangan tampilkan skor
+                    # (lebih baik kosong daripada skor laga lain yang menyesatkan)
+                    home_score = away_score = None
+                    score_source = None
 
         pred = _resolve_schedule_prediction(pred_map, pair, dt)
         items.append(_schedule_item(

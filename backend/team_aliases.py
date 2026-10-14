@@ -2,7 +2,20 @@
 
 import json
 import re
+import unicodedata
 from pathlib import Path
+
+
+def fold_accents(s: str) -> str:
+    """Buang aksen/diacritic agar nama tim cocok lintas sumber ejaan.
+
+    'Mönchengladbach' → 'Monchengladbach', 'Atlético' → 'Atletico'. Menangani
+    karakter yang tidak terurai di NFD (ø, ß, đ, ł) secara eksplisit.
+    """
+    s = unicodedata.normalize("NFD", str(s))
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return (s.replace("ø", "o").replace("Ø", "O")
+             .replace("ß", "ss").replace("đ", "d").replace("ł", "l"))
 
 # Alias -> canonical name (sesuai team_logos.json)
 _TEAM_ALIASES_BUILTIN = {
@@ -110,6 +123,11 @@ def _load_json_aliases() -> dict:
 # JSON (team_aliases.json) menimpa alias bawaan — satu tempat edit alias baru
 TEAM_ALIASES = {**_TEAM_ALIASES_BUILTIN, **_load_json_aliases()}
 
+# Indeks alias terlipat-aksen → kanonik, agar lookup tetap kenal walau sumber
+# menulis beda ejaan (ESPN 'Borussia Mönchengladbach' vs alias 'Monchengladbach').
+# Tabrakan fold hanya utk kembar beraksen yg memang memetakan kanonik sama.
+TEAM_ALIASES_FOLDED = {fold_accents(k): v for k, v in TEAM_ALIASES.items()}
+
 # Short abbreviation untuk ticker & UI (uppercase 2-4 char)
 TEAM_ABBR = {
     "Arsenal": "ARS", "Aston Villa": "AVL", "Bournemouth": "BOU", "Brentford": "BRE",
@@ -190,7 +208,11 @@ def canonical_team(name: str) -> str:
     if not name:
         return name
     name = str(name).strip()
-    return TEAM_ALIASES.get(name, name)
+    hit = TEAM_ALIASES.get(name)
+    if hit is not None:
+        return hit
+    # fallback: versi tanpa aksen (sumber ESPN dkk. bisa menulis 'Mönchengladbach')
+    return TEAM_ALIASES_FOLDED.get(fold_accents(name), name)
 
 
 def alias_variants(name) -> list:
@@ -225,8 +247,13 @@ _PREFIXES = {
 
 
 def team_key(name: str) -> str:
-    """Kunci perbandingan nama tim: kanonik + lowercase + buang prefix klub."""
+    """Kunci perbandingan nama tim: kanonik + lowercase + buang prefix klub.
+
+    Aksen ikut dilipat ('Mönchengladbach' == 'Monchengladbach') supaya nama tim
+    cocok walau satu sumber menulisnya berbeda ejaan.
+    """
     n = canonical_team(name).lower() if name else ""
+    n = fold_accents(n)
     n = n.replace("&", " and ").replace(".", " ").replace("'", "")
     words = [w for w in n.split() if w]
     while words and words[0] in _PREFIXES:

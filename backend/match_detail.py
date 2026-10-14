@@ -469,6 +469,18 @@ def _scan_events_day(day: str) -> list[dict]:
         st = (ev.get("status") or {}).get("type") or {}
         state = st.get("state") or "pre"
         status = "FINISHED" if state == "post" else "IN_PLAY" if state == "in" else "TIMED"
+
+        def _num(c: dict):
+            raw = c.get("score")
+            try:
+                return int(raw) if raw is not None and str(raw).strip() != "" else None
+            except (TypeError, ValueError):
+                return None
+
+        # Skor ikut diekstrak dari scoreboard (hemat request): laga post/in punya skor.
+        hs = None if status == "TIMED" else _num(home_c)
+        as_ = None if status == "TIMED" else _num(away_c)
+
         out.append({
             "id": ev.get("id"),
             "league": league,
@@ -483,8 +495,9 @@ def _scan_events_day(day: str) -> list[dict]:
             "away": at.get("displayName") or at.get("shortDisplayName") or "",
             "home_short": ht.get("abbreviation"),
             "away_short": at.get("abbreviation"),
-            "home_score": None,
-            "away_score": None,
+            "home_score": hs,
+            "away_score": as_,
+            "kickoff": ev.get("date"),
             "crest_home": ht.get("logo"),
             "crest_away": at.get("logo"),
         })
