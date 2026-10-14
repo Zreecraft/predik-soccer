@@ -5,8 +5,8 @@ const props = defineProps({
   homeWin: { type: Number, default: 0 },
   draw: { type: Number, default: 0 },
   awayWin: { type: Number, default: 0 },
-  homeLabel: { type: String, default: 'HOME' },
-  awayLabel: { type: String, default: 'AWAY' },
+  homeLabel: { type: String, default: 'Home' },
+  awayLabel: { type: String, default: 'Away' },
 })
 
 const homeW = computed(() => props.homeWin || 0)
@@ -16,32 +16,23 @@ const awayW = computed(() => props.awayWin || 0)
 
 <template>
   <div class="space-y-2">
-    <div class="flex h-3 w-full overflow-hidden rounded-full bg-slate-800">
-      <div
-        class="h-full bg-gradient-to-r from-sky-500 to-sky-400 transition-all duration-700"
-        :style="{ width: homeW + '%' }"
-      />
-      <div
-        class="h-full bg-slate-600 transition-all duration-700"
-        :style="{ width: drawW + '%' }"
-      />
-      <div
-        class="h-full bg-gradient-to-r from-rose-500 to-rose-400 transition-all duration-700"
-        :style="{ width: awayW + '%' }"
-      />
+    <div class="flex h-2.5 w-full overflow-hidden rounded-full" style="background: var(--line)">
+      <div class="h-full transition-all" :style="{ width: homeW + '%', background: 'var(--home)' }" />
+      <div class="h-full transition-all" :style="{ width: drawW + '%', background: 'var(--draw)' }" />
+      <div class="h-full transition-all" :style="{ width: awayW + '%', background: 'var(--away)' }" />
     </div>
-    <div class="grid grid-cols-3 gap-2 text-center">
+    <div class="grid grid-cols-3 gap-2">
       <div>
-        <div class="num text-sm font-bold text-sky-400">{{ homeW.toFixed(1) }}%</div>
-        <div class="label-caps mt-0.5 truncate">{{ homeLabel }}</div>
+        <div class="num text-[15px] font-semibold" style="color: var(--home)">{{ homeW.toFixed(1) }}%</div>
+        <div class="mt-0.5 truncate text-[13px]" style="color: var(--mute)">{{ homeLabel }}</div>
       </div>
-      <div>
-        <div class="num text-sm font-bold text-slate-300">{{ drawW.toFixed(1) }}%</div>
-        <div class="label-caps mt-0.5">Draw</div>
+      <div class="text-center">
+        <div class="num text-[15px] font-semibold" style="color: var(--ink)">{{ drawW.toFixed(1) }}%</div>
+        <div class="mt-0.5 text-[13px]" style="color: var(--mute)">Seri</div>
       </div>
-      <div>
-        <div class="num text-sm font-bold text-rose-400">{{ awayW.toFixed(1) }}%</div>
-        <div class="label-caps mt-0.5 truncate">{{ awayLabel }}</div>
+      <div class="text-right">
+        <div class="num text-[15px] font-semibold" style="color: var(--away)">{{ awayW.toFixed(1) }}%</div>
+        <div class="mt-0.5 truncate text-[13px]" style="color: var(--mute)">{{ awayLabel }}</div>
       </div>
     </div>
   </div>

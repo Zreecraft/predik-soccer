@@ -2,47 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design tokens (dark-only) — persis dari UI_REDESIGN.md */
+:root {
+  --bg: #0f1a15;
+  --card: #16241d;
+  --ink: #e9f1ec;
+  --mute: #93a79b;
+  --line: #27392f;
+  --home: #6aa0ff;
+  --away: #ff7d63;
+  --draw: #5d6f65;
+  --ok: #52c58a;
+  --bad: #ff8a73;
+}
+
 @layer base {
   html {
-    @apply bg-canvas text-slate-50;
+    @apply bg-canvas font-sans;
+    color: var(--ink);
     scroll-behavior: smooth;
   }
   body {
     @apply font-sans;
+    color: var(--ink);
     text-rendering: optimizeLegibility;
   }
   ::selection {
-    @apply bg-sky-500/30 text-slate-50;
+    @apply bg-home/30;
+    color: var(--ink);
   }
+  /* Fokus keyboard terlihat: outline 2px --home */
   :focus-visible {
-    @apply outline-none ring-2 ring-sky-500/50 ring-offset-2 ring-offset-canvas;
+    @apply outline-none;
+    outline: 2px solid var(--home);
+    outline-offset: 2px;
   }
   table {
     @apply border-spacing-0;
   }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer components {
+  /* Blok utama: radius 16px, garis tipis, tanpa glow */
   .panel {
-    @apply rounded-xl border border-slate-800 bg-slate-900/90 shadow-panel;
+    @apply rounded-block border bg-card;
+    border-color: var(--line);
   }
+  /* Label: sentence case, bukan KAPITAL. Minimal 13px. */
   .label-caps {
-    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400;
+    @apply text-[13px] font-medium;
+    color: var(--mute);
   }
+  /* Eyebrow: tidak lagi "//" mono kapital lebar — jadi label kecil wajar */
   .eyebrow {
-    @apply font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-400/80;
+    @apply text-[13px] font-semibold;
+    color: var(--mute);
   }
+  /* Angka: tabular-nums, pakai Figtree (bukan mono) kecuali perlu rapat kolom */
   .num {
-    @apply font-mono tabular-nums;
+    @apply tabular-nums;
+    font-variant-numeric: tabular-nums;
   }
   .btn-ghost {
-    @apply inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-1.5 text-sm text-slate-300 transition hover:border-sky-500/40 hover:bg-slate-800/80 hover:text-slate-50 active:scale-[0.98];
+    @apply inline-flex items-center gap-2 rounded-elem border px-3 py-1.5 text-[15px] font-medium transition active:scale-[0.98];
+    border-color: var(--line);
+    color: var(--ink);
+  }
+  .btn-ghost:hover {
+    @apply bg-card;
   }
   .chip {
-    @apply inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold;
+    @apply inline-flex items-center rounded-elem border px-2 py-0.5 text-[13px] font-semibold;
+    border-color: var(--line);
   }
   .skeleton {
-    @apply animate-pulse rounded-lg bg-slate-800/80;
+    @apply animate-pulse rounded-elem;
+    background-color: var(--line);
   }
 }
 
@@ -67,13 +112,13 @@
 /* Thin scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #334155 transparent;
+  scrollbar-color: #27392f transparent;
 }
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #27392f;
   border-radius: 8px;
 }

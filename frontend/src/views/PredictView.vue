@@ -1,13 +1,12 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { MonitorPlay, RefreshCw, Search } from 'lucide-vue-next'
+import { RefreshCw, Search } from 'lucide-vue-next'
 import { fetchFixtures, fetchLeagues, fetchLiveMatches, fetchPredict, fetchShots } from '@/services/api'
 import { useAsyncData } from '@/composables/useAsyncData'
 import MatchHeroCard from '@/components/predict/MatchHeroCard.vue'
 import MatchPickerModal from '@/components/predict/MatchPickerModal.vue'
 import TacticalCompareTable from '@/components/predict/TacticalCompareTable.vue'
-import DifferentialPanel from '@/components/predict/DifferentialPanel.vue'
 import ShotMap from '@/components/predict/ShotMap.vue'
 import SkeletonCard from '@/components/shared/SkeletonCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
@@ -150,38 +149,31 @@ onBeforeUnmount(() => clearInterval(liveTimer))
 </script>
 
 <template>
-  <div class="space-y-5">
+  <div class="space-y-8">
     <PageHeader
-      eyebrow="Match Prediction Engine"
       title="Prediksi Laga"
-      subtitle="Simulasi Monte Carlo 10.000 iterasi minute-by-minute dengan model xG. Data pertandingan asli (skor, kartu, line-up) ada di Match Centre — terpisah."
+      subtitle="Simulasi Monte Carlo 10.000 iterasi minute-by-minute dengan model xG."
     >
       <template #actions>
         <button class="btn-ghost" type="button" :disabled="loading" @click="runPredict">
-          <RefreshCw :size="14" :class="loading ? 'animate-spin' : ''" />
-          {{ loading ? 'Menghitung…' : 'Jalankan Prediksi' }}
+          <RefreshCw :size="16" :class="loading ? 'animate-spin' : ''" />
+          {{ loading ? 'Menghitung…' : 'Jalankan prediksi' }}
         </button>
       </template>
     </PageHeader>
 
-    <!-- Cari Laga: satu-satunya cara memilih laga (popup) -->
-    <div class="panel p-4">
-      <button
-        type="button"
-        class="flex w-full items-center justify-between gap-3 rounded-xl border border-sky-500/40 bg-sky-500/10 px-5 py-4 text-base font-semibold text-sky-300 outline-none transition hover:border-sky-500/60 hover:bg-sky-500/15 focus:border-sky-500"
-        @click="showPicker = true"
-      >
-        <span class="flex min-w-0 items-center gap-3">
-          <Search :size="20" class="shrink-0" />
-          <span class="truncate">
-            {{ homeTeam && awayTeam ? `${homeTeam} vs ${awayTeam}` : 'Cari laga… (Live / Mendatang / Hasil Selesai)' }}
-          </span>
-        </span>
-        <span class="shrink-0 rounded border border-sky-500/50 bg-sky-500/15 px-2 py-1 text-[10px] font-extrabold tracking-widest text-sky-300">
-          POP-UP
-        </span>
-      </button>
-    </div>
+    <!-- Cari laga: tombol biasa, tanpa chip POP-UP -->
+    <button
+      type="button"
+      class="flex w-full items-center gap-3 rounded-block border px-4 py-3 text-left text-[15px] transition"
+      style="border-color: var(--line); background: var(--card); color: var(--mute)"
+      @click="showPicker = true"
+    >
+      <Search :size="18" class="shrink-0" />
+      <span class="truncate">
+        {{ homeTeam && awayTeam ? `${homeTeam} vs ${awayTeam}` : 'Cari laga… (Live / Mendatang / Hasil selesai)' }}
+      </span>
+    </button>
 
     <MatchPickerModal
       :is-open="showPicker"
@@ -191,85 +183,72 @@ onBeforeUnmount(() => clearInterval(liveTimer))
       @select="onPickMatch"
     />
 
-    <div v-if="error" class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+    <div
+      v-if="error"
+      class="rounded-block border px-4 py-3 text-[15px]"
+      style="border-color: var(--bad); color: var(--bad)"
+    >
       {{ error }}
     </div>
 
     <div v-if="loading && !predict">
       <SkeletonCard :lines="4" />
-      <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      <div class="mt-8 grid gap-8 lg:grid-cols-2">
         <SkeletonCard :lines="6" />
         <SkeletonCard :lines="6" />
       </div>
     </div>
 
     <template v-else-if="predict">
-      <!-- Bukan live & belum selesai: tampilkan jam kickoff (WIB) saja -->
-      <div
+      <!-- Kickoff: satu baris teks kecil, bukan kartu -->
+      <p
         v-if="kickoffWib && !currentLiveMatch && predict.result?.status !== 'finished'"
-        class="panel flex flex-wrap items-center gap-3 border-slate-700/70 bg-slate-900/40 px-4 py-3"
+        class="text-[13px]"
+        style="color: var(--mute)"
       >
-        <span class="eyebrow rounded border border-sky-500/40 bg-sky-500/10 px-2 py-1">
-          KICKOFF
-        </span>
-        <span class="text-sm font-medium text-slate-200">{{ kickoffWib }}</span>
-        <span class="ml-auto text-[11px] text-slate-500">Belum dimulai — prediksi = pra-pertandingan</span>
-      </div>
+        Kickoff {{ kickoffWib }} · belum dimulai — prediksi = pra-pertandingan
+      </p>
 
       <MatchHeroCard :data="predict" :live-match="currentLiveMatch" />
 
-      <!-- Jembatan ke Match Centre (data asli, halaman terpisah) -->
-      <RouterLink
-        :to="matchCentreLink"
-        class="panel group flex flex-wrap items-center justify-between gap-3 border-emerald-500/25 bg-emerald-500/[0.04] px-4 py-3 transition hover:border-emerald-500/50 hover:bg-emerald-500/[0.08]"
-      >
-        <div class="flex items-center gap-3">
-          <span
-            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
-          >
-            <MonitorPlay :size="16" />
-          </span>
-          <div>
-            <div class="text-sm font-bold text-slate-100">
-              Match Centre
-              <span class="ml-2 rounded border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0.5 align-middle text-[9px] font-extrabold tracking-widest text-emerald-400">
-                DATA ASLI
-              </span>
-            </div>
-            <div class="mt-0.5 text-xs text-slate-400">
-              Skor asli, pencetak gol & menit, kartu, offside, line-up — dari ESPN, tanpa simulasi model.
-            </div>
-          </div>
-        </div>
-        <span class="text-xs font-semibold text-emerald-400 transition group-hover:translate-x-0.5">
-          Buka Match Centre →
-        </span>
-      </RouterLink>
-
-      <div class="grid gap-4 lg:grid-cols-2">
-        <TacticalCompareTable
-          :home="predict.tactical?.home || {}"
-          :away="predict.tactical?.away || {}"
-          :home-name="predict.home_team?.name"
-          :away-name="predict.away_team?.name"
-        />
-        <div v-if="shotsLoading">
-          <SkeletonCard :lines="6" />
-        </div>
-        <ShotMap
-          v-else
-          :home="shotsData.home || {}"
-          :away="shotsData.away || {}"
-          :summary="shotsData.summary || {}"
-        />
-      </div>
-
-      <DifferentialPanel
-        :summary="predict.differential_summary"
+      <!-- 4. Kenapa model memprediksi ini -->
+      <TacticalCompareTable
+        :home="predict.tactical?.home || {}"
+        :away="predict.tactical?.away || {}"
         :home-name="predict.home_team?.name"
         :away-name="predict.away_team?.name"
-        :shots="predict.shots || {}"
+        :home-source="predict.home_team?.data_source"
+        :away-source="predict.away_team?.data_source"
       />
+
+      <!-- Rangkuman diferensial: satu kalimat, bukan kartu terpisah -->
+      <p v-if="predict.differential_summary" class="text-[15px] leading-relaxed" style="color: var(--mute)">
+        {{ predict.differential_summary }}
+      </p>
+
+      <!-- 5. Peta tembakan -->
+      <div v-if="shotsLoading">
+        <SkeletonCard :lines="6" />
+      </div>
+      <ShotMap
+        v-else
+        :home="shotsData.home || {}"
+        :away="shotsData.away || {}"
+        :summary="shotsData.summary || {}"
+      />
+
+      <!-- 6. Match Centre sebagai teks biasa -->
+      <p class="text-[15px]" style="color: var(--mute)">
+        Skor asli, pencetak gol, kartu, dan line-up ada di
+        <RouterLink
+          :to="matchCentreLink"
+          class="font-medium underline underline-offset-4"
+          style="color: var(--home)"
+        >
+          Match Centre
+        </RouterLink>
+        — data asli dari ESPN, tanpa simulasi model.
+      </p>
     </template>
   </div>
 </template>
