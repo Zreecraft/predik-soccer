@@ -1,7 +1,11 @@
 """Mapping alias nama tim untuk normalisasi antar sumber data (Understat, TheSportsDB, UI)."""
 
+import json
+import re
+from pathlib import Path
+
 # Alias -> canonical name (sesuai team_logos.json)
-TEAM_ALIASES = {
+_TEAM_ALIASES_BUILTIN = {
     "Leeds United": "Leeds",
     "Leeds Utd": "Leeds",
     "Como 1907": "Como",
@@ -85,6 +89,27 @@ TEAM_ALIASES = {
     "Deportivo": "Deportivo La Coruna",
 }
 
+
+def _load_json_aliases() -> dict:
+    """Muat alias tambahan dari team_aliases.json (tempat resmi menambah alias baru)."""
+    path = Path(__file__).resolve().parent / "team_aliases.json"
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return {}
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"[team_aliases] Gagal memuat team_aliases.json ({e}) — pakai alias bawaan.")
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    # kunci diawali "_" adalah komentar/metadata, bukan alias
+    return {str(k): str(v) for k, v in data.items() if not str(k).startswith("_")}
+
+
+# JSON (team_aliases.json) menimpa alias bawaan — satu tempat edit alias baru
+TEAM_ALIASES = {**_TEAM_ALIASES_BUILTIN, **_load_json_aliases()}
+
 # Short abbreviation untuk ticker & UI (uppercase 2-4 char)
 TEAM_ABBR = {
     "Arsenal": "ARS", "Aston Villa": "AVL", "Bournemouth": "BOU", "Brentford": "BRE",
@@ -166,6 +191,30 @@ def canonical_team(name: str) -> str:
         return name
     name = str(name).strip()
     return TEAM_ALIASES.get(name, name)
+
+
+def alias_variants(name) -> list:
+    """Semua bentuk nama yang dianggap sama: asli + kanonik + semua alias yang menunjuk ke kanonik itu."""
+    if not name:
+        return []
+    raw = str(name).strip()
+    if not raw:
+        return []
+    canon = canonical_team(raw)
+    out = {raw, canon}
+    for k, v in TEAM_ALIASES.items():
+        if v == canon:
+            out.add(k)
+            out.add(v)
+    return sorted((x for x in out if x), key=len, reverse=True)
+
+
+def name_pattern(name) -> str:
+    """Regex case-insensitive (escape aman) yang cocok dengan semua varian nama tim."""
+    variants = alias_variants(name)
+    if not variants:
+        return "(?!)"  # tak pernah cocok
+    return "|".join(re.escape(v) for v in variants)
 
 
 # prefix umum yang dipakai sumber data (ESPN dkk.)

@@ -2,18 +2,19 @@ import pandas as pd
 import numpy as np
 import random
 from team_analytics import clamp_match_xg, get_team_power_index, get_home_away_bias
+from team_aliases import canonical_team
 from data_paths import HISTORICAL_MATCHES
 
-# 36 Tim Peserta UCL
-UCL_TEAMS = [
+# 36 Tim Peserta UCL (dinormalisasi lewat alias kanonik — team_aliases.json)
+UCL_TEAMS = [canonical_team(t) for t in (
     "Real Madrid", "Manchester City", "Bayern Munich", "PSG", "Liverpool",
     "Inter", "Borussia Dortmund", "RB Leipzig", "Barcelona", "Bayer Leverkusen",
     "Atletico Madrid", "Atalanta", "Juventus", "Benfica", "Arsenal",
     "Club Brugge", "Shakhtar Donetsk", "AC Milan", "Feyenoord", "Sporting CP",
     "PSV", "Dinamo Zagreb", "RB Salzburg", "Lille", "Red Star Belgrade",
     "Young Boys", "Celtic", "Slovan Bratislava", "Monaco", "Sparta Prague",
-    "Aston Villa", "Bologna", "Girona", "Stuttgart", "Sturm Graz", "Brest"
-]
+    "Aston Villa", "Bologna", "Girona", "Stuttgart", "Sturm Graz", "Brest",
+)]
 
 # European DNA / UCL Prestige Rating (Multiplier Mentalitas Liga Champions)
 UCL_DNA_TIERS = {
@@ -27,6 +28,11 @@ UCL_DNA_TIERS = {
     "Club Brugge": 0.95, "Shakhtar Donetsk": 0.95, "Celtic": 0.92, "Monaco": 0.95, "Aston Villa": 0.95,
     "Stuttgart": 0.92, "Girona": 0.90, "Bologna": 0.90, "Brest": 0.88, "Slovan Bratislava": 0.85
 }
+
+# ==== Fase E: bobot xG UCL konfigurabel (bobot lama 0.60/0.40 -> default baru 0.90/0.10) ====
+# final_xg = base*UCL_W_DOMESTIC + base*dna_multiplier*UCL_W_DNA
+UCL_W_DOMESTIC = 0.90  # bobot performa domestik
+UCL_W_DNA = 0.10       # bobot multiplier DNA UCL (harus berjumlah 1.0)
 
 # Cache xG per tim agar tidak memindai seluruh CSV (8.895 baris) setiap laga.
 # Hanya 36 tim x 2 (home/away) = 72 nilai unik, dihitung sekali per dataframe.
@@ -43,11 +49,12 @@ def clear_xg_cache():
 
 def calculate_weighted_ucl_xg(team_name, is_home, matches_df):
     """
-    Menghitung xG Gabungan: Performa Domestik (60%) + UCL DNA/Prestige Multiplier (40%)
+    Menghitung xG Gabungan: Performa Domestik (UCL_W_DOMESTIC) + UCL DNA/Prestige Multiplier (UCL_W_DNA)
 
     Hasil di-cache per (tim, home/away) karena tidak berubah selama satu simulasi.
     """
     global _XG_CACHE_DF_ID
+    team_name = canonical_team(team_name)
     df_id = id(matches_df)
     if _XG_CACHE_DF_ID != df_id:
         _XG_CACHE.clear()
@@ -64,6 +71,7 @@ def calculate_weighted_ucl_xg(team_name, is_home, matches_df):
     stats = get_team_power_index(
         team_name, matches_df, last_n=20,
         prior_xg=xg_prior_from_rating(strength["overall"]),
+        overall=strength["overall"],
     )
     bias = get_home_away_bias(team_name, is_home=is_home, matches_df=matches_df)
 
@@ -72,8 +80,8 @@ def calculate_weighted_ucl_xg(team_name, is_home, matches_df):
     # 2. Ambil Multiplier DNA UCL (Default 1.0 jika tidak terdaftar)
     dna_multiplier = UCL_DNA_TIERS.get(team_name, 1.0)
 
-    # 3. Formulasi xG Akhir Berbobot (dibatasi wajar agar skor agregat tidak meledak)
-    final_xg = (base_xg * 0.60) + (base_xg * dna_multiplier * 0.40)
+    # 3. Formulasi xG Akhir Berbobot (bobot konfigurabel — lihat UCL_W_DOMESTIC/UCL_W_DNA)
+    final_xg = (base_xg * UCL_W_DOMESTIC) + (base_xg * dna_multiplier * UCL_W_DNA)
 
     result = clamp_match_xg(final_xg, low=0.4, high=3.0)
     _XG_CACHE[key] = result
@@ -277,8 +285,8 @@ def simulate_ucl_tournament(matches_df, overrides=None):
             if over:
                 agg1 = int(over.get("agg_home", agg1))
                 agg2 = int(over.get("agg_away", agg2))
-                if over.get("winner") in (t1, t2):
-                    winner = over["winner"]
+                if canonical_team(over.get("winner")) in (t1, t2):
+                    winner = canonical_team(over["winner"])
                 elif agg1 > agg2:
                     winner = t1
                 elif agg2 > agg1:
@@ -405,8 +413,8 @@ def simulate_ucl_tournament(matches_df, overrides=None):
     if final_over:
         g1 = int(final_over.get("agg_home", g1))
         g2 = int(final_over.get("agg_away", g2))
-        if final_over.get("winner") in (f1, f2):
-            champion = final_over["winner"]
+        if canonical_team(final_over.get("winner")) in (f1, f2):
+            champion = canonical_team(final_over["winner"])
         elif g1 > g2:
             champion = f1
         elif g2 > g1:

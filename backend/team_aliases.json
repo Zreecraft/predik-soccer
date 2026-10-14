@@ -1,0 +1,6 @@
+{
+  "_keterangan": "Tempat resmi menambah alias nama tim baru. Dipetakan: 'nama di sumber data' -> 'nama kanonik (sesuai club_profiles.json)'. Dimuat oleh team_aliases.py; entri di sini menimpa alias bawaan.",
+  "Paris Saint Germain": "PSG",
+  "Paris Saint-Germain": "PSG",
+  "Paris SG": "PSG"
+}

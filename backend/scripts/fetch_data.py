@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # backend/
 
 from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA
 
-LEAGUES = ["EPL", "La_liga", "Serie_A", "Bundesliga"]
+LEAGUES = ["EPL", "La_liga", "Serie_A", "Bundesliga", "Ligue_1"]
 CURRENT_SEASON = 2026
 ARCHIVE_SEASONS = [2020, 2021, 2022, 2023, 2024, 2025]
 UA = (

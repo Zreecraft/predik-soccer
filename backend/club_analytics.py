@@ -7,7 +7,14 @@ from assets import get_team_logo
 from club_data import ga_prior_from_rating, get_club_strength, xg_prior_from_rating
 from data_paths import HISTORICAL_MATCHES, REAL_SHOTS_DATA, UPCOMING_FIXTURES, filter_current_season
 from team_analytics import clamp_match_xg, get_home_away_bias, get_team_form, get_team_power_index
+from team_aliases import alias_variants, canonical_team, name_pattern, team_key
 from season_tables import get_season_tables
+
+
+def _team_mask(df: pd.DataFrame, col: str, team: str) -> pd.Series:
+    """Mask baris di mana `col` cocok dengan `team` atau salah satu varian aliasnya."""
+    variants = {v.lower() for v in alias_variants(team)}
+    return df[col].astype(str).str.lower().isin(variants)
 
 DEFAULT_PROFILE = {
     "coach": "Staff Analitik",
@@ -137,8 +144,8 @@ def _shot_metrics(team: str, shots_df: pd.DataFrame | None) -> dict:
     if shots_df is None or shots_df.empty:
         return empty
 
-    team_shots = shots_df[shots_df["team_name"].str.lower() == team.lower()]
-    opp_shots = shots_df[shots_df["opponent"].str.lower() == team.lower()]
+    team_shots = shots_df[_team_mask(shots_df, "team_name", team)]
+    opp_shots = shots_df[_team_mask(shots_df, "opponent", team)]
 
     def _summarize(df):
         if df.empty:
@@ -174,8 +181,8 @@ def _ppda_estimate(team: str, shots_df: pd.DataFrame | None, profile: dict) -> f
     base = {"high_press": 8.5, "gegenpress": 9.2, "possession": 11.0, "transition": 12.5, "vertical": 12.0, "balanced": 11.5, "defensive_block": 14.5}
     val = base.get(profile.get("style", "balanced"), 11.5)
     if shots_df is not None and not shots_df.empty:
-        team_shots = shots_df[shots_df["team_name"].str.lower() == team.lower()]
-        opp_shots = shots_df[shots_df["opponent"].str.lower() == team.lower()]
+        team_shots = shots_df[_team_mask(shots_df, "team_name", team)]
+        opp_shots = shots_df[_team_mask(shots_df, "opponent", team)]
         if len(team_shots) > 0 and len(opp_shots) > 0:
             ratio = len(opp_shots) / len(team_shots)
             val = val * 0.5 + (ratio * 12) * 0.5
@@ -183,8 +190,9 @@ def _ppda_estimate(team: str, shots_df: pd.DataFrame | None, profile: dict) -> f
 
 
 def _xg_trend(team: str, historical_df: pd.DataFrame, n: int = 10) -> list:
-    mask = (historical_df["home_team"].str.contains(team, case=False, na=False)) | (
-        historical_df["away_team"].str.contains(team, case=False, na=False)
+    pattern = name_pattern(team)
+    mask = (historical_df["home_team"].str.contains(pattern, case=False, na=False, regex=True)) | (
+        historical_df["away_team"].str.contains(pattern, case=False, na=False, regex=True)
     )
     team_matches = historical_df[mask].sort_values(by="datetime", ascending=False).head(n).iloc[::-1]
     series = []
@@ -204,10 +212,10 @@ def _xg_trend(team: str, historical_df: pd.DataFrame, n: int = 10) -> list:
 def _season_history(team: str) -> list:
     """Riwayat musiman klub 2020 -> sekarang: posisi akhir, poin, statistik per musim."""
     tables = get_season_tables()
-    tl = team.lower()
+    team_k = team_key(team)
     entries = []
     for (lg, season), stat in tables.items():
-        match = next((t for t in stat if t.lower() == tl), None)
+        match = next((t for t in stat if team_key(t) == team_k), None)
         if match is None:
             continue
         row = stat[match]
@@ -277,8 +285,9 @@ def get_club_analytics(team: str) -> dict:
 
     # Posisi liga saat ini
     league_code = None
-    league_mask = (historical_df["home_team"].str.contains(team, case=False, na=False)) | (
-        historical_df["away_team"].str.contains(team, case=False, na=False)
+    pattern = name_pattern(team)
+    league_mask = (historical_df["home_team"].str.contains(pattern, case=False, na=False, regex=True)) | (
+        historical_df["away_team"].str.contains(pattern, case=False, na=False, regex=True)
     )
     if league_mask.any():
         league_code = historical_df.loc[league_mask, "league"].mode().iloc[0]
@@ -305,8 +314,9 @@ def get_club_analytics(team: str) -> dict:
                     pts += 1
             table[t] = pts
         ranked = sorted(table.items(), key=lambda kv: -kv[1])
+        team_k = team_key(team)
         for i, (t, _) in enumerate(ranked):
-            if t.lower() == team.lower():
+            if team_key(t) == team_k:
                 league_position = i + 1
                 break
         league_name = LEAGUE_NAMES.get(league_code, league_code)
@@ -320,14 +330,14 @@ def get_club_analytics(team: str) -> dict:
 
     # Jadwal mendatang + proyeksi
     team_fixtures = fixtures_df[
-        (fixtures_df["home_team"].str.contains(team, case=False, na=False))
-        | (fixtures_df["away_team"].str.contains(team, case=False, na=False))
+        (fixtures_df["home_team"].str.contains(pattern, case=False, na=False, regex=True))
+        | (fixtures_df["away_team"].str.contains(pattern, case=False, na=False, regex=True))
     ].head(6)
 
     upcoming = []
     for _, row in team_fixtures.iterrows():
         h, a = row["home_team"], row["away_team"]
-        is_home = h.lower() == team.lower()
+        is_home = team_key(h) == team_key(team)
         opponent = a if is_home else h
         h_str = get_club_strength(h)
         a_str = get_club_strength(a)

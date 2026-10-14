@@ -13,6 +13,7 @@ LEAGUE_META = {
     "La_liga": {"name": "La Liga", "country": "Spain", "teams_per_league": 20},
     "Serie_A": {"name": "Serie A", "country": "Italy", "teams_per_league": 20},
     "Bundesliga": {"name": "Bundesliga", "country": "Germany", "teams_per_league": 18},
+    "Ligue_1": {"name": "Ligue 1", "country": "France", "teams_per_league": 18},
 }
 
 

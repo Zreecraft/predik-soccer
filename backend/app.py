@@ -220,7 +220,10 @@ def _match_result(home_team: str, away_team: str,
 
 
 def _team_shot_summary(team: str, shots_df: pd.DataFrame) -> dict:
-    team_shots = shots_df[shots_df["team_name"].str.lower() == team.lower()]
+    from team_aliases import alias_variants
+
+    variants = {v.lower() for v in alias_variants(team)}
+    team_shots = shots_df[shots_df["team_name"].astype(str).str.lower().isin(variants)]
     if team_shots.empty:
         return {
             "shots": 0, "goals": 0, "xg": 0.0, "conversion_pct": 0.0,
@@ -695,6 +698,37 @@ def live_match_detail_by_teams(home: str, away: str, league: str | None = None, 
         raise HTTPException(status_code=500, detail=f"Detail laga gagal diambil: {e}")
 
 
+_HIST_TEAMS_CACHE: set | None = None
+_HIST_TEAMS_MTIME = None
+
+
+def _teams_with_history() -> set:
+    """Set kanonik tim yang punya data historis (cache per mtime CSV)."""
+    global _HIST_TEAMS_CACHE, _HIST_TEAMS_MTIME
+    try:
+        mtime = HISTORICAL_MATCHES.stat().st_mtime
+    except OSError:
+        return set()
+    if _HIST_TEAMS_CACHE is None or mtime != _HIST_TEAMS_MTIME:
+        try:
+            names = pd.read_csv(HISTORICAL_MATCHES, usecols=["home_team", "away_team"])
+            _HIST_TEAMS_CACHE = {team_key(t) for t in set(names["home_team"]) | set(names["away_team"])}
+            _HIST_TEAMS_MTIME = mtime
+        except Exception:
+            _HIST_TEAMS_CACHE = set()
+    return _HIST_TEAMS_CACHE
+
+
+def _team_data_source(team: str, stats: dict | None = None) -> str:
+    """Sumber data kekuatan tim: xg+elo -> elo -> manual -> default."""
+    src = get_club_strength(team).get("data_source", "manual")
+    if src == "elo":
+        has_xg = stats.get("games_analyzed") if stats else (team_key(team) in _teams_with_history())
+        if has_xg:
+            return "xg+elo"
+    return src
+
+
 def _compute_projection(home_team: str, away_team: str, matches_df: pd.DataFrame) -> dict:
     """Inti prediksi: power index → blend xG → simulasi 10k → skor proyeksi + probabilitas."""
     home_strength = get_club_strength(home_team)
@@ -705,12 +739,16 @@ def _compute_projection(home_team: str, away_team: str, matches_df: pd.DataFrame
         home_team, matches_df, last_n=20,
         prior_xg=xg_prior_from_rating(home_strength["overall"]),
         prior_ga=ga_prior_from_rating(home_strength["overall"]),
+        overall=home_strength["overall"],
     )
     away_stats = get_team_power_index(
         away_team, matches_df, last_n=20,
         prior_xg=xg_prior_from_rating(away_strength["overall"]),
         prior_ga=ga_prior_from_rating(away_strength["overall"]),
+        overall=away_strength["overall"],
     )
+    home_strength["data_source"] = _team_data_source(home_team, home_stats)
+    away_strength["data_source"] = _team_data_source(away_team, away_stats)
 
     home_bias = get_home_away_bias(home_team, is_home=True, matches_df=matches_df)
     away_bias = get_home_away_bias(away_team, is_home=False, matches_df=matches_df)
@@ -820,6 +858,7 @@ def predict_match(home_team: str, away_team: str):
             "coach": home_profile.get("coach"),
             "formation": home_profile.get("formation"),
             "strength": home_strength,
+            "data_source": home_strength.get("data_source", "default"),
         },
         "away_team": {
             "name": away_team,
@@ -829,6 +868,7 @@ def predict_match(home_team: str, away_team: str):
             "coach": away_profile.get("coach"),
             "formation": away_profile.get("formation"),
             "strength": away_strength,
+            "data_source": away_strength.get("data_source", "default"),
         },
         "strength_gap": {
             "value": abs(strength_gap),
@@ -943,10 +983,11 @@ def _zone_label(pos: int, total: int) -> str:
 
 
 def _enrich_ucl(result: dict) -> dict:
-    """Lengkapi hasil simulasi UCL dengan logo & star player."""
+    """Lengkapi hasil simulasi UCL dengan logo, star player & data_source."""
     for item in result["league_phase"]:
         item["logo"] = get_team_logo(item["team"])
         item["star_player"] = get_key_player(item["team"])
+        item["data_source"] = _team_data_source(item["team"])
 
     for stage in ("playoffs", "round_of_16", "quarter_finals", "semi_finals"):
         for m in result["knockout_stage"][stage]:
@@ -954,16 +995,21 @@ def _enrich_ucl(result: dict) -> dict:
             m["logo_away"] = get_team_logo(m["team_away"])
             m["star_player_home"] = get_key_player(m["team_home"])
             m["star_player_away"] = get_key_player(m["team_away"])
+            m["data_source_home"] = _team_data_source(m["team_home"])
+            m["data_source_away"] = _team_data_source(m["team_away"])
 
     final_m = result["knockout_stage"]["final"]
     final_m["logo_home"] = get_team_logo(final_m["team_home"])
     final_m["logo_away"] = get_team_logo(final_m["team_away"])
     final_m["star_player_home"] = get_key_player(final_m["team_home"])
     final_m["star_player_away"] = get_key_player(final_m["team_away"])
+    final_m["data_source_home"] = _team_data_source(final_m["team_home"])
+    final_m["data_source_away"] = _team_data_source(final_m["team_away"])
 
     champion = result["champion"]
     champion["logo"] = get_team_logo(champion["team"])
     champion["star_player"] = get_key_player(champion["team"])
+    champion["data_source"] = _team_data_source(champion["team"])
     return result
 
 

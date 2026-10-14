@@ -12,6 +12,20 @@ TEAM_LOGOS = DATA_DIR / "team_logos.json"
 KEY_PLAYERS = DATA_DIR / "key_players.json"
 CLUB_PROFILES = DATA_DIR / "club_profiles.json"
 XG_MODEL = DATA_DIR / "xg_model.pkl"
+# Elo Club (ClubElo) — dipakai Fase Elo Prior (bisa dimatikan lewat USE_ELO_PRIOR)
+CLUB_ELO = DATA_DIR / "club_elo.csv"
+CLUB_ELO_META = DATA_DIR / "club_elo_meta.json"
+ELO_NAME_MAP = DATA_DIR / "elo_name_map.json"
+
+# ==== Konfigurasi Elo Prior (Fase C) — satu saklar: False = perilaku lama persis ====
+USE_ELO_PRIOR = True
+ELO_BLEND_ELO = 0.65       # bobot overall dari Elo
+ELO_BLEND_RATING = 0.15    # bobot rating manual
+ELO_BLEND_COACH = 0.20     # bobot coach_rating manual
+ELO_NEUTRAL_ELO = 1700.0   # Elo "netral"
+ELO_NEUTRAL_OVERALL = 65.0  # overall di Elo netral
+ELO_SCALE = 0.08           # poin overall per poin Elo
+ELO_OVERALL_CLIP = (40.0, 95.0)
 
 
 def calendar_season() -> int:
