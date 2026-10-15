@@ -17,6 +17,9 @@ const matchId = computed(() => String(route.query.id || ''))
 const home = computed(() => String(route.query.home || ''))
 const away = computed(() => String(route.query.away || ''))
 const league = computed(() => String(route.query.league || ''))
+// Tanggal laga (opsional) — memperluas resolusi ESPN ke laga kapan pun,
+// bukan hanya jendela livescore 7 hari terakhir.
+const matchDate = computed(() => String(route.query.date || ''))
 
 async function load(force = false) {
   if (!matchId.value && !(home.value && away.value)) {
@@ -26,12 +29,17 @@ async function load(force = false) {
   }
   loading.value = true
   try {
-    const teams = { home: home.value, away: away.value, league: league.value }
+    const teams = {
+      home: home.value,
+      away: away.value,
+      league: league.value,
+      date: matchDate.value,
+    }
     detail.value = matchId.value
       ? await fetchMatchDetail(matchId.value, force, teams)
-      : await fetchMatchDetailByTeams(home.value, away.value, league.value, force)
+      : await fetchMatchDetailByTeams(home.value, away.value, league.value, force, matchDate.value || null)
     if (!detail.value?.available && detail.value?.reason === 'not_found' && home.value && away.value) {
-      detail.value = await fetchMatchDetailByTeams(home.value, away.value, league.value, force)
+      detail.value = await fetchMatchDetailByTeams(home.value, away.value, league.value, force, matchDate.value || null)
     }
   } catch {
     detail.value = { available: false, reason: 'fetch_error' }
@@ -224,7 +232,8 @@ onBeforeUnmount(() => clearInterval(timer))
             Laga ini berasal dari mode simulasi — halaman ini hanya menampilkan data pertandingan asli.
           </template>
           <template v-else-if="detail?.reason === 'not_found'">
-            Laga tidak ditemukan di sumber data (ESPN). Coba laga lain yang lebih baru (maks. 7 hari terakhir).
+            Laga tidak ditemukan di arsip ESPN — bisa jadi di luar cakupan sumber
+            data, atau nama tim/tanggalnya berbeda. Coba laga lain.
           </template>
           <template v-else>
             Gagal memuat data dari sumber. Coba segarkan beberapa saat lagi.

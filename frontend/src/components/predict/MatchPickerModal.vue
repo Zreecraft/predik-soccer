@@ -64,7 +64,7 @@ async function loadModelStats() {
 }
 
 function pick(item) {
-  emit('select', { league: item.league, home: item.home, away: item.away })
+  emit('select', { league: item.league, home: item.home, away: item.away, date: item.date })
   emit('close')
 }
 

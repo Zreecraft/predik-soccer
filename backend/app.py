@@ -918,26 +918,37 @@ def live_match_detail(
     home: str | None = None,
     away: str | None = None,
     league: str | None = None,
+    date: str | None = None,
     refresh: bool = False,
 ):
     """Detail laga: timeline gol/kartu, offside, line-up, statistik tim.
 
     Jika id tidak ada di daftar livescore (laga lama), backend resolve id ESPN
-    dari query home/away bila diberikan. Laga mock → available=false.
+    dari query home/away — `date` (YYYY-MM-DD) mempercepat & memperluas resolusi
+    ke laga kapan pun. Laga mock → available=false.
     """
     try:
         return match_detail.get_match_detail(
-            match_id, home=home, away=away, league=league, force=refresh
+            match_id, home=home, away=away, league=league, date=date, force=refresh
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Detail laga gagal diambil: {e}")
 
 
 @app.get("/api/live/match/detail")
-def live_match_detail_by_teams(home: str, away: str, league: str | None = None, refresh: bool = False):
-    """Detail laga berdasar nama tim — resolve id ESPN otomatis (scan 7 hari)."""
+def live_match_detail_by_teams(
+    home: str, away: str, league: str | None = None,
+    date: str | None = None, refresh: bool = False,
+):
+    """Detail laga berdasar nama tim — resolve id ESPN otomatis.
+
+    Tanpa `date`: scan 8 hari terakhir lalu fallback historis (historical_matches.csv)
+    agar laga SELESAI kapan pun tetap bisa dibuka selama ESPN masih punya arsipnya.
+    """
     try:
-        return match_detail.get_match_detail(home=home, away=away, league=league, force=refresh)
+        return match_detail.get_match_detail(
+            home=home, away=away, league=league, date=date, force=refresh
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Detail laga gagal diambil: {e}")
 

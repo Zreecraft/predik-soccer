@@ -59,6 +59,22 @@ const selectedMatch = computed(() => {
   return exact.find((m) => m.live) || exact.find((m) => m.status === 'FINISHED') || null
 })
 
+// Tanggal laga utk Match Centre — resolusi ESPN lintas jendela waktu (laga
+// kapan pun). Prioritas: query URL (awet saat reload) → kickoff livescore →
+// pilihan Match Picker → fixture.
+const pickedDate = ref(String(route.query.date || ''))
+const matchCentreDate = computed(() => {
+  const k = selectedMatch.value?.kickoff
+  if (k) return String(k).slice(0, 10)
+  if (pickedDate.value) return String(pickedDate.value).slice(0, 10)
+  const h = (homeTeam.value || '').toLowerCase()
+  const a = (awayTeam.value || '').toLowerCase()
+  const f = fixtures.value.find(
+    (x) => x.home_team?.toLowerCase() === h && x.away_team?.toLowerCase() === a
+  )
+  return f?.date ? String(f.date).slice(0, 10) : ''
+})
+
 // Link menuju halaman Match Centre (data asli, terpisah dari prediksi)
 const matchCentreLink = computed(() => ({
   path: '/match',
@@ -67,6 +83,7 @@ const matchCentreLink = computed(() => ({
     home: homeTeam.value,
     away: awayTeam.value,
     league: league.value,
+    ...(matchCentreDate.value ? { date: matchCentreDate.value } : {}),
   },
 }))
 
@@ -121,6 +138,7 @@ async function pickNearestKickoff() {
       league.value = next.league || league.value
       if (!homeTeam.value) homeTeam.value = next.home
       if (!awayTeam.value) awayTeam.value = next.away
+      pickedDate.value = String(next.date || '')
       await loadFixtures() // muat ulang fixtures liga terpilih (lookup kickoff)
       return true
     }
@@ -137,6 +155,8 @@ async function runPredict() {
       league: league.value,
       home: homeTeam.value,
       away: awayTeam.value,
+      // date dipertahankan agar link Match Centre tetap presisi setelah reload
+      ...(matchCentreDate.value ? { date: matchCentreDate.value } : {}),
     },
   })
   shotsLoading.value = true
@@ -154,6 +174,7 @@ const showPicker = ref(false)
 
 async function onPickMatch(sel) {
   showPicker.value = false
+  pickedDate.value = sel.date || ''
   if (sel.league && sel.league !== league.value) {
     league.value = sel.league
     await loadFixtures()

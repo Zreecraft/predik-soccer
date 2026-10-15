@@ -47,12 +47,19 @@ export const fetchMatchDetail = (matchId, refresh = false, teams = null) =>
         ...(teams?.home ? { home: teams.home } : {}),
         ...(teams?.away ? { away: teams.away } : {}),
         ...(teams?.league ? { league: teams.league } : {}),
+        ...(teams?.date ? { date: teams.date } : {}),
       },
     })
     .then((r) => r.data)
-export const fetchMatchDetailByTeams = (home, away, league, refresh = false) =>
+export const fetchMatchDetailByTeams = (home, away, league, refresh = false, date = null) =>
   api
     .get('/live/match/detail', {
-      params: { home, away, ...(league ? { league } : {}), ...(refresh ? { refresh: true } : {}) },
+      params: {
+        home,
+        away,
+        ...(league ? { league } : {}),
+        ...(refresh ? { refresh: true } : {}),
+        ...(date ? { date } : {}),
+      },
     })
     .then((r) => r.data)

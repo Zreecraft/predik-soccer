@@ -29,6 +29,7 @@ function openFullPage() {
       home: m.home,
       away: m.away,
       ...(m.league ? { league: m.league } : {}),
+      ...(m.kickoff ? { date: String(m.kickoff).slice(0, 10) } : {}),
     },
   })
 }

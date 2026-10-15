@@ -9,12 +9,14 @@ Cache server-side TTL 60 detik per laga.
 """
 from __future__ import annotations
 
+import csv
 import re
 import time
 from datetime import datetime, timedelta, timezone
 
 import requests
 
+from data_paths import HISTORICAL_MATCHES
 from livescore import API_BASE, API_KEY, ESPN_UID_TO_LEAGUE, get_live_matches
 from team_aliases import canonical_team, team_key
 
@@ -506,16 +508,48 @@ def _scan_events_day(day: str) -> list[dict]:
     return out
 
 
-def _resolve_by_name(home: str, away: str, league: str | None = None) -> dict | None:
-    """Cari id laga ESPN dari pasangan nama tim (scan 8 hari terakhir, terbaru dulu)."""
-    pair = f"{team_key(home)}|{team_key(away)}|{league or ''}"
-    hit = _RESOLVED.get(pair)
-    if hit and time.time() - hit[0] < _RESOLVED_TTL:
-        return hit[1]
+_HIST_MAX_DATES = 3  # tanggal pertemuan terbaru (per pasangan) yang dicoba saat fallback
+_HIST_INDEX: dict[tuple[str, str], list[str]] = {}
+_HIST_MTIME: float | None = None
 
-    now = datetime.now(timezone.utc)
-    for offset in range(0, -SCAN_DAYS, -1):
-        day = (now + timedelta(days=offset)).strftime("%Y%m%d")
+
+def _historical_dates(home: str, away: str) -> list[str]:
+    """Tanggal (YYYY-MM-DD, terbaru dulu) semua pertemuan home vs away di CSV historis.
+
+    Fallback resolusi: laga SELESAI kapan pun (di luar jendela livescore) tetap
+    bisa dibuka Match Centre-nya selama ESPN masih menyimpan arsip scoreboard
+    untuk tanggal tersebut. Cache per mtime CSV (11rb baris, diindeks dua arah).
+    """
+    global _HIST_MTIME
+    try:
+        mtime = HISTORICAL_MATCHES.stat().st_mtime
+    except OSError:
+        return []
+    if _HIST_MTIME != mtime:
+        idx: dict[tuple[str, str], list[str]] = {}
+        try:
+            with open(HISTORICAL_MATCHES, newline="", encoding="utf-8") as fh:
+                for row in csv.DictReader(fh):
+                    day = str(row.get("datetime") or "")[:10]
+                    if len(day) != 10:
+                        continue
+                    h, a = team_key(row.get("home_team") or ""), team_key(row.get("away_team") or "")
+                    if not h or not a:
+                        continue
+                    idx.setdefault((h, a), []).append(day)
+                    idx.setdefault((a, h), []).append(day)  # kandang/tandang bisa dibalik
+        except OSError:
+            return []
+        _HIST_INDEX.clear()
+        _HIST_INDEX.update(idx)
+        _HIST_MTIME = mtime
+    days = set(_HIST_INDEX.get((team_key(home), team_key(away)), ()))
+    return sorted(days, reverse=True)[:_HIST_MAX_DATES]
+
+
+def _scan_targets(days: list[str], home: str, away: str, league: str | None) -> dict | None:
+    """Cocokkan pasangan nama tim di scoreboard ESPN untuk daftar tanggal (YYYYMMDD)."""
+    for day in days:
         try:
             events = _scan_events_day(day)
         except Exception:
@@ -524,23 +558,65 @@ def _resolve_by_name(home: str, away: str, league: str | None = None) -> dict | 
             if league and ev["league"] != league:
                 continue
             if _same_team(ev["home"], home) and _same_team(ev["away"], away):
-                _RESOLVED[pair] = (time.time(), ev)
                 return ev
         # urutan terbalik (kandang/tandang dijadwalkan berbeda) → balikkan label
         for ev in events:
             if league and ev["league"] != league:
                 continue
             if _same_team(ev["home"], away) and _same_team(ev["away"], home):
-                swapped = {
+                return {
                     **ev,
                     "swapped": True,
                     "home": away, "away": home,
                     "home_short": ev.get("away_short"), "away_short": ev.get("home_short"),
                     "crest_home": ev.get("crest_away"), "crest_away": ev.get("crest_home"),
                 }
-                _RESOLVED[pair] = (time.time(), swapped)
-                return swapped
     return None
+
+
+def _resolve_by_name(home: str, away: str, league: str | None = None,
+                     date: str | None = None) -> dict | None:
+    """Cari id laga ESPN dari pasangan nama tim.
+
+    Urutan scan:
+      1. tanggal laga bila `date` diberikan (±1 hari — batas zona waktu);
+      2. jendela 8 hari terakhir bila `date` kosong atau masih dekat hari ini;
+      3. fallback historis: tanggal pertemuan dari historical_matches.csv —
+         laga SELESAI kapan pun bisa di-resolve selama ESPN masih punya arsipnya.
+    """
+    day0 = str(date or "")[:10]
+    pair = f"{team_key(home)}|{team_key(away)}|{league or ''}|{day0}"
+    hit = _RESOLVED.get(pair)
+    if hit and time.time() - hit[0] < _RESOLVED_TTL:
+        return hit[1]
+
+    now = datetime.now(timezone.utc)
+    d0 = None
+    targets: list[str] = []
+    if day0:
+        try:
+            # tz=UTC agar aman dibandingkan dgn `now` (aware) saat cek jendela
+            d0 = datetime.strptime(day0, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            targets = [(d0 + timedelta(days=o)).strftime("%Y%m%d") for o in (0, -1, 1)]
+        except ValueError:
+            d0 = None
+    # jendela "segar": tanpa date, atau date masih dekat hari ini (laga bisa
+    # ditunda / tanggal input beda zona) — utk laga lama tidak usah (boros).
+    if d0 is None or (now - d0).days < SCAN_DAYS:
+        for offset in range(0, -SCAN_DAYS, -1):
+            day = (now + timedelta(days=offset)).strftime("%Y%m%d")
+            if day not in targets:
+                targets.append(day)
+
+    found = _scan_targets(targets, home, away, league)
+    if found is None:
+        # datetime CSV = UTC sama dengan ESPN → scan tanggal persis (max 3 terbaru)
+        extra = [d.replace("-", "") for d in _historical_dates(home, away)
+                 if d.replace("-", "") not in targets]
+        found = _scan_targets(extra, home, away, league)
+    if found is not None:
+        _RESOLVED[pair] = (time.time(), found)
+    return found
 
 
 # ==========================================
@@ -548,14 +624,17 @@ def _resolve_by_name(home: str, away: str, league: str | None = None) -> dict | 
 # ==========================================
 
 def get_match_detail(match_id=None, home: str | None = None, away: str | None = None,
-                     league: str | None = None, force: bool = False) -> dict:
+                     league: str | None = None, date: str | None = None,
+                     force: bool = False) -> dict:
     """Detail laga (timeline + statistik + line-up).
 
     Lookup:
       1. id laga di cache livescore (H-2..H)
-      2. fallback: resolve id ESPN dari nama tim (scan scoreboard 7 hari terakhir)
+      2. fallback: resolve id ESPN dari nama tim — tanggal `date` bila diberikan,
+         jendela 8 hari, lalu fallback historis (laga selesai kapan pun).
     """
-    key = str(match_id) if match_id else f"pair:{team_key(home or '')}|{team_key(away or '')}"
+    day0 = str(date or "")[:10]
+    key = str(match_id) if match_id else f"pair:{team_key(home or '')}|{team_key(away or '')}|{day0}"
     now = time.time()
     if not force and key in _CACHE and now - _CACHE[key][0] < CACHE_TTL:
         return _CACHE[key][1]
@@ -564,7 +643,7 @@ def get_match_detail(match_id=None, home: str | None = None, away: str | None = 
     if match_id:
         match, live_source = _find_match(match_id)
     if match is None and home and away:
-        resolved = _resolve_by_name(home, away, league)
+        resolved = _resolve_by_name(home, away, league, date=day0 or None)
         if resolved:
             match, live_source = resolved, "espn"
             match_id = resolved["id"]
