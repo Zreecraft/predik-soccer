@@ -137,11 +137,15 @@ ESPN_LEAGUES = {
 }
 
 # id liga di uid ESPN (s:40~l:XXX~e:...) -> kode liga kita
+# 710 = Ligue_1 (dari scoreboard ESPN: "s:600~l:710~e:...") — tanpa entri ini semua
+# laga Ligue 1 DIBUANG di _fetch_espn & match_detail._scan_events_day → Match Centre
+# tak bisa membuka laga Ligue 1 (reason=not_found).
 ESPN_UID_TO_LEAGUE = {
     "700": "EPL",
     "740": "La_liga",
     "730": "Serie_A",
     "720": "Bundesliga",
+    "710": "Ligue_1",
     "775": "UCL",
 }
 

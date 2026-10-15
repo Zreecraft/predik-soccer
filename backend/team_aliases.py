@@ -100,6 +100,8 @@ _TEAM_ALIASES_BUILTIN = {
     "Hull City": "Hull",
     "Mainz": "Mainz 05",
     "Deportivo": "Deportivo La Coruna",
+    # nama panjang dari ESPN (sinonim penuh — toleransi prefix tak menolong)
+    "Stade Rennais": "Rennes",
 }
 
 

@@ -26,6 +26,7 @@ LEAGUE_TO_ESPN_PATH = {
     "La_liga": "esp.1",
     "Serie_A": "ita.1",
     "Bundesliga": "ger.1",
+    "Ligue_1": "fra.1",  # tanpa ini summary laga Ligue 1 dibuang ("tidak didukung")
     "UCL": "uefa.champions",
 }
 
