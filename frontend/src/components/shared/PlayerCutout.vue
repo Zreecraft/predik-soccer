@@ -10,7 +10,18 @@ const props = defineProps({
 })
 
 const failed = ref(false)
-const src = playerImageSrc(props.image)
+const src = ref(playerImageSrc(props.image))
+let pngTried = false
+
+function onImgError() {
+  // WebP tak bisa dimuat (file absen/browser lama) -> coba PNG asli sekali, baru placeholder.
+  if (!pngTried && props.image && !props.image.startsWith('http')) {
+    pngTried = true
+    src.value = `${import.meta.env.BASE_URL}assets/players/${props.image.split('/').pop()}`
+    return
+  }
+  failed.value = true
+}
 
 const sizeClass = {
   sm: 'h-16 w-16',
@@ -53,7 +64,7 @@ const sizeClass = {
             contrast(1.06);
         "
         loading="lazy"
-        @error="failed = true"
+        @error="onImgError"
       />
     </template>
     <div

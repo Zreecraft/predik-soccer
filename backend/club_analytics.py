@@ -267,13 +267,33 @@ def _trend(history: list) -> dict:
             "in_progress": cur["in_progress"]}
 
 
+_FRAMES_CACHE: dict | None = None
+_FRAMES_MTIME = None
+
+
+def _load_frames() -> tuple:
+    """historical + fixtures + shots dengan cache mtime (3 file dibaca ulang tiap request)."""
+    global _FRAMES_CACHE, _FRAMES_MTIME
+    mtimes = []
+    for p in (HISTORICAL_MATCHES, UPCOMING_FIXTURES, REAL_SHOTS_DATA):
+        try:
+            mtimes.append(p.stat().st_mtime)
+        except OSError:
+            mtimes.append(None)
+    if _FRAMES_CACHE is None or tuple(mtimes) != _FRAMES_MTIME:
+        historical_df = pd.read_csv(HISTORICAL_MATCHES)
+        fixtures_df = pd.read_csv(UPCOMING_FIXTURES)
+        try:
+            shots_df = pd.read_csv(REAL_SHOTS_DATA)
+        except FileNotFoundError:
+            shots_df = None
+        _FRAMES_CACHE = (historical_df, fixtures_df, shots_df)
+        _FRAMES_MTIME = tuple(mtimes)
+    return _FRAMES_CACHE
+
+
 def get_club_analytics(team: str) -> dict:
-    historical_df = pd.read_csv(HISTORICAL_MATCHES)
-    fixtures_df = pd.read_csv(UPCOMING_FIXTURES)
-    try:
-        shots_df = pd.read_csv(REAL_SHOTS_DATA)
-    except FileNotFoundError:
-        shots_df = None
+    historical_df, fixtures_df, shots_df = _load_frames()
 
     profile = _get_profile(team)
     team_strength = get_club_strength(team)

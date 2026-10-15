@@ -1,20 +1,41 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import PredictView from '@/views/PredictView.vue'
-import StandingsView from '@/views/StandingsView.vue'
-import UclView from '@/views/UclView.vue'
-import AnalyticsView from '@/views/AnalyticsView.vue'
-import MatchDetailView from '@/views/MatchDetailView.vue'
-
+// Dynamic import → code-split per rute (bundle utama tak lagi membawa semua view
+// + chart.js; rute yang dibuka hanya mengunduh chunk-nya sendiri).
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', redirect: '/predict' },
-    { path: '/predict', name: 'predict', component: PredictView, meta: { title: 'Prediksi Laga' } },
-    { path: '/match', name: 'match', component: MatchDetailView, meta: { title: 'Detail Laga' } },
-    { path: '/standings', name: 'standings', component: StandingsView, meta: { title: 'Proyeksi Liga' } },
-    { path: '/ucl', name: 'ucl', component: UclView, meta: { title: 'Bagan UCL' } },
-    { path: '/analytics', name: 'analytics', component: AnalyticsView, meta: { title: 'Analitik Klub' } },
+    {
+      path: '/predict',
+      name: 'predict',
+      component: () => import('@/views/PredictView.vue'),
+      meta: { title: 'Prediksi Laga' },
+    },
+    {
+      path: '/match',
+      name: 'match',
+      component: () => import('@/views/MatchDetailView.vue'),
+      meta: { title: 'Detail Laga' },
+    },
+    {
+      path: '/standings',
+      name: 'standings',
+      component: () => import('@/views/StandingsView.vue'),
+      meta: { title: 'Proyeksi Liga' },
+    },
+    {
+      path: '/ucl',
+      name: 'ucl',
+      component: () => import('@/views/UclView.vue'),
+      meta: { title: 'Bagan UCL' },
+    },
+    {
+      path: '/analytics',
+      name: 'analytics',
+      component: () => import('@/views/AnalyticsView.vue'),
+      meta: { title: 'Analitik Klub' },
+    },
   ],
 })
 

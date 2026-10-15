@@ -1,8 +1,10 @@
+import functools
 import json
 import re
 import threading
 import time
 import unicodedata
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
@@ -390,12 +392,83 @@ def get_ticker(limit: int = 16):
 
 SCHEDULE_WINDOW_MIN = 130  # 90' + HT + injury time
 
+_DT_FMTS = ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%dT%H:%M:%S")
 
+
+def _wib_dt(val):
+    """Parse date string laga → datetime naive (UTC+7) utk cek "hari ini".
+
+    Strptime dgn format umum (~µs) menggantikan pd.to_datetime yang menebak format
+    (per baris ≈ 8 ms — total ~85% waktu get_schedule). Format tak dikenal →
+    fallback pd.to_datetime (jarang; hasil identik). None/NaT → None.
+    """
+    if val is None:
+        return None
+    if isinstance(val, str):
+        for fmt in _DT_FMTS:
+            try:
+                return datetime.strptime(val, fmt) + timedelta(hours=7)
+            except ValueError:
+                continue
+    try:
+        d = pd.to_datetime(val, errors="coerce", utc=True)
+    except Exception:
+        return None
+    if pd.isna(d):
+        return None
+    return (d + pd.Timedelta(hours=7)).to_pydatetime()
+
+
+@functools.lru_cache(maxsize=4096)
 def _fuzzy_key(name) -> str:
-    """Kunci normalisasi nama tim untuk join antar sumber data (buang aksen)."""
+    """Kunci normalisasi nama tim untuk join antar sumber data (buang aksen).
+
+    Memoized: fungsi murni, dipanggil ribuan kali per request (nama tim berulang).
+    """
     s = unicodedata.normalize("NFD", str(name or ""))
     s = "".join(c for c in s if not unicodedata.combining(c))
     return re.sub(r"[^a-z0-9]", "", team_key(s).lower())
+
+
+_ACTUAL_HIST_CACHE: dict | None = None
+_ACTUAL_HIST_MTIME = None
+
+
+def _historical_actual_scores() -> dict:
+    """Skor asli dari historical_matches.csv, di-cache per mtime file.
+
+    File ~11.007 baris; tanpa cache + to_datetime per baris, fungsi ini memakan
+    ~20 detik PER REQUEST (biang lambatnya /api/schedule).
+    """
+    global _ACTUAL_HIST_CACHE, _ACTUAL_HIST_MTIME
+    try:
+        mtime = HISTORICAL_MATCHES.stat().st_mtime
+    except OSError:
+        mtime = None
+    if _ACTUAL_HIST_CACHE is not None and mtime == _ACTUAL_HIST_MTIME:
+        return _ACTUAL_HIST_CACHE
+
+    out: dict = {}
+    try:
+        hist = pd.read_csv(HISTORICAL_MATCHES)
+        hg = pd.to_numeric(hist["home_goals"], errors="coerce")
+        ag = pd.to_numeric(hist["away_goals"], errors="coerce")
+        # Vektorisasi: SATU panggilan to_datetime utk seluruh kolom (~7 ms),
+        # bukan per baris (~4 dtk) — anti-pattern pandas paling mahal di endpoint ini.
+        dts = pd.to_datetime(hist["datetime"], errors="coerce", utc=True)
+        keep = hg.notna() & ag.notna() & dts.notna()
+        for h, a, ts, g_h, g_a in zip(hist.loc[keep, "home_team"],
+                                      hist.loc[keep, "away_team"],
+                                      dts[keep], hg[keep], ag[keep]):
+            out.setdefault((_fuzzy_key(h), _fuzzy_key(a)), []).append(
+                (ts, int(g_h), int(g_a), "understat"))
+    except Exception:
+        pass
+    for v in out.values():
+        v.sort(key=lambda e: (pd.isna(e[0]), e[0]))
+    _ACTUAL_HIST_CACHE = out
+    _ACTUAL_HIST_MTIME = mtime
+    return out
 
 
 def _schedule_actual_scores() -> dict:
@@ -403,35 +476,56 @@ def _schedule_actual_scores() -> dict:
 
     Dipakai _resolve_schedule_actual() yang memilih entri paling dekat dengan
     kickoff laga — penting karena satu pasangan bisa main banyak kali lintas musim.
+
+    Bagian historical dari cache mtime; entri live di-merge per request
+    (list milik cache TIDAK pernah dimutasi → selalu di-salin dulu).
     """
-    out: dict = {}
-
-    def _push(pair, dt, hg, ag, src):
-        try:
-            ts = pd.to_datetime(dt, errors="coerce", utc=True)
-        except Exception:
-            ts = pd.NaT
-        out.setdefault(pair, []).append((ts, int(hg), int(ag), src))
-
-    try:
-        hist = pd.read_csv(HISTORICAL_MATCHES)
-        for r in hist.itertuples():
-            _push((_fuzzy_key(r.home_team), _fuzzy_key(r.away_team)),
-                  r.datetime, r.home_goals, r.away_goals, "understat")
-    except (FileNotFoundError, Exception):
-        pass
+    out: dict = dict(_historical_actual_scores())
     try:
         live = livescore.get_live_matches()
         if live.get("source") in ("espn", "api"):
             for m in live.get("matches", []):
                 if m.get("status") == "FINISHED" and m.get("home_score") is not None:
-                    _push((_fuzzy_key(m.get("home")), _fuzzy_key(m.get("away"))),
-                          m.get("kickoff"), m["home_score"], m["away_score"], live["source"])
+                    pair = (_fuzzy_key(m.get("home")), _fuzzy_key(m.get("away")))
+                    try:
+                        ts = pd.to_datetime(m.get("kickoff"), errors="coerce", utc=True)
+                    except Exception:
+                        ts = pd.NaT
+                    try:
+                        entry = (ts, int(m["home_score"]), int(m["away_score"]),
+                                 live["source"])
+                    except (TypeError, ValueError):
+                        continue
+                    cached = out.get(pair)
+                    if cached is None:
+                        out[pair] = [entry]
+                    else:
+                        merged = list(cached) + [entry]
+                        merged.sort(key=lambda e: (pd.isna(e[0]), e[0]))
+                        out[pair] = merged
     except Exception:
         pass
-    for v in out.values():
-        v.sort(key=lambda e: (pd.isna(e[0]), e[0]))
     return out
+
+
+def _as_utc_ts(val) -> pd.Timestamp:
+    """Ke Timestamp UTC tanpa menebak format (strptime utk format umum ~µs).
+
+    pd.to_datetime dgn format-guessing per string ≈ 0,8 ms — dipanggil per laga
+    di dua resolver bawah. String dianggap UTC (sama dgn pd.to_datetime utc=True).
+    """
+    if isinstance(val, pd.Timestamp):
+        return val if val.tz is not None else val.tz_localize("UTC")
+    if isinstance(val, str):
+        for fmt in _DT_FMTS:
+            try:
+                return pd.Timestamp(datetime.strptime(val, fmt)).tz_localize("UTC")
+            except ValueError:
+                continue
+    try:
+        return pd.to_datetime(val, errors="coerce", utc=True)
+    except Exception:
+        return pd.NaT
 
 
 def _resolve_schedule_actual(actual_map: dict, pair, kickoff_dt, tol_hours: float = 96.0):
@@ -452,7 +546,7 @@ def _resolve_schedule_actual(actual_map: dict, pair, kickoff_dt, tol_hours: floa
 
     if kickoff_dt is None or pd.isna(kickoff_dt):
         return _fallback()
-    kd = pd.to_datetime(kickoff_dt, errors="coerce", utc=True)
+    kd = _as_utc_ts(kickoff_dt)
     if pd.isna(kd):
         return _fallback()
 
@@ -487,13 +581,13 @@ def _schedule_predictions() -> dict:
             "FROM prediction_logs ORDER BY id"
         ).fetchall()
         conn.close()
-        for r in rows:
+        # Vektorisasi: SATU panggilan to_datetime utk seluruh kolom timestamp
+        # (per baris = ~2,6 dtk utk ribuan log — format guessing ulang tiap baris).
+        ts_raw = pd.Series([r["timestamp"] for r in rows], dtype="object")
+        ts_list = pd.to_datetime(ts_raw, errors="coerce", utc=True) if len(rows) else []
+        for r, ts in zip(rows, ts_list):
             d = dict(r)
-            ts_raw = d.pop("timestamp", None)
-            try:
-                ts = pd.to_datetime(ts_raw, errors="coerce", utc=True)
-            except Exception:
-                ts = pd.NaT
+            d.pop("timestamp", None)
             out.setdefault((_fuzzy_key(r["home_team"]), _fuzzy_key(r["away_team"])), []) \
                 .append((ts, d))
     except Exception:
@@ -515,7 +609,7 @@ def _resolve_schedule_prediction(pred_map: dict, pair, kickoff_dt):
 
     if kickoff_dt is None or pd.isna(kickoff_dt):
         return entries[-1][1]
-    kd = pd.to_datetime(kickoff_dt, errors="coerce", utc=True)
+    kd = _as_utc_ts(kickoff_dt)
     if pd.isna(kd):
         return entries[-1][1]
 
@@ -748,22 +842,26 @@ def get_schedule(tab: str = "live", league: str | None = None,
         pass
 
     def _is_today(item) -> bool:
-        d = pd.to_datetime(item["date"], errors="coerce", utc=True)
-        return not pd.isna(d) and (d + pd.Timedelta(hours=7)).date() == now_wib.date()
+        d = _wib_dt(item["date"])
+        return d is not None and d.date() == now_wib.date()
 
-    def _in_tab(item, t) -> bool:
-        st = item["status"]
+    # Flag "hari ini" dihitung SEKALI per item; versi lama memanggil pd.to_datetime
+    # (tebak format datetime) di tiap panggilan _in_tab → ~3.600x/request ≈ 85% waktu.
+    _today_flags = [_is_today(i) for i in items]
+
+    def _in_tab(idx: int, t) -> bool:
+        st = items[idx]["status"]
         if t == "finished":
             return st == "finished"
         if t == "live":
-            return st == "live" or _is_today(item)
-        return st == "upcoming" and not _is_today(item)
+            return st == "live" or _today_flags[idx]
+        return st == "upcoming" and not _today_flags[idx]
 
     counts = {
-        t: sum(1 for i in items if _in_tab(i, t))
+        t: sum(1 for i in range(len(items)) if _in_tab(i, t))
         for t in ("upcoming", "live", "finished")
     }
-    selected = [i for i in items if _in_tab(i, tab)]
+    selected = [items[i] for i in range(len(items)) if _in_tab(i, tab)]
 
     if tab == "finished":
         selected.sort(key=lambda i: str(i["date"]), reverse=True)
@@ -1405,9 +1503,24 @@ def start_backfill_async(evaluate: bool = True) -> bool:
     return True
 
 
+def _warm_schedule():
+    """Isi cache schedule saat startup (historical, ESPN scoreboard, livescore).
+
+    Tanpa ini, request PERTAMA user menanggung cold-hit ~10 dtk (scan ESPN utk
+    laga tanpa skor + fetch livescore). Beri jeda agar tak berebut dgn backfill.
+    """
+    time.sleep(3)
+    for tab in ("live", "finished", "upcoming"):
+        try:
+            get_schedule(tab, limit=80)
+        except Exception:
+            pass
+
+
 @app.on_event("startup")
 def _startup_backfill():
     start_backfill_async()
+    threading.Thread(target=_warm_schedule, daemon=True).start()
     if AUTO_LEARN:
         _start_auto_learn()
 

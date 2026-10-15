@@ -223,8 +223,12 @@ export function abbrTeam(team = '') {
 export function playerImageSrc(image) {
   if (!image) return null
   if (image.startsWith('http')) return image
-  // key_players.json: /assets/players/xxx.png
-  const file = image.split('/').pop()
+  // key_players.json: /assets/players/xxx.png -> pakai varian WebP (jauh lebih
+  // ringan; hasil skrip scripts/optimize_player_images.py). PNG tetap ada sbg cadangan.
+  const file = image
+    .split('/')
+    .pop()
+    .replace(/\.png$/i, '.webp')
   return `${import.meta.env.BASE_URL}assets/players/${file}`
 }
 
